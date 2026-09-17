@@ -1,4 +1,4 @@
-@page "{slug}"
+@page "/Posts/{slug}"
 @model Astrox.Blog.Pages.Posts.ViewModel
 @{
     ViewData["Title"] = Model.Post.Title;
@@ -10,7 +10,7 @@
         <a class="back-link" asp-page="/Index">← 返回列表</a>
         <h1>@Model.Post.Title</h1>
         <div class="article-meta">
-            <time datetime="@((Model.Post.PublishedAt ?? Model.Post.CreatedAt).UtcDateTime.ToString("o"))">
+            <time datetime="@((Model.Post.PublishedAt ?? Model.Post.CreatedAt).ToString("o"))">
                 @((Model.Post.PublishedAt ?? Model.Post.CreatedAt).ToLocalTime().ToString("yyyy-MM-dd HH:mm"))
             </time>
             @if (!Model.Post.IsPublished)

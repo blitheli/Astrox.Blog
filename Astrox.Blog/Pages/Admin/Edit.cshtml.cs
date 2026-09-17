@@ -98,7 +98,7 @@ public class EditModel : PageModel
                 return Page();
             }
 
-            var now = DateTimeOffset.UtcNow;
+            var now = DateTime.UtcNow;
             post = new Post
             {
                 Title = Input.Title.Trim(),
@@ -133,9 +133,9 @@ public class EditModel : PageModel
             post.Tags = NullIfEmpty(Input.Tags);
             post.Markdown = Input.Markdown;
             post.IsPublished = Input.IsPublished;
-            post.UpdatedAt = DateTimeOffset.UtcNow;
+            post.UpdatedAt = DateTime.UtcNow;
             if (Input.IsPublished && !wasPublished)
-                post.PublishedAt = DateTimeOffset.UtcNow;
+                post.PublishedAt = DateTime.UtcNow;
             else if (!Input.IsPublished)
                 post.PublishedAt = null;
         }

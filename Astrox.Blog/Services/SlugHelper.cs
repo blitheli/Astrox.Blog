@@ -9,7 +9,7 @@ public static partial class SlugHelper
     public static string FromTitle(string title)
     {
         if (string.IsNullOrWhiteSpace(title))
-            return $"post-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}";
+            return $"post-{DateTime.UtcNow:yyyyMMddHHmmss}";
 
         var normalized = title.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
         var sb = new StringBuilder(normalized.Length);
@@ -33,7 +33,7 @@ public static partial class SlugHelper
             .Trim('-');
 
         return string.IsNullOrWhiteSpace(slug)
-            ? $"post-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}"
+            ? $"post-{DateTime.UtcNow:yyyyMMddHHmmss}"
             : slug;
     }
 

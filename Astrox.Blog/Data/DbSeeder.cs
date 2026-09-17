@@ -70,7 +70,7 @@ public static class DbSeeder
         if (await db.Posts.AnyAsync(p => p.Slug == SampleSlug))
             return;
 
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var post = new Post
         {
             Title = "欢迎来到 Astrox.Blog",

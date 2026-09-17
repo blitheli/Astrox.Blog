@@ -37,7 +37,7 @@ else
         {
             <li class="post-item">
                 <a class="post-link" asp-page="/Posts/View" asp-route-slug="@post.Slug">
-                    <time datetime="@((post.PublishedAt ?? post.CreatedAt).UtcDateTime.ToString("o"))">
+                    <time datetime="@((post.PublishedAt ?? post.CreatedAt).ToString("o"))">
                         @((post.PublishedAt ?? post.CreatedAt).ToLocalTime().ToString("yyyy-MM-dd"))
                     </time>
                     <h2>@post.Title</h2>

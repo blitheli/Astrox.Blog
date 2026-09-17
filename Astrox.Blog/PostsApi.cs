@@ -66,7 +66,7 @@ public static class PostsApi
         if (await db.Posts.AnyAsync(p => p.Slug == slug))
             return Results.Conflict(new { error = $"slug 已存在：{slug}" });
 
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
         var post = new Post
         {
             Title = request.Title.Trim(),
@@ -107,9 +107,9 @@ public static class PostsApi
         post.Markdown = request.Markdown;
         post.Tags = request.NormalizedTags();
         post.IsPublished = request.Publish;
-        post.UpdatedAt = DateTimeOffset.UtcNow;
+        post.UpdatedAt = DateTime.UtcNow;
         if (request.Publish && !wasPublished)
-            post.PublishedAt = DateTimeOffset.UtcNow;
+            post.PublishedAt = DateTime.UtcNow;
         else if (!request.Publish)
             post.PublishedAt = null;
 

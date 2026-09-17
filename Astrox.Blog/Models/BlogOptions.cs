@@ -11,4 +11,41 @@ public class BlogOptions
     public string AdminPassword { get; set; } = string.Empty;
     /// <summary>Plain API key from config/env. Compared with constant-time equality.</summary>
     public string ApiKey { get; set; } = string.Empty;
+
+    /// <summary>Public site origin, e.g. https://blog.example.com (no trailing slash). Used for canonical / OG / sitemap.</summary>
+    public string PublicBaseUrl { get; set; } = string.Empty;
+
+    /// <summary>Umami tracker script URL, e.g. https://analytics.example.com/script.js</summary>
+    public string UmamiScriptUrl { get; set; } = string.Empty;
+
+    /// <summary>Umami website id (data-website-id).</summary>
+    public string UmamiWebsiteId { get; set; } = string.Empty;
+
+    /// <summary>Optional raw HTML injected into &lt;head&gt; (e.g. extra analytics). Empty = skip.</summary>
+    public string ExtraHeadSnippet { get; set; } = string.Empty;
+
+    public GiscusOptions Giscus { get; set; } = new();
+
+    public bool IsUmamiConfigured =>
+        !string.IsNullOrWhiteSpace(UmamiScriptUrl) && !string.IsNullOrWhiteSpace(UmamiWebsiteId);
+
+    public bool IsExtraHeadConfigured => !string.IsNullOrWhiteSpace(ExtraHeadSnippet);
+}
+
+public class GiscusOptions
+{
+    public string Repo { get; set; } = string.Empty;
+    public string RepoId { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty;
+    public string CategoryId { get; set; } = string.Empty;
+    public string Mapping { get; set; } = "pathname";
+    public string Theme { get; set; } = "noborder_dark";
+    public bool ReactionsEnabled { get; set; } = true;
+    public string Lang { get; set; } = "zh-CN";
+
+    public bool IsConfigured =>
+        !string.IsNullOrWhiteSpace(Repo)
+        && !string.IsNullOrWhiteSpace(RepoId)
+        && !string.IsNullOrWhiteSpace(Category)
+        && !string.IsNullOrWhiteSpace(CategoryId);
 }

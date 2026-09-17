@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = "文章";
     ViewData["Description"] = Model.Blog.Tagline;
+    ViewData["OgType"] = "website";
+    ViewData["CanonicalPath"] = string.IsNullOrWhiteSpace(Model.ActiveTag)
+        ? "/"
+        : $"/?tag={Uri.EscapeDataString(Model.ActiveTag)}";
 }
 
 <section class="hero">

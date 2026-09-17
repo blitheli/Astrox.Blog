@@ -681,6 +681,29 @@ a:hover {
   text-transform: uppercase;
 }
 
+.comments {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+
+.comments-title {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+}
+
+.comments-note {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.comments .giscus,
+.comments iframe {
+  max-width: 100%;
+}
+
 .site-footer {
   border-top: 1px solid var(--line);
   padding: 1.4rem 0 2rem;

@@ -43,7 +43,9 @@ builder.Services.AddAuthentication()
         ApiKeyAuthDefaults.Scheme, _ => { });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<MarkdownService>();
+builder.Services.AddSingleton<SiteUrlService>();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -61,6 +63,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapPostsApi();
+app.MapSeoEndpoints();
 
 await DbSeeder.InitializeAsync(app.Services);
 

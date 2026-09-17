@@ -1,0 +1,38 @@
+@page "{slug}"
+@model Astrox.Blog.Pages.Posts.ViewModel
+@{
+    ViewData["Title"] = Model.Post.Title;
+    ViewData["Description"] = Model.Post.Summary ?? Model.Post.Title;
+}
+
+<article class="article">
+    <header class="article-header">
+        <a class="back-link" asp-page="/Index">← 返回列表</a>
+        <h1>@Model.Post.Title</h1>
+        <div class="article-meta">
+            <time datetime="@((Model.Post.PublishedAt ?? Model.Post.CreatedAt).UtcDateTime.ToString("o"))">
+                @((Model.Post.PublishedAt ?? Model.Post.CreatedAt).ToLocalTime().ToString("yyyy-MM-dd HH:mm"))
+            </time>
+            @if (!Model.Post.IsPublished)
+            {
+                <span class="badge draft">草稿</span>
+            }
+        </div>
+        @if (Model.Post.TagList.Any())
+        {
+            <div class="post-tags">
+                @foreach (var t in Model.Post.TagList)
+                {
+                    <a class="tag sm" asp-page="/Index" asp-route-tag="@t">@t</a>
+                }
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Post.Summary))
+        {
+            <p class="article-summary">@Model.Post.Summary</p>
+        }
+    </header>
+    <div class="markdown-body">
+        @Html.Raw(Model.HtmlContent)
+    </div>
+</article>

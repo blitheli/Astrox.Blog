@@ -1,0 +1,61 @@
+﻿@page
+@model Astrox.Blog.Pages.IndexModel
+@{
+    ViewData["Title"] = "文章";
+    ViewData["Description"] = Model.Blog.Tagline;
+}
+
+<section class="hero">
+    <p class="eyebrow">ORBITAL LOG · ASTROX</p>
+    <h1 class="hero-brand">@Model.Blog.Title</h1>
+    <p class="hero-lead">@Model.Blog.OwnerName —— @Model.Blog.Tagline</p>
+</section>
+
+@if (Model.AllTags.Count > 0)
+{
+    <div class="tag-bar" aria-label="标签筛选">
+        <a class="tag @(Model.ActiveTag is null ? "is-active" : "")" asp-page="/Index">全部</a>
+        @foreach (var t in Model.AllTags)
+        {
+            <a class="tag @(string.Equals(Model.ActiveTag, t, StringComparison.OrdinalIgnoreCase) ? "is-active" : "")"
+               asp-page="/Index" asp-route-tag="@t">@t</a>
+        }
+    </div>
+}
+
+@if (Model.Posts.Count == 0)
+{
+    <div class="empty-state">
+        <h2>暂无已发布文章</h2>
+        <p>所有者登录后可在「管理」中撰写并发布。</p>
+    </div>
+}
+else
+{
+    <ul class="post-list">
+        @foreach (var post in Model.Posts)
+        {
+            <li class="post-item">
+                <a class="post-link" asp-page="/Posts/View" asp-route-slug="@post.Slug">
+                    <time datetime="@((post.PublishedAt ?? post.CreatedAt).UtcDateTime.ToString("o"))">
+                        @((post.PublishedAt ?? post.CreatedAt).ToLocalTime().ToString("yyyy-MM-dd"))
+                    </time>
+                    <h2>@post.Title</h2>
+                    @if (!string.IsNullOrWhiteSpace(post.Summary))
+                    {
+                        <p>@post.Summary</p>
+                    }
+                </a>
+                @if (post.TagList.Any())
+                {
+                    <div class="post-tags">
+                        @foreach (var t in post.TagList)
+                        {
+                            <a class="tag sm" asp-page="/Index" asp-route-tag="@t">@t</a>
+                        }
+                    </div>
+                }
+            </li>
+        }
+    </ul>
+}

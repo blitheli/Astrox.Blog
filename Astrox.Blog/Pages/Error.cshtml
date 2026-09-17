@@ -1,0 +1,14 @@
+﻿@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "出错了";
+}
+
+<section class="empty-state">
+    <h1>系统异常</h1>
+    <p class="muted">请求处理时发生错误。请稍后重试。</p>
+    @if (Model.ShowRequestId)
+    {
+        <p class="slug-hint">Request ID: <code>@Model.RequestId</code></p>
+    }
+</section>

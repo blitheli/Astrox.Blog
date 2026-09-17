@@ -1,0 +1,70 @@
+@page
+@model Astrox.Blog.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "管理";
+}
+
+<section class="admin-header">
+    <div>
+        <h1>文章管理</h1>
+        <p class="muted">创建、编辑草稿与已发布内容。</p>
+    </div>
+    <a class="btn primary" asp-page="/Admin/Edit">新建文章</a>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+{
+    <div class="flash">@Model.StatusMessage</div>
+}
+
+@if (Model.Posts.Count == 0)
+{
+    <div class="empty-state">
+        <h2>还没有文章</h2>
+        <p>点击「新建文章」开始写作，或使用 API 远程发布 Markdown。</p>
+    </div>
+}
+else
+{
+    <div class="admin-table-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>标题</th>
+                    <th>状态</th>
+                    <th>更新</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var post in Model.Posts)
+            {
+                <tr>
+                    <td>
+                        <a asp-page="/Posts/View" asp-route-slug="@post.Slug">@post.Title</a>
+                        <div class="slug-hint">/@post.Slug</div>
+                    </td>
+                    <td>
+                        @if (post.IsPublished)
+                        {
+                            <span class="badge live">已发布</span>
+                        }
+                        else
+                        {
+                            <span class="badge draft">草稿</span>
+                        }
+                    </td>
+                    <td>@post.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    <td class="actions">
+                        <a class="btn ghost sm" asp-page="/Admin/Edit" asp-route-id="@post.Id">编辑</a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@post.Id"
+                              onsubmit="return confirm('确认删除这篇文章？');">
+                            <button type="submit" class="btn danger sm">删除</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

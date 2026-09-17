@@ -1,0 +1,68 @@
+@page "{id:int?}"
+@model Astrox.Blog.Pages.Admin.EditModel
+@{
+    ViewData["Title"] = Model.IsNew ? "新建文章" : "编辑文章";
+}
+
+<section class="admin-header">
+    <div>
+        <h1>@(Model.IsNew ? "新建文章" : "编辑文章")</h1>
+        <p class="muted">支持 Markdown；可预览后再保存。</p>
+    </div>
+    <a class="btn ghost" asp-page="/Admin/Index">返回列表</a>
+</section>
+
+<form method="post" class="editor-layout">
+    <input type="hidden" asp-for="Input.Id" />
+    <div class="form-stack editor-fields">
+        <div asp-validation-summary="ModelOnly" class="form-error"></div>
+        <label>
+            <span>标题</span>
+            <input asp-for="Input.Title" />
+            <span asp-validation-for="Input.Title" class="field-error"></span>
+        </label>
+        <label>
+            <span>Slug（可留空自动生成）</span>
+            <input asp-for="Input.Slug" placeholder="my-post-slug" />
+            <span asp-validation-for="Input.Slug" class="field-error"></span>
+        </label>
+        <label>
+            <span>摘要</span>
+            <textarea asp-for="Input.Summary" rows="2"></textarea>
+        </label>
+        <label>
+            <span>标签（逗号分隔）</span>
+            <input asp-for="Input.Tags" placeholder="航天,技术" />
+        </label>
+        <label class="checkbox">
+            <input asp-for="Input.IsPublished" />
+            <span>立即发布</span>
+        </label>
+        <label>
+            <span>Markdown 正文</span>
+            <textarea asp-for="Input.Markdown" class="md-editor" rows="18"></textarea>
+            <span asp-validation-for="Input.Markdown" class="field-error"></span>
+        </label>
+        <div class="btn-row">
+            <button type="submit" class="btn primary">保存</button>
+            <button type="submit" formaction="?handler=Preview" class="btn ghost">预览</button>
+        </div>
+    </div>
+    <aside class="preview-pane">
+        <h2>预览</h2>
+        <div class="markdown-body">
+            @if (string.IsNullOrWhiteSpace(Model.PreviewHtml))
+            {
+                <p class="muted">点击「预览」查看渲染结果。</p>
+            }
+            else
+            {
+                @Html.Raw(Model.PreviewHtml)
+            }
+        </div>
+    </aside>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

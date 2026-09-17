@@ -1,0 +1,66 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject Microsoft.Extensions.Options.IOptions<Astrox.Blog.Models.BlogOptions> BlogOptions
+@{
+    var blog = BlogOptions.Value;
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · @blog.Title</title>
+    <meta name="description" content="@(ViewData["Description"] ?? blog.Tagline)" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Orbitron:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-glow" aria-hidden="true"></div>
+
+    <header class="site-header">
+        <div class="shell header-inner">
+            <a class="brand" asp-page="/Index">
+                <span class="brand-mark">◈</span>
+                <span class="brand-text">
+                    <span class="brand-name">@blog.Title</span>
+                    <span class="brand-sub">@blog.OwnerName</span>
+                </span>
+            </a>
+            <button type="button" class="nav-toggle" id="navToggle" aria-label="打开菜单" aria-expanded="false">
+                <span></span><span></span>
+            </button>
+            <nav class="site-nav" id="siteNav">
+                <a asp-page="/Index">文章</a>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a asp-page="/Admin/Index">管理</a>
+                    <form class="inline-form" asp-page="/Account/Logout" method="post">
+                        <button type="submit" class="link-btn">退出</button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-page="/Account/Login">登录</a>
+                }
+            </nav>
+        </div>
+    </header>
+
+    <main class="shell main-shell">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="shell footer-inner">
+            <p>© @DateTime.UtcNow.Year @blog.OwnerName · @blog.Title</p>
+            <p class="footer-tag">@blog.Tagline</p>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

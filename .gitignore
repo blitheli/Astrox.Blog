@@ -13,3 +13,4 @@ appsettings.*.local.json
 .env
 .DS_Store
 publish/
+artifacts/

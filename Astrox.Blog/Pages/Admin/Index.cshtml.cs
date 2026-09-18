@@ -11,10 +11,12 @@ namespace Astrox.Blog.Pages.Admin;
 public class IndexModel : PageModel
 {
     private readonly ApplicationDbContext _db;
+    private readonly ILogger<IndexModel> _logger;
 
-    public IndexModel(ApplicationDbContext db)
+    public IndexModel(ApplicationDbContext db, ILogger<IndexModel> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
     public IList<Post> Posts { get; private set; } = new List<Post>();
@@ -37,6 +39,7 @@ public class IndexModel : PageModel
         {
             _db.Posts.Remove(post);
             await _db.SaveChangesAsync();
+            _logger.LogInformation("已删除文章 {Id} / {Slug}：{Title}", post.Id, post.Slug, post.Title);
             StatusMessage = $"已删除「{post.Title}」";
         }
         return RedirectToPage();

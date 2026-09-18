@@ -42,7 +42,10 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationS
 
         var provided = value["Bearer ".Length..].Trim();
         if (string.IsNullOrEmpty(provided) || !FixedTimeEquals(provided, configured))
+        {
+            Logger.LogWarning("API Key 认证失败，来自 {RemoteIp}", Context.Connection.RemoteIpAddress);
             return Task.FromResult(AuthenticateResult.Fail("无效的 API Key"));
+        }
 
         var claims = new[]
         {

@@ -57,14 +57,19 @@ public static class PostsApi
 
     private static async Task<IResult> CreateAsync(
         [FromBody] ApiPostRequest request,
-        ApplicationDbContext db)
+        ApplicationDbContext db,
+        ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger("PostsApi");
         if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Markdown))
             return Results.BadRequest(new { error = "title 与 markdown 为必填项" });
 
         var slug = SlugHelper.Normalize(request.Slug, request.Title);
         if (await db.Posts.AnyAsync(p => p.Slug == slug))
+        {
+            logger.LogWarning("API 创建文章冲突，slug 已存在：{Slug}", slug);
             return Results.Conflict(new { error = $"slug 已存在：{slug}" });
+        }
 
         var now = DateTime.UtcNow;
         var post = new Post
@@ -82,16 +87,23 @@ public static class PostsApi
 
         db.Posts.Add(post);
         await db.SaveChangesAsync();
+        logger.LogInformation("API 已创建文章 {Slug}，发布={Published}", post.Slug, post.IsPublished);
         return Results.Created($"/api/posts/{post.Slug}", ToDto(post));
     }
 
     private static async Task<IResult> UpdateAsync(
         string slug,
         [FromBody] ApiPostRequest request,
-        ApplicationDbContext db)
+        ApplicationDbContext db,
+        ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger("PostsApi");
         var post = await db.Posts.FirstOrDefaultAsync(p => p.Slug == slug);
-        if (post is null) return Results.NotFound(new { error = "文章不存在" });
+        if (post is null)
+        {
+            logger.LogWarning("API 更新文章不存在：{Slug}", slug);
+            return Results.NotFound(new { error = "文章不存在" });
+        }
 
         if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Markdown))
             return Results.BadRequest(new { error = "title 与 markdown 为必填项" });
@@ -114,15 +126,22 @@ public static class PostsApi
             post.PublishedAt = null;
 
         await db.SaveChangesAsync();
+        logger.LogInformation("API 已更新文章 {OldSlug} → {Slug}，发布={Published}", slug, post.Slug, post.IsPublished);
         return Results.Ok(ToDto(post));
     }
 
-    private static async Task<IResult> DeleteAsync(string slug, ApplicationDbContext db)
+    private static async Task<IResult> DeleteAsync(string slug, ApplicationDbContext db, ILoggerFactory loggerFactory)
     {
+        var logger = loggerFactory.CreateLogger("PostsApi");
         var post = await db.Posts.FirstOrDefaultAsync(p => p.Slug == slug);
-        if (post is null) return Results.NotFound(new { error = "文章不存在" });
+        if (post is null)
+        {
+            logger.LogWarning("API 删除文章不存在：{Slug}", slug);
+            return Results.NotFound(new { error = "文章不存在" });
+        }
         db.Posts.Remove(post);
         await db.SaveChangesAsync();
+        logger.LogInformation("API 已删除文章 {Slug}", slug);
         return Results.NoContent();
     }
 

@@ -14,11 +14,13 @@ public class EditModel : PageModel
 {
     private readonly ApplicationDbContext _db;
     private readonly MarkdownService _markdown;
+    private readonly ILogger<EditModel> _logger;
 
-    public EditModel(ApplicationDbContext db, MarkdownService markdown)
+    public EditModel(ApplicationDbContext db, MarkdownService markdown, ILogger<EditModel> logger)
     {
         _db = db;
         _markdown = markdown;
+        _logger = logger;
     }
 
     [BindProperty]
@@ -141,6 +143,12 @@ public class EditModel : PageModel
         }
 
         await _db.SaveChangesAsync();
+        _logger.LogInformation(
+            "{Action}文章 {Id} / {Slug}，发布={Published}",
+            Input.Id is null or 0 ? "新建" : "更新",
+            post.Id,
+            post.Slug,
+            post.IsPublished);
         return RedirectToPage("/Admin/Index");
     }
 

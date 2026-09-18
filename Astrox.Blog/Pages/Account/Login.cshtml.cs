@@ -10,10 +10,12 @@ namespace Astrox.Blog.Pages.Account;
 public class LoginModel : PageModel
 {
     private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly ILogger<LoginModel> _logger;
 
-    public LoginModel(SignInManager<IdentityUser> signInManager)
+    public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
     {
         _signInManager = signInManager;
+        _logger = logger;
     }
 
     [BindProperty]
@@ -57,7 +59,15 @@ public class LoginModel : PageModel
             lockoutOnFailure: true);
 
         if (result.Succeeded)
+        {
+            _logger.LogInformation("登录成功：{Email}", Input.Email.Trim());
             return LocalRedirect(returnUrl);
+        }
+
+        if (result.IsLockedOut)
+            _logger.LogWarning("登录被锁定：{Email}", Input.Email.Trim());
+        else
+            _logger.LogWarning("登录失败：{Email}", Input.Email.Trim());
 
         ModelState.AddModelError(string.Empty, "邮箱或密码不正确。");
         return Page();

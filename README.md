@@ -8,6 +8,8 @@ Yunfei Li / **Astrox** 的个人博客：科幻科技风界面、所有者登录
 
 默认使用 **SQLite**（EF Core），无需外部数据库。
 
+背景图致谢 [NASA SVS Deep Star Maps](https://svs.gsfc.nasa.gov/3895)（公有领域）。
+
 ## 要求
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)（本项目 TargetFramework 为 `net10.0`）

@@ -48,7 +48,7 @@
   --bg-1: #e8f1f9;
   --bg-2: #d9e7f4;
   --bg-bottom: #dce8f3;
-  --starmap-veil: rgba(246, 250, 255, 0.88);
+  --starmap-veil: rgba(246, 250, 255, 0.78);
   --line: rgba(2, 132, 199, 0.2);
   --line-strong: rgba(2, 132, 199, 0.38);
   --text: #152536;
@@ -62,10 +62,10 @@
   --body-radial: rgba(14, 165, 233, 0.06);
   --grid-line: rgba(2, 132, 199, 0.05);
   --header-bg: rgba(242, 247, 252, 0.9);
-  --panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(236, 244, 252, 0.92));
-  --card-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(232, 241, 250, 0.94));
-  --article-bg: linear-gradient(165deg, rgba(255, 255, 255, 0.94), rgba(236, 244, 252, 0.92));
-  --surface: rgba(255, 255, 255, 0.88);
+  --panel-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(236, 244, 252, 0.88));
+  --card-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(232, 241, 250, 0.9));
+  --article-bg: linear-gradient(165deg, rgba(255, 255, 255, 0.9), rgba(236, 244, 252, 0.88));
+  --surface: rgba(255, 255, 255, 0.86);
   --code-bg: #e6eef6;
   --input-bg: rgba(255, 255, 255, 0.96);
   --preview-bg: rgba(255, 255, 255, 0.88);

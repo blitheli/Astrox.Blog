@@ -45,8 +45,10 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSingleton<SiteUrlService>();
+builder.Services.AddSingleton<CommentAntiSpamService>();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

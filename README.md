@@ -2,8 +2,8 @@
 
 Yunfei Li / **Astrox** 的个人博客：科幻科技风界面、所有者登录发布、支持通过 API 远程推送 Markdown。
 
-- **公开**：浏览已发布文章、按标签筛选、按 slug 阅读详情
-- **管理**：Cookie 登录后创建 / 编辑 / 删除草稿与已发布文章（Markdown + 预览）
+- **公开**：浏览已发布文章、按标签筛选、按 slug 阅读详情、站内评论（提交即公开）
+- **管理**：Cookie 登录后创建 / 编辑 / 删除草稿与已发布文章（Markdown + 预览）；文章页可软删垃圾评论
 - **远程发布**：`Bearer` API Key 调用 `/api/posts`
 
 默认使用 **SQLite**（EF Core），无需外部数据库。
@@ -68,13 +68,7 @@ export ConnectionStrings__DefaultConnection="Data Source=/data/astrox-blog.db"
     "PublicBaseUrl": "https://blog.example.com",
     "UmamiScriptUrl": "",
     "UmamiWebsiteId": "",
-    "ExtraHeadSnippet": "",
-    "Giscus": {
-      "Repo": "",
-      "RepoId": "",
-      "Category": "",
-      "CategoryId": ""
-    }
+    "ExtraHeadSnippet": ""
   }
 }
 ```
@@ -121,32 +115,23 @@ export Blog__UmamiWebsiteId="00000000-0000-4000-8000-000000000000"
 
 可选：`Blog:ExtraHeadSnippet` 可写入额外的 head HTML（例如其它统计片段），留空则跳过。
 
-## 评论（Giscus，外部，无站内审核）
+## 评论（站内，无审核）
 
-评论使用 [Giscus](https://giscus.app/)（GitHub Discussions），**本站不提供审核/屏蔽 UI**——访客评论按 Giscus / Discussions 默认规则直接出现。
+评论写入本站 SQLite（`Comments` 表），与文章关联；**提交后立即公开显示，无站内审核队列**。正文为纯文本（HTML 转义），邮箱可选且前台不展示。
 
-**重要**：Giscus 需要一个已开启 Discussions 的 **公开 GitHub 仓库**。仅有 Origin 私有仓库不够，请另行创建或关联一个 public GitHub repo 专用于评论。
+已发布文章详情页 `/Posts/{slug}` 底部提供评论列表与发表表单。所有者登录后可对单条评论执行**软删**（`IsDeleted`），前台不再显示。
 
-1. 在目标 GitHub 仓库启用 Discussions  
-2. 打开 <https://giscus.app/>，按向导取得 `repo` / `repoId` / `category` / `categoryId`  
-3. 写入配置（映射使用 `pathname`，主题默认 `noborder_dark` 以配合深色 UI）：
+### 防刷（轻量组合）
 
-```json
-"Blog": {
-  "Giscus": {
-    "Repo": "your-github-user/astrox-blog-comments",
-    "RepoId": "R_kgDO_EXAMPLE",
-    "Category": "Announcements",
-    "CategoryId": "DIC_kwDO_EXAMPLE",
-    "Mapping": "pathname",
-    "Theme": "noborder_dark",
-    "ReactionsEnabled": true,
-    "Lang": "zh-CN"
-  }
-}
-```
+| 手段 | 说明 |
+| --- | --- |
+| 速率限制 | 同一 IP（存 `IpHash`）每分钟 ≤3、每小时 ≤20（`IMemoryCache`，单机 IIS 足够） |
+| 蜜罐字段 | 隐藏字段有填写则静默丢弃 |
+| 最短填写时间 | 表单带服务端 token，&lt;3 秒提交拒绝 |
+| 正文限制 | 最长 2000 字；空白/重复字符拒绝；外链过多拒绝 |
+| IP 哈希 | 只存哈希，不存明文 IP |
 
-四个关键字段（Repo / RepoId / Category / CategoryId）任一为空则**不渲染**评论区块。仅已发布文章详情页显示评论。
+启动时若库已存在但尚无 `Comments` 表，会执行 `CREATE TABLE IF NOT EXISTS`（无需手工删库）。删除文章时评论级联删除。
 
 ## 远程 Markdown 发布（API）
 

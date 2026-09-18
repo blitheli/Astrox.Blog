@@ -19,6 +19,7 @@ public static class DbSeeder
         var logger = sp.GetRequiredService<ILoggerFactory>().CreateLogger("DbSeeder");
 
         await db.Database.EnsureCreatedAsync();
+        await DbSchemaUpgrader.EnsureCommentsTableAsync(db, logger);
 
         await EnsureOwnerAsync(userManager, options, logger);
         await EnsureSamplePostAsync(db, logger);

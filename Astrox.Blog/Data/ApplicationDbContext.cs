@@ -13,6 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     }
 
     public DbSet<Post> Posts => Set<Post>();
+    public DbSet<Comment> Comments => Set<Comment>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -25,6 +26,21 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             e.Property(p => p.Title).IsRequired();
             e.Property(p => p.Slug).IsRequired();
             e.Property(p => p.Markdown).IsRequired();
+            e.HasMany(p => p.Comments)
+                .WithOne(c => c.Post!)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Comment>(e =>
+        {
+            e.HasIndex(c => c.PostId);
+            e.HasIndex(c => new { c.PostId, c.IsDeleted, c.CreatedAt });
+            e.Property(c => c.AuthorName).IsRequired().HasMaxLength(64);
+            e.Property(c => c.AuthorEmail).HasMaxLength(200);
+            e.Property(c => c.Body).IsRequired().HasMaxLength(2000);
+            e.Property(c => c.IpHash).IsRequired().HasMaxLength(64);
+            e.Property(c => c.UserAgent).HasMaxLength(300);
         });
     }
 }

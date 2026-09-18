@@ -4,7 +4,7 @@ namespace Astrox.Blog.Data;
 
 /// <summary>
 /// EnsureCreated 不会给已有 SQLite 库补新表。启动时显式 CREATE TABLE IF NOT EXISTS，
-/// 保证生产库（如 D:/IIS/astrox-blog.db）无需手工删库即可获得 Comments。
+/// 保证生产库（如 D:/IIS/astrox-blog.db）无需手工删库即可获得 Comments / 访问统计表。
 /// </summary>
 public static class DbSchemaUpgrader
 {
@@ -36,5 +36,25 @@ public static class DbSchemaUpgrader
             """);
 
         logger.LogInformation("已确认 Comments 表存在（CREATE TABLE IF NOT EXISTS）。");
+    }
+
+    public static async Task EnsurePageViewTablesAsync(ApplicationDbContext db, ILogger logger)
+    {
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE TABLE IF NOT EXISTS "SiteStats" (
+                "Key" TEXT NOT NULL CONSTRAINT "PK_SiteStats" PRIMARY KEY,
+                "Value" INTEGER NOT NULL
+            );
+            """);
+
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE TABLE IF NOT EXISTS "PostViewCounts" (
+                "PostId" INTEGER NOT NULL CONSTRAINT "PK_PostViewCounts" PRIMARY KEY,
+                "Count" INTEGER NOT NULL,
+                CONSTRAINT "FK_PostViewCounts_Posts_PostId" FOREIGN KEY ("PostId") REFERENCES "Posts" ("Id") ON DELETE CASCADE
+            );
+            """);
+
+        logger.LogInformation("已确认 SiteStats / PostViewCounts 表存在（CREATE TABLE IF NOT EXISTS）。");
     }
 }

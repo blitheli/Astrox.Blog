@@ -14,6 +14,8 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
 
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<SiteStat> SiteStats => Set<SiteStat>();
+    public DbSet<PostViewCount> PostViewCounts => Set<PostViewCount>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +32,10 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
                 .WithOne(c => c.Post!)
                 .HasForeignKey(c => c.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<PostViewCount>()
+                .WithOne(v => v.Post!)
+                .HasForeignKey<PostViewCount>(v => v.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<Comment>(e =>
@@ -41,6 +47,17 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             e.Property(c => c.Body).IsRequired().HasMaxLength(2000);
             e.Property(c => c.IpHash).IsRequired().HasMaxLength(64);
             e.Property(c => c.UserAgent).HasMaxLength(300);
+        });
+
+        builder.Entity<SiteStat>(e =>
+        {
+            e.Property(s => s.Key).IsRequired().HasMaxLength(64);
+            e.Property(s => s.Value).IsRequired();
+        });
+
+        builder.Entity<PostViewCount>(e =>
+        {
+            e.Property(v => v.Count).IsRequired();
         });
     }
 }

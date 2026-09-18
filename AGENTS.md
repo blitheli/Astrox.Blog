@@ -10,8 +10,9 @@
 - 用户说「将 Docs 下某子文件夹上传到阿里云」时，按下方「Docs 子文件夹上传到阿里云」立即执行，不要只给步骤说明。
 - 中文 UI 文案为主；视觉为深色青霓虹科技风（`wwwroot/css/site.css`）。
 - SEO：`/robots.txt`、`/sitemap.xml`、canonical / OG / Twitter / JSON-LD（`Blog:PublicBaseUrl`）。
-- 外部集成（可选）：Umami（`Blog:Umami*`）；未配置则不注入。
+- 外部集成（可选）：Umami（`Blog:Umami*`）；未配置则不注入。与站内访问计数无关。
 - **站内评论**：`Comment` 实体写入 SQLite；提交即公开、无审核；防刷见 `CommentAntiSpamService`（限流 / 蜜罐 / 最短填写时间 / 正文限制）。所有者可在文章页软删。无 Giscus / 第三方评论 SaaS。
+- **站内访问统计**：`SiteStats`（总 PV）+ `PostViewCounts`（文章阅读）；`PageViewMiddleware` 对公开 GET 累加；冷却与爬虫过滤见 `PageViewService`。侧栏展示总访问，文章页展示阅读次数。
 
 
 
@@ -31,6 +32,7 @@ dotnet run --urls http://127.0.0.1:43147
 - 不要提交真实密钥或生产 `*.db`。
 - 文章模型：`Post`（`Title` / `Slug` / `Summary` / `Markdown` / `Tags` 逗号串 / `IsPublished` / 时间戳）。
 - 评论模型：`Comment`（`PostId` / `AuthorName` / `AuthorEmail?` / `Body` / `CreatedAt` / `IpHash` / `UserAgent?` / `IsDeleted`）。
+- 访问统计：`SiteStat`（`Key` / `Value`）与 `PostViewCount`（`PostId` / `Count`）；启动时 `CREATE TABLE IF NOT EXISTS` 补表。
 - Markdown 经 `MarkdownService` 渲染，已 `DisableHtml()`；公式写法见下方「Markdown 公式」。评论正文为纯文本并 HTML 转义。
 - API 认证方案名：`ApiKey`（`Services/ApiKeyAuthenticationHandler.cs`）。
 - 新增管理页放在 `Pages/Admin`，并保持 `[Authorize]`。
@@ -127,4 +129,4 @@ curl.exe -sS -X POST "https://<生产域名>/api/posts/from-zip" `
 
 ## 种子与首次运行
 
-`Data/DbSeeder.cs` 在启动时 `EnsureCreated`、补齐 `Comments` 表（`CREATE TABLE IF NOT EXISTS`，已有库无需删库）、创建所有者（若配置齐全）、写入示例文章 `welcome-to-astrox-blog`。若配置邮箱已存在，启动时会把密码同步为当前 `Blog__AdminPassword`（生产改密码后重启/回收池即可生效）。修改模型后若本地库结构过旧且升级脚本未覆盖，可删除 `astrox-blog.db*` 后重启（开发环境可接受）。
+`Data/DbSeeder.cs` 在启动时 `EnsureCreated`、补齐 `Comments` / `SiteStats` / `PostViewCounts` 表（`CREATE TABLE IF NOT EXISTS`，已有库无需删库）、创建所有者（若配置齐全）、写入示例文章 `welcome-to-astrox-blog`。若配置邮箱已存在，启动时会把密码同步为当前 `Blog__AdminPassword`（生产改密码后重启/回收池即可生效）。修改模型后若本地库结构过旧且升级脚本未覆盖，可删除 `astrox-blog.db*` 后重启（开发环境可接受）。

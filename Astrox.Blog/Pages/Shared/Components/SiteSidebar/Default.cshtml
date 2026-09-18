@@ -1,0 +1,66 @@
+@model Astrox.Blog.ViewComponents.SiteSidebarModel
+
+@if (Model.Toc.Count > 0)
+{
+    <section class="rail-panel" aria-labelledby="rail-toc-title">
+        <h2 class="rail-title" id="rail-toc-title">目录</h2>
+        <nav class="rail-toc" aria-label="文章目录">
+            @foreach (var item in Model.Toc)
+            {
+                <a class="toc-link toc-l@(item.Level)" href="#@item.Id">@item.Text</a>
+            }
+        </nav>
+    </section>
+}
+
+<section class="rail-panel" aria-labelledby="rail-cat-title">
+    <h2 class="rail-title" id="rail-cat-title">分类</h2>
+    @if (Model.Categories.Count == 0)
+    {
+        <p class="rail-empty">暂无分类</p>
+    }
+    else
+    {
+        <ul class="rail-cats">
+            <li>
+                <a class="rail-cat @(Model.ActiveTag is null ? "is-active" : "")" asp-page="/Index">全部</a>
+            </li>
+            @foreach (var cat in Model.Categories)
+            {
+                <li>
+                    <a class="rail-cat @(string.Equals(Model.ActiveTag, cat.Name, StringComparison.OrdinalIgnoreCase) ? "is-active" : "")"
+                       asp-page="/Index" asp-route-tag="@cat.Name">
+                        <span>@cat.Name</span>
+                        <span class="rail-count">@cat.Count</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+<section class="rail-panel" aria-labelledby="rail-comments-title">
+    <h2 class="rail-title" id="rail-comments-title">最新评论</h2>
+    @if (Model.LatestComments.Count == 0)
+    {
+        <p class="rail-empty">还没有评论</p>
+    }
+    else
+    {
+        <ul class="rail-comments">
+            @foreach (var c in Model.LatestComments)
+            {
+                <li>
+                    <a class="rail-comment" asp-page="/Posts/View" asp-route-slug="@c.PostSlug" asp-fragment="comments">
+                        <span class="rail-comment-meta">
+                            <span class="rail-comment-author">@c.AuthorName</span>
+                            <time datetime="@c.CreatedAt.ToString("o")">@c.CreatedAt.ToLocalTime().ToString("MM-dd")</time>
+                        </span>
+                        <span class="rail-comment-body">@c.Excerpt</span>
+                        <span class="rail-comment-post">@c.PostTitle</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</section>

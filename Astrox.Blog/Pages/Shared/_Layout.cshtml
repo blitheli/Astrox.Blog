@@ -18,6 +18,9 @@
         || canonicalPath.StartsWith("/Account", StringComparison.OrdinalIgnoreCase);
     if (string.IsNullOrWhiteSpace(robots) && noIndex)
         robots = "noindex, nofollow";
+    var showSidebar = !canonicalPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase)
+        && !canonicalPath.StartsWith("/Account", StringComparison.OrdinalIgnoreCase)
+        && !canonicalPath.StartsWith("/Error", StringComparison.OrdinalIgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -92,14 +95,25 @@
         </div>
     </header>
 
-    <main class="shell main-shell">
-        @RenderBody()
+    <main class="shell main-shell @(showSidebar ? "has-rail" : null)">
+        @if (showSidebar)
+        {
+            <aside class="site-rail" aria-label="站点侧栏">
+                @await Component.InvokeAsync("SiteSidebar")
+            </aside>
+        }
+        <div class="main-col">
+            @RenderBody()
+        </div>
     </main>
 
     <footer class="site-footer">
         <div class="shell footer-inner">
             <p>© @DateTime.UtcNow.Year @blog.OwnerName · @blog.Title</p>
-            <p class="footer-tag">@blog.Tagline</p>
+            @if (!string.IsNullOrWhiteSpace(blog.Update))
+            {
+                <p class="footer-tag">更新于 @blog.Update</p>
+            }
         </div>
     </footer>
 

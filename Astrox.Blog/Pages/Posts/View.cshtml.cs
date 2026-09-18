@@ -57,6 +57,7 @@ public class ViewModel : PageModel
 
         Post = post;
         HtmlContent = _markdown.ToHtml(post.Markdown);
+        ViewData["ArticleToc"] = _markdown.ExtractToc(post.Markdown);
         await LoadCommentsAsync(post.Id);
         PrepareFormToken();
         return Page();

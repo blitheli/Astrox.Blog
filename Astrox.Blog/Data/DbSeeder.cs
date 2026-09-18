@@ -44,8 +44,12 @@ public static class DbSeeder
 
         var existing = await userManager.FindByEmailAsync(email);
         if (existing is not null)
+        {
+            await SyncOwnerPasswordAsync(userManager, existing, password, email, logger);
             return;
+        }
 
+        // 配置邮箱在库中不存在：创建该账号。不删除库中其他用户（单所有者意图下以配置邮箱为准）。
         var user = new IdentityUser
         {
             UserName = email,
@@ -61,6 +65,30 @@ public static class DbSeeder
         else
         {
             logger.LogError("创建所有者失败：{Errors}",
+                string.Join("; ", result.Errors.Select(e => e.Description)));
+        }
+    }
+
+    private static async Task SyncOwnerPasswordAsync(
+        UserManager<IdentityUser> userManager,
+        IdentityUser user,
+        string password,
+        string email,
+        ILogger logger)
+    {
+        // 已与配置一致则跳过，避免每次启动无谓改写与日志噪声
+        if (await userManager.CheckPasswordAsync(user, password))
+            return;
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await userManager.ResetPasswordAsync(user, token, password);
+        if (result.Succeeded)
+        {
+            logger.LogInformation("已同步所有者账号密码：{Email}", email);
+        }
+        else
+        {
+            logger.LogError("同步所有者密码失败：{Errors}",
                 string.Join("; ", result.Errors.Select(e => e.Description)));
         }
     }

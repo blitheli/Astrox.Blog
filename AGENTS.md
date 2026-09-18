@@ -38,4 +38,4 @@ dotnet run --urls http://127.0.0.1:43147
 
 ## 种子与首次运行
 
-`Data/DbSeeder.cs` 在启动时 `EnsureCreated`、创建所有者（若配置齐全）、写入示例文章 `welcome-to-astrox-blog`。修改模型后若本地库结构过旧，可删除 `astrox-blog.db*` 后重启（开发环境可接受）。
+`Data/DbSeeder.cs` 在启动时 `EnsureCreated`、创建所有者（若配置齐全）、写入示例文章 `welcome-to-astrox-blog`。若配置邮箱已存在，启动时会把密码同步为当前 `Blog__AdminPassword`（生产改密码后重启/回收池即可生效）。修改模型后若本地库结构过旧，可删除 `astrox-blog.db*` 后重启（开发环境可接受）。

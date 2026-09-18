@@ -33,8 +33,10 @@ dotnet run --urls http://127.0.0.1:43147
 首次启动会自动：
 
 1. 创建 SQLite 文件 `astrox-blog.db`
-2. 若配置了 `Blog:AdminEmail` / `Blog:AdminPassword` 且库中无该用户，则创建所有者账号
+2. 若配置了 `Blog:AdminEmail` / `Blog:AdminPassword` 且库中无该用户，则创建所有者账号；若该邮箱已存在，则把密码同步为当前配置值
 3. 写入一篇示例文章 `welcome-to-astrox-blog`
+
+生产环境修改 `Blog__AdminPassword` 后，重启应用或回收 IIS 应用程序池会将该邮箱账号密码重置为新值（不合规密码会在启动日志中打出 Identity 错误）。
 
 无公开注册入口。
 

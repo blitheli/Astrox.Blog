@@ -29,6 +29,13 @@ dotnet run --urls http://127.0.0.1:43147
 - 新增管理页放在 `Pages/Admin`，并保持 `[Authorize]`。
 - 优先小改动、可运行；勿引入多作者 CMS、评论系统或 OAuth，除非用户明确要求。
 
+## 部署（阿里云 IIS CI）
+
+- Workflow：`.github/workflows/deploy-aliyun-iis.yml` → 目标目录 `D:/IIS/Astrox.Blog`。
+- Repository secrets（与 RocketSim3D / ASTROX.Docs 同名）：`ALIYUN_HOST`、`ALIYUN_USERNAME`、`ALIYUN_PASSWORD`。
+- 服务器需 .NET 10 ASP.NET Core Hosting Bundle；部署会清空站点目录后上传 publish 输出（含 `web.config`）。
+- 勿在日志或文档中打印 Secret 值；生产 SQLite / `Blog__*` 用 IIS 环境变量，库文件勿放在会被清空的站点目录内。
+
 ## 种子与首次运行
 
 `Data/DbSeeder.cs` 在启动时 `EnsureCreated`、创建所有者（若配置齐全）、写入示例文章 `welcome-to-astrox-blog`。修改模型后若本地库结构过旧，可删除 `astrox-blog.db*` 后重启（开发环境可接受）。

@@ -202,10 +202,33 @@ curl -sS "http://127.0.0.1:43147/api/posts/welcome-to-astrox-blog" \
 
 ## 部署备忘
 
+### GitHub Actions → 阿里云 IIS（自动）
+
+工作流：`.github/workflows/deploy-aliyun-iis.yml`（对齐 RocketSim3D / ASTROX.Docs）。
+
+- **触发**：推送到 `main`（路径含 `Astrox.Blog/**`、`Dockerfile` 或该 workflow），或手动 `workflow_dispatch`
+- **构建**：`ubuntu-latest` + .NET 10，`dotnet publish … -o _deploy`（自动生成 `web.config` / AspNetCoreModuleV2）
+- **同步**：`appleboy/ssh-action@v1.2.0` 清空并准备目录，再 `appleboy/scp-action@v0.1.7` 上传到 **`D:/IIS/Astrox.Blog`**（port 22）
+
+在 GitHub 仓库 **Settings → Secrets and variables → Actions → Repository secrets** 配置（名称与 Docs/RocketSim3D 相同，**不要**用 Environment secrets）：
+
+| Secret | 含义 |
+| --- | --- |
+| `ALIYUN_HOST` | 阿里云 Windows 主机 |
+| `ALIYUN_USERNAME` | SSH 用户名 |
+| `ALIYUN_PASSWORD` | SSH 密码 |
+
+缺少任一 Secret 时，workflow 会以**中文** `::error::` 失败，且不会打印 Secret 值。
+
+**IIS 前置**：服务器需安装 [.NET 10 ASP.NET Core Hosting Bundle](https://dotnet.microsoft.com/download/dotnet/10.0)，站点物理路径指向 `D:\IIS\Astrox.Blog`，应用程序池为「无托管代码」。
+
+**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。若 SQLite 放在站点目录内会被清掉；生产请把连接串指到站点外持久路径，并通过 IIS / 系统环境变量注入 `ConnectionStrings__DefaultConnection`、`Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
+
+### 其他托管
+
 - **Kestrel**：`dotnet publish -c Release -o ./publish`，再 `ASPNETCORE_URLS=http://0.0.0.0:8080 dotnet Astrox.Blog.dll`
-- **IIS**：发布后用 ASP.NET Core Module 托管；配置环境变量注入 `Blog__*`
-- **Docker**（可选）：仓库根目录提供了简易 `Dockerfile`，构建时请用环境变量传入管理员与 API Key
-- 将 SQLite 文件挂到持久卷，避免容器重建丢数据
+- **IIS（手动）**：同上 Hosting Bundle；发布输出拷到站点目录
+- **Docker**（可选）：仓库根目录 `Dockerfile`（.NET 10 镜像）；用环境变量传入管理员与 API Key；SQLite 挂持久卷
 
 ## 项目结构
 

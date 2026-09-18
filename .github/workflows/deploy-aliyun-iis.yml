@@ -1,0 +1,95 @@
+# 推送到 main 时构建 ASP.NET Core 站点并经 OpenSSH 同步到阿里云 IIS。
+# 机制对齐 RocketSim3D / ASTROX.Docs（ubuntu-latest + appleboy/ssh-action@v1.2.0 +
+# appleboy/scp-action@v0.1.7；Repository secrets：ALIYUN_HOST /
+# ALIYUN_USERNAME / ALIYUN_PASSWORD；port 22）。
+
+name: 部署到阿里云 IIS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Astrox.Blog/**"
+      - "Dockerfile"
+      - ".github/workflows/deploy-aliyun-iis.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-aliyun-iis
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: 构建并部署
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 检查阿里云 Secrets
+        env:
+          ALIYUN_HOST: ${{ secrets.ALIYUN_HOST }}
+          ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+          ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+        run: |
+          missing=0
+          if [ -z "$ALIYUN_HOST" ]; then
+            echo "::error::缺少仓库 Secret: ALIYUN_HOST（请在 Repository secrets 中配置，不要用 Environment secrets）"
+            missing=1
+          fi
+          if [ -z "$ALIYUN_USERNAME" ]; then
+            echo "::error::缺少仓库 Secret: ALIYUN_USERNAME（请在 Repository secrets 中配置，不要用 Environment secrets）"
+            missing=1
+          fi
+          if [ -z "$ALIYUN_PASSWORD" ]; then
+            echo "::error::缺少仓库 Secret: ALIYUN_PASSWORD（请在 Repository secrets 中配置，不要用 Environment secrets）"
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: 安装 .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: 发布站点
+        run: |
+          rm -rf _deploy
+          dotnet publish Astrox.Blog/Astrox.Blog.csproj -c Release -o _deploy /p:UseAppHost=false
+
+      - name: 校验 IIS 托管文件
+        run: |
+          if [ ! -f _deploy/Astrox.Blog.dll ]; then
+            echo "::error::未找到 _deploy/Astrox.Blog.dll，发布可能失败"
+            exit 1
+          fi
+          if [ ! -f _deploy/web.config ]; then
+            echo "::error::未找到 _deploy/web.config（ASP.NET Core Module 托管配置）。请确认项目为 Microsoft.NET.Sdk.Web。"
+            exit 1
+          fi
+          echo "web.config 已包含在发布输出中（AspNetCoreModuleV2）"
+
+      - name: 清空远端站点目录
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+          port: 22
+          script_stop: true
+          script: |
+            powershell -NoProfile -Command "$p='D:/IIS/Astrox.Blog'; if (Test-Path $p) { Get-ChildItem -Force $p | Remove-Item -Recurse -Force }; New-Item -ItemType Directory -Path $p -Force | Out-Null"
+
+      - name: 上传站点文件到 IIS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+          port: 22
+          source: "_deploy/*"
+          target: "D:/IIS/Astrox.Blog"
+          strip_components: 1
+          tar_dereference: true

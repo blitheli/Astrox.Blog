@@ -34,7 +34,7 @@ dotnet run --urls http://127.0.0.1:43147
 - Workflow：`.github/workflows/deploy-aliyun-iis.yml` → 目标目录 `D:/IIS/Astrox.Blog`。
 - Repository secrets（与 RocketSim3D / ASTROX.Docs 同名）：`ALIYUN_HOST`、`ALIYUN_USERNAME`、`ALIYUN_PASSWORD`。
 - 服务器需 .NET 10 ASP.NET Core Hosting Bundle；部署会清空站点目录后上传 publish 输出（含 `web.config`）。
-- 勿在日志或文档中打印 Secret 值；生产 SQLite / `Blog__*` 用 IIS 环境变量，库文件勿放在会被清空的站点目录内。
+- 勿在日志或文档中打印 Secret 值；`appsettings.json` 默认库路径为站点外 `D:/IIS/astrox-blog.db`；生产 `Blog__*` 等仍可用 IIS 环境变量覆盖，库文件勿放在会被清空的站点目录内。
 
 ## 种子与首次运行
 

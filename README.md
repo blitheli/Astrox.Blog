@@ -54,7 +54,7 @@ export ConnectionStrings__DefaultConnection="Data Source=/data/astrox-blog.db"
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Data Source=astrox-blog.db"
+    "DefaultConnection": "Data Source=D:/IIS/astrox-blog.db"
   },
   "Blog": {
     "Title": "Astrox.Blog",

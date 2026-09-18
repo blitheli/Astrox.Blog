@@ -1,5 +1,5 @@
 # 语法：dotnet SDK 镜像构建 / 运行时镜像运行
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY Astrox.Blog.sln ./
 COPY Astrox.Blog/Astrox.Blog.csproj Astrox.Blog/
@@ -7,7 +7,7 @@ RUN dotnet restore Astrox.Blog/Astrox.Blog.csproj
 COPY Astrox.Blog/ Astrox.Blog/
 RUN dotnet publish Astrox.Blog/Astrox.Blog.csproj -c Release -o /app/publish /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 ENV ASPNETCORE_ENVIRONMENT=Production

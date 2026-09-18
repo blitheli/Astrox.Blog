@@ -10,7 +10,7 @@ Yunfei Li / **Astrox** 的个人博客：科幻科技风界面、所有者登录
 
 ## 要求
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) 或更高 LTS
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)（本项目 TargetFramework 为 `net10.0`）
 
 ## 快速运行
 

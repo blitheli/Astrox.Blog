@@ -4,7 +4,7 @@
 
 ## 项目要点
 
-- **Astrox.Blog**：ASP.NET Core 8 Razor Pages + SQLite（EF Core）+ Identity（单所有者）+ Markdig + Minimal API（`/api/posts`）。
+- **Astrox.Blog**：ASP.NET Core 10（`net10.0`）Razor Pages + SQLite（EF Core）+ Identity（单所有者）+ Markdig + Minimal API（`/api/posts`）。
 - 公开读者只读已发布文章；写操作需 Cookie 登录（`/Admin`）或 Bearer API Key。
 - 中文 UI 文案为主；视觉为深色青霓虹科技风（`wwwroot/css/site.css`）。
 - SEO：`/robots.txt`、`/sitemap.xml`、canonical / OG / Twitter / JSON-LD（`Blog:PublicBaseUrl`）。

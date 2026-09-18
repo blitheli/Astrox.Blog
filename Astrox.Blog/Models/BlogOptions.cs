@@ -7,12 +7,26 @@ public class BlogOptions
     public string Title { get; set; } = "Astrox.Blog";
     public string OwnerName { get; set; } = "Yunfei Li";
     public string Tagline { get; set; } = "航天 · 技术 · 星辰";
+
+    /// <summary>Fixed category labels, comma-separated. Sidebar and index always show this list.</summary>
+    public string Categories { get; set; } = "STK,Cesium,轨道力学,AI,Web,GIS";
+
+    public IReadOnlyList<string> CategoryList =>
+        string.IsNullOrWhiteSpace(Categories)
+            ? new[] { "STK", "Cesium", "轨道力学", "AI", "Web", "GIS" }
+            : Categories.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     /// <summary>Footer update text, e.g. a last-updated date.</summary>
     public string Update { get; set; } = string.Empty;
     public string AdminEmail { get; set; } = string.Empty;
     public string AdminPassword { get; set; } = string.Empty;
     /// <summary>Plain API key from config/env. Compared with constant-time equality.</summary>
     public string ApiKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Persistent article media root (zip 解压后的图片). Must live outside the IIS site directory.
+    /// Empty = ContentRoot/astrox-blog-media.
+    /// </summary>
+    public string MediaRoot { get; set; } = string.Empty;
 
     /// <summary>Public site origin, e.g. https://blog.example.com (no trailing slash). Used for canonical / OG / sitemap.</summary>
     public string PublicBaseUrl { get; set; } = string.Empty;

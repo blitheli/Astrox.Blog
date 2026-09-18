@@ -23,6 +23,7 @@ public static class DbSeeder
 
         await EnsureOwnerAsync(userManager, options, logger);
         await EnsureSamplePostAsync(db, logger);
+        await AlignPostCategoriesAsync(db, options);
     }
 
     private static async Task EnsureOwnerAsync(
@@ -105,7 +106,7 @@ public static class DbSeeder
             Title = "欢迎来到 Astrox.Blog",
             Slug = SampleSlug,
             Summary = "航天与技术交汇处的个人笔记：关于 Yunfei Li / Astrox，以及这座博客如何运转。",
-            Tags = "航天,技术,Astrox",
+            Tags = "Web",
             IsPublished = true,
             CreatedAt = now,
             UpdatedAt = now,
@@ -138,5 +139,42 @@ Console.WriteLine("Hello, orbit.");
         db.Posts.Add(post);
         await db.SaveChangesAsync();
         logger.LogInformation("已写入示例文章：{Slug}", SampleSlug);
+    }
+
+    private static async Task AlignPostCategoriesAsync(ApplicationDbContext db, BlogOptions options)
+    {
+        var official = options.CategoryList.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var posts = await db.Posts.ToListAsync();
+        var changed = false;
+
+        foreach (var post in posts)
+        {
+            var kept = post.TagList.Where(official.Contains).ToArray();
+            if (kept.Length > 0)
+            {
+                var normalized = string.Join(",", kept);
+                if (!string.Equals(normalized, post.Tags, StringComparison.Ordinal))
+                {
+                    post.Tags = normalized;
+                    changed = true;
+                }
+                continue;
+            }
+
+            if (post.Slug.Contains("itrs", StringComparison.OrdinalIgnoreCase)
+                || post.Slug.Contains("j2000", StringComparison.OrdinalIgnoreCase))
+            {
+                post.Tags = "轨道力学";
+                changed = true;
+            }
+            else if (post.Slug == SampleSlug)
+            {
+                post.Tags = "Web";
+                changed = true;
+            }
+        }
+
+        if (changed)
+            await db.SaveChangesAsync();
     }
 }

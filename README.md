@@ -4,7 +4,7 @@ Yunfei Li / **Astrox** 的个人博客：科幻科技风界面、所有者登录
 
 - **公开**：浏览已发布文章、按标签筛选、按 slug 阅读详情、站内评论（提交即公开）
 - **管理**：Cookie 登录后创建 / 编辑 / 删除草稿与已发布文章（Markdown + 预览）；文章页可软删垃圾评论
-- **远程发布**：`Bearer` API Key 调用 `/api/posts`
+- **远程发布**：`Bearer` API Key 调用 `/api/posts`；也可上传 zip（Markdown + 图片）
 
 默认使用 **SQLite**（EF Core），无需外部数据库。
 
@@ -50,6 +50,7 @@ dotnet run --urls http://127.0.0.1:43147
 export Blog__AdminEmail="you@example.com"
 export Blog__AdminPassword="YourStrongPass1"
 export Blog__ApiKey="a-long-random-secret"
+export Blog__MediaRoot="D:/IIS/astrox-blog-media"
 export ConnectionStrings__DefaultConnection="Data Source=/data/astrox-blog.db"
 ```
 
@@ -67,6 +68,7 @@ export ConnectionStrings__DefaultConnection="Data Source=/data/astrox-blog.db"
     "AdminEmail": "",
     "AdminPassword": "",
     "ApiKey": "",
+    "MediaRoot": "D:/IIS/astrox-blog-media",
     "PublicBaseUrl": "https://blog.example.com",
     "UmamiScriptUrl": "",
     "UmamiWebsiteId": "",
@@ -189,6 +191,24 @@ curl -sS "http://127.0.0.1:43147/api/posts/welcome-to-astrox-blog" \
 
 `tags` 可为字符串数组，或逗号分隔字符串。`slug` 可省略，将由标题生成。
 
+### 上传 zip（Markdown + 图片）
+
+`Content-Type: multipart/form-data`。解压后：`.md` 写入数据库；图片落到站点外媒体目录（开发默认 `Astrox.Blog/astrox-blog-media`，生产默认 `D:/IIS/astrox-blog-media`），经 `/media/...` 访问。相对图片路径会改写成该前缀。同一 slug 再次上传则更新文章。
+
+zip 可为「文件夹打包」（`ITRS-GCRS-J2000/*.md` + 图片）或扁平结构（与 zip 文件名同名的媒体子目录）。最大 20 MB。
+
+```bash
+curl -sS -X POST "http://127.0.0.1:43147/api/posts/from-zip" \
+  -H "Authorization: Bearer dev-astrox-api-key-change-me" \
+  -F "file=@ITRS-GCRS-J2000.zip" \
+  -F "publish=true" \
+  -F "tags=轨道力学"
+```
+
+可选表单字段（仅 zip 内只有一篇 Markdown 时生效）：`title`、`slug`、`summary`。`publish` 默认否。
+
+**注意**：每次部署会清空 `D:/IIS/Astrox.Blog`，但不会动站点外的 `astrox-blog.db` 与 `astrox-blog-media`。可用 `Blog__MediaRoot` 覆盖媒体路径。
+
 ## 部署备忘
 
 ### GitHub Actions → 阿里云 IIS（自动）
@@ -211,13 +231,13 @@ curl -sS "http://127.0.0.1:43147/api/posts/welcome-to-astrox-blog" \
 
 **IIS 前置**：服务器需安装 [.NET 10 ASP.NET Core Hosting Bundle](https://dotnet.microsoft.com/download/dotnet/10.0)，站点物理路径指向 `D:\IIS\Astrox.Blog`，应用程序池为「无托管代码」。
 
-**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。`appsettings.json` 默认连接串已指向站点外 `D:/IIS/astrox-blog.db`；仍可通过 IIS / 系统环境变量覆盖 `ConnectionStrings__DefaultConnection`，并注入 `Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
+**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。`appsettings.json` 默认把 SQLite 放在站点外 `D:/IIS/astrox-blog.db`，文章图片放在 `D:/IIS/astrox-blog-media`。仍可通过 IIS / 系统环境变量覆盖 `ConnectionStrings__DefaultConnection`、`Blog__MediaRoot`，并注入 `Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
 
 ### 其他托管
 
 - **Kestrel**：`dotnet publish -c Release -o ./publish`，再 `ASPNETCORE_URLS=http://0.0.0.0:8080 dotnet Astrox.Blog.dll`
 - **IIS（手动）**：同上 Hosting Bundle；发布输出拷到站点目录
-- **Docker**（可选）：仓库根目录 `Dockerfile`（.NET 10 镜像）；用环境变量传入管理员与 API Key；SQLite 挂持久卷
+- **Docker**（可选）：仓库根目录 `Dockerfile`（.NET 10 镜像）；用环境变量传入管理员与 API Key；SQLite 与 `Blog__MediaRoot` 挂持久卷
 
 ## 项目结构
 
@@ -226,11 +246,12 @@ Astrox.Blog/
   Data/           # DbContext、种子数据
   Models/         # Post、配置、API DTO
   Pages/          # 公开页、登录、管理后台
-  Services/       # Markdown、Slug、API Key、站点 URL
+  Services/       # Markdown、Slug、API Key、站点 URL、zip 导入
   wwwroot/css/    # 科幻科技风样式
-  PostsApi.cs     # /api/posts
+  PostsApi.cs     # /api/posts、/api/posts/from-zip
   SeoEndpoints.cs # /robots.txt、/sitemap.xml
   Program.cs
+Astrox.Blog.Tests/ # zip 导入与图片路径改写测试
 ```
 
 ## 许可证

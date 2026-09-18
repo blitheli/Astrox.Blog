@@ -2,8 +2,10 @@ using Astrox.Blog;
 using Astrox.Blog.Data;
 using Astrox.Blog.Models;
 using Astrox.Blog.Services;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 var logDirectory = ConfigureLog4Net(builder);
@@ -49,6 +51,25 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSingleton<SiteUrlService>();
 builder.Services.AddSingleton<CommentAntiSpamService>();
+
+var mediaRoot = MediaRootResolver.Resolve(
+    builder.Configuration["Blog:MediaRoot"],
+    builder.Environment.ContentRootPath);
+Directory.CreateDirectory(mediaRoot);
+builder.Services.AddSingleton(new PostZipImporter(mediaRoot));
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = PostZipImporter.MaxZipBytes;
+});
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = PostZipImporter.MaxZipBytes;
+});
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = PostZipImporter.MaxZipBytes;
+});
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
@@ -60,6 +81,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(mediaRoot),
+    RequestPath = MediaRootResolver.RequestPath
+});
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -71,9 +97,10 @@ app.MapSeoEndpoints();
 await DbSeeder.InitializeAsync(app.Services);
 
 app.Logger.LogInformation(
-    "Astrox.Blog 已启动，环境 {Environment}，日志目录 {LogDirectory}",
+    "Astrox.Blog 已启动，环境 {Environment}，日志目录 {LogDirectory}，媒体目录 {MediaRoot}",
     app.Environment.EnvironmentName,
-    logDirectory);
+    logDirectory,
+    mediaRoot);
 
 app.Run();
 

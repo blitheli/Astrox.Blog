@@ -32,9 +32,7 @@
             try {
                 var key = "astrox-theme";
                 var stored = localStorage.getItem(key);
-                var theme = (stored === "light" || stored === "dark")
-                    ? stored
-                    : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+                var theme = (stored === "light" || stored === "dark") ? stored : "dark";
                 document.documentElement.setAttribute("data-theme", theme);
             } catch (e) {
                 document.documentElement.setAttribute("data-theme", "dark");
@@ -65,6 +63,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Orbitron:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/katex/katex.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     @if (blog.IsUmamiConfigured)
@@ -141,14 +140,11 @@
             {
                 <p class="footer-tag">更新于 @blog.Update</p>
             }
-            <p class="footer-credit">
-                背景图致谢
-                <a href="https://svs.gsfc.nasa.gov/3895" rel="noopener noreferrer" target="_blank">NASA SVS Deep Star Maps</a>
-                （公有领域）
-            </p>
         </div>
     </footer>
 
+    <script src="~/lib/katex/katex.min.js" asp-append-version="true"></script>
+    <script src="~/lib/katex/auto-render.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

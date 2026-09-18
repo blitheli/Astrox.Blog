@@ -19,7 +19,7 @@
       const stored = localStorage.getItem(KEY);
       if (stored === "light" || stored === "dark") return stored;
     } catch (_) { /* ignore */ }
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    return "dark";
   };
 
   const applyTheme = (theme) => {
@@ -43,6 +43,22 @@
       applyTheme(next);
     });
   }
+})();
+
+(() => {
+  const roots = [...document.querySelectorAll(".markdown-body")];
+  if (!roots.length || typeof renderMathInElement !== "function") return;
+
+  const options = {
+    delimiters: [
+      { left: "\\[", right: "\\]", display: true },
+      { left: "\\(", right: "\\)", display: false }
+    ],
+    throwOnError: false,
+    ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code"]
+  };
+
+  roots.forEach((root) => renderMathInElement(root, options));
 })();
 
 (() => {

@@ -1,0 +1,6 @@
+{
+  "Blog": {
+    "PublicBaseUrl": "https://your-production-blog-host",
+    "ApiKey": "replace-with-iis-Blog__ApiKey"
+  }
+}

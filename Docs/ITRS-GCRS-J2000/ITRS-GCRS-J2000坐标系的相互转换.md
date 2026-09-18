@@ -9,26 +9,32 @@ J2000平赤道地心系相互转换的详细步骤。
 
 ## **名词缩写和解释**
 
-BCRS       barycentric celestial reference system
-CEO         celestial intermediate origin
-CIP 			celestial intermediate pole
-CIRS 		celestial intermediate reference system
-EOP			earth orientation parameters
-GCRS 		geocentric celestial reference system
-GMST 		Greenwich mean sidereal time
-GAST 		Greenwich apparent sidereal time
-IAU 			international astronomical union
-ICRS 		international celestial reference system
-IERS 		international Earth rotation and reference systems service
-ITRS 		international terrestrial reference system
-J2000 		2000 January 1.5
-SOFA 		standards of fundamental astronomy
-TEO 			terrestrial intermediate origin
-TIRS 		terrestrial intermediate reference system
-TT 			terrestrial time
-UT 			universal time UT1
-UTC 			coordinated universal time
-MAS 		milliarcsecond ( )
+
+| 缩写    | 英文全称                                                       | 中文/解释            |
+| ----- | ---------------------------------------------------------- | ---------------- |
+| BCRS  | barycentric celestial reference system                     | 太阳系质心天球参考系       |
+| CEO   | celestial intermediate origin                              | 天球中间原点           |
+| CIP   | celestial intermediate pole                                | 天球中间极            |
+| CIRS  | celestial intermediate reference system                    | 天球中间参考系          |
+| EOP   | earth orientation parameters                               | 地球定向参数           |
+| GCRS  | geocentric celestial reference system                      | 地心天球参考系          |
+| GMST  | Greenwich mean sidereal time                               | 格林威治平恒星时         |
+| GAST  | Greenwich apparent sidereal time                           | 格林威治视恒星时         |
+| IAU   | international astronomical union                           | 国际天文学联合会         |
+| ICRS  | international celestial reference system                   | 国际天球参考系          |
+| IERS  | international Earth rotation and reference systems service | 国际地球自转和参考系服务     |
+| ITRS  | international terrestrial reference system                 | 国际地球参考系/地固系      |
+| J2000 | 2000 January 1.5                                           | 2000年1月1.5（参考历元） |
+| SOFA  | standards of fundamental astronomy                         | 天文学基础标准库         |
+| TEO   | terrestrial intermediate origin                            | 地球中间原点           |
+| TIRS  | terrestrial intermediate reference system                  | 地球中间参考系          |
+| TT    | terrestrial time                                           | 地球时              |
+| UT    | universal time UT1                                         | 世界时（UT1）         |
+| UTC   | coordinated universal time                                 | 协调世界时（UTC）       |
+| MAS   | milliarcsecond                                             | 毫角秒              |
+
+
+
 
 ## **ITRS**
 
@@ -49,45 +55,51 @@ J2000地心天球坐标系，其定义与J2000平赤道地心坐标系仅有一�
 ## **时间量**
 
 $$
-UT1=UTC+(UT1-UTC) \\
-DAT=TAI-UTC\\
-TAI=UTC+DAT\\
-TT=TAI+32.184s
+\begin{aligned}
+&UT1 = UTC + (UT1-UTC) \\
+&DAT = TAI - UTC \\
+&TAI = UTC + DAT \\
+&TT = TAI + 32.184\mathrm{s}
+\end{aligned}
 $$
 
 给定UTC时刻，可求得其距离J2000的世纪数，即
 
 $$
-t=(TT-2000 Jan 1d 12h TT) in days/36525
+t=\frac{TT-2451545.0}{36525}
 $$
 
-上式中$2000 Jan 1d 12h TT$对应的儒略日(Julian day)为2451545.0天。
+上式中 2000 Jan 1d 12h TT 对应的儒略日（Julian day）为 $2451545.0$ 天。
 
 ## **坐标转换**
 
-当一坐标系绕其3个轴旋转 角时，则坐标旋转矩阵可表述为：
+当一坐标系绕其3个轴旋转 $\theta$ 角时，则坐标旋转矩阵可表述为：
 
 $$
-R_x(\theta)=
-        \begin{pmatrix}
-        1 & 0 & 0 \\
-        0 & cos\theta & sin\theta \\
-        0 & -sin\theta & cos\theta \\
-        \end{pmatrix}        
-\\
-        R_y(\theta)=
-        \begin{pmatrix}
-        cos\theta & 0 & -sin\theta \\
-        0 & 1 & 0 \\
-        sin\theta & 0 & cos\theta \\
-        \end{pmatrix}        
-\\
-        R_z(\theta)=
-        \begin{pmatrix}
-        cos\theta & sin\theta & 0 \\        
-        -sin\theta & cos\theta & 0 \\
-        0 & 0 & 1 \\
-        \end{pmatrix}
+R_x(\theta) = 
+    \begin{pmatrix}
+    1 & 0 & 0 \\
+    0 & \cos\theta & \sin\theta \\
+    0 & -\sin\theta & \cos\theta
+    \end{pmatrix}
+$$
+
+$$
+R_y(\theta) = 
+    \begin{pmatrix}
+    \cos\theta & 0 & -\sin\theta \\
+    0 & 1 & 0 \\
+    \sin\theta & 0 & \cos\theta
+    \end{pmatrix}
+$$
+
+$$
+R_z(\theta) = 
+    \begin{pmatrix}
+    \cos\theta & \sin\theta & 0 \\
+    -\sin\theta & \cos\theta & 0 \\
+    0 & 0 & 1
+    \end{pmatrix}
 $$
 
 其旋转方向符合右手螺旋法则，即逆时针旋转为正方向。另外坐标旋转矩阵具备如下性质：
@@ -95,8 +107,6 @@ $$
 $$
 R^{-1}(\theta)=R^T(\theta)=R(-\theta)
 $$
-
-
 
 # **背景知识**
 
@@ -109,17 +119,17 @@ $$
 此外，地球的自转也不是均匀的，也很复杂。
 
 综上所述，从地固坐标系(ITRS)到地心惯性系(GCRS或J2000平赤道地心系)的坐标转换矩阵由极移，自转和岁差章动组成。
-![地轴的岁差章动现象](https://img-blog.csdn.net/20160731231316200)
+![地轴的岁差章动现象](axis.png)
 
 # **ITRS到GCRS的转换矩阵**
 
 **本文采用IAU 2000A/B 岁差章动模型**，在某历元UTC时刻，ITRS到GCRS的转换矩阵可写成：
 
 $$
-\vec r_{GCRS}=Q(t)\cdot R(t)\cdot W(t)\cdot \vec r_{ITRS}=H\cdot G^T(t)\cdot \vec r_{ITRS}
+\vec{r}_{\mathrm{GCRS}}=Q(t)\cdot R(t)\cdot W(t)\cdot\vec{r}_{\mathrm{ITRS}}=H\cdot G^{T}(t)\cdot\vec{r}_{\mathrm{ITRS}}
 $$
 
-其中，$\vec r_{ITRS}$和$\vec r_{GCRS}$分别对应同一位置向量在ITRS和GCRS坐标系中的坐标。
+其中，$\vec{r}_{\mathrm{ITRS}}$和$\vec{r}_{\mathrm{GCRS}}$分别对应同一位置向量在ITRS和GCRS坐标系中的坐标。
 
 上式中，$W(t)$，$R(t)$和$Q(t)$分别对应极移，自转和岁差章动转换矩阵。
 
@@ -130,24 +140,24 @@ $$
 ## **极移矩阵 $W(t)$**
 
 $$
-W(t)=R_z(-s^{'})\cdot R_y(x_p)\cdot R_x(y_p)
+W(t)=R_z(-s')\cdot R_y(x_p)\cdot R_x(y_p)
 $$
 
-上式中，$s^{'}$为：
+上式中，$s'$为：
 
 $$
-s^{'}=-0.047mas\cdot t
+s'=-0.047\mathrm{mas}\cdot t
 $$
 
 极移量$(x_p,y_p)$的求解为：
 
 $$
-(x_p,y_p)=(x,y)_{IERS}+(\Delta x,\Delta y)_{tidal}+(\Delta x,\Delta y)_{nutation}
+(x_p,y_p)=(x,y)_{\mathrm{IERS}}+(\Delta x,\Delta y)_{\mathrm{tidal}}+(\Delta x,\Delta y)_{\mathrm{nutation}}
 $$
 
-极移量主要是由IERS根据天文观测给出的$(x,y)*{IERS}$,每周都有新的观测数据，此外，由于地球潮汐和章动的影响，会对极移有微小的修正$(\Delta x,\Delta y)*{tidal} $和$(\Delta x,\Delta y)_{nutation}$ 。
+极移量主要是由IERS根据天文观测给出的$(x,y)_{\mathrm{IERS}}$，每周都有新的观测数据，此外，由于地球潮汐和章动的影响，会对极移有微小的修正$(\Delta x,\Delta y)_{\mathrm{tidal}}$和$(\Delta x,\Delta y)_{\mathrm{nutation}}$。
 
-上式中， $(x,y)*{IERS}$由IERS给出的观测数据计算求得，$(\Delta x,\Delta y)*{tidal} +(\Delta x,\Delta y)_{nutation}$ 可由公式计算得到，IERS提供此fortran源程序。
+上式中，$(x,y)_{\mathrm{IERS}}$由IERS给出的观测数据计算求得，$(\Delta x,\Delta y)_{\mathrm{tidal}}+(\Delta x,\Delta y)_{\mathrm{nutation}}$可由公式计算得到，IERS提供此fortran源程序。
 
 ## **地球自转矩阵$R(t)$**
 
@@ -166,19 +176,27 @@ $$
 这种方法是IAU最新提出的并极力倡导的，其计算公式为：
 
 $$
-Q(t)=  
-		\begin{pmatrix}
-        1-aX^2 & -aXY & X \\        
-        -aXY & 1-aY^2 & Y \\
-        -X & -Y & 1-a(X^2+Y^2) \\
-        \end{pmatrix} \cdot R_z(s)
+Q(t)=
+\begin{pmatrix}
+1-aX^{2} & -aXY & X \\
+-aXY & 1-aY^{2} & Y \\
+-X & -Y & 1-a(X^{2}+Y^{2})
+\end{pmatrix}\cdot R_z(s)
 $$
 
- 其中：
- $$a=1/2+1/8(X^2+Y^2)$$
- 上式中：
- $$(X,Y)=(X,Y)*{IAU2000}+(dX+dY)*{IERS}$$
- $(X,Y)*{IAU2000}$和$s$可根据IAU2000A/B岁差章动模型求解出，IERS同样给出求解的fortran源程序，另外，由于IAU2000A/B岁差章动模型没有包含地轴的高频率运动，所以要加上IERS通过观测数据给出的高频率修正项$(dX+dY)*{IERS}$ 。
+其中：
+
+$$
+a=\frac{1}{2}+\frac{1}{8}(X^2+Y^2)
+$$
+
+上式中：
+
+$$
+(X,Y)=(X,Y)_{\mathrm{IAU2000}}+(dX+dY)_{\mathrm{IERS}}
+$$
+
+$(X,Y)_{\mathrm{IAU2000}}$和$s$可根据IAU2000A/B岁差章动模型求解出，IERS同样给出求解的fortran源程序，另外，由于IAU2000A/B岁差章动模型没有包含地轴的高频率运动，所以要加上IERS通过观测数据给出的高频率修正项$(dX+dY)_{\mathrm{IERS}}$。
 
 ### **2. Equinox-based方法：**
 
@@ -186,31 +204,27 @@ $$
 Q(t)=B\cdot P(t)\cdot N(t)
 $$
 
-其中，常值偏差矩阵$B$ ，岁差矩阵$P(t)$和章动矩阵$N(t)$如下：
+其中，常值偏差矩阵$B$，岁差矩阵$P(t)$和章动矩阵$N(t)$的定义如下：
 
 $$
-\begin{equation}
-\left\{
 \begin{aligned}
-B &=R_z(-\delta\alpha_0)\cdot R_y(-\xi_0)\cdot R_x(\eta_0)\\
-P(t) &=R_x(-\epsilon_0)\cdot R_z(-\psi_A)\cdot R_x(\omega_A)\cdot R_z(-\chi_A)\\
-N(t) &=R_x(-\bar \epsilon)\cdot R_z(-\Delta\psi)\cdot R_x(\bar\epsilon+\Delta\epsilon)
+B &= R_z(-\delta\alpha_0) \cdot R_y(-\xi_0) \cdot R_x(\eta_0) \\
+P(t) &= R_x(-\epsilon_0) \cdot R_z(-\psi_A) \cdot R_x(\omega_A) \cdot R_z(-\chi_A) \\
+N(t) &= R_x(-\bar{\epsilon}) \cdot R_z(-\Delta\psi) \cdot R_x(\bar{\epsilon}+\Delta\epsilon)
 \end{aligned}
-\right.
-\end{equation}
 $$
 
 章动量$(\Delta\psi,\Delta\epsilon)$为：
 
 $$
-(\Delta\psi,\Delta\epsilon)=(\Delta\psi,\Delta\epsilon)_{IAU2000}+(\delta\Delta\psi,\delta\Delta\epsilon)_{IERS}
+(\Delta\psi,\Delta\epsilon)=(\Delta\psi,\Delta\epsilon)_{\mathrm{IAU2000}}+(\delta\Delta\psi,\delta\Delta\epsilon)_{\mathrm{IERS}}
 $$
 
-上式中，$=(\Delta\psi,\Delta\epsilon)*{IAU2000}$由IERS 2000A章动模型给出。前面提到过，IAU 2000A/B模型提供的岁差章动不包含高频率项，而是由IERS的观测数据提供（上式右端最后一项），但是在IERS给出的观测数据中仅仅给出$(dX,dY)*{IERS}$,我们可以通过IERS提供的fortran源程序将$(dX,dY)*{IERS}$转换为$(\delta\Delta\psi,\delta\Delta\epsilon)*{IERS}$。
+上式中，$(\Delta\psi,\Delta\epsilon)_{\mathrm{IAU2000}}$由IERS 2000A章动模型给出。前面提到过，IAU 2000A/B模型提供的岁差章动不包含高频率项，而是由IERS的观测数据提供（上式右端最后一项），但是在IERS给出的观测数据中仅仅给出$(dX,dY)_{\mathrm{IERS}}$，我们可以通过IERS提供的fortran源程序将$(dX,dY)_{\mathrm{IERS}}$转换为$(\delta\Delta\psi,\delta\Delta\epsilon)_{\mathrm{IERS}}$。
 
 其余参数皆为岁差参数，可以通过公式求出，此处从略。
 
-值得一提的是常值偏差矩阵 中的参数也是给定的，在CEO-based方法求解中，此偏差是包含在$(X,Y)_{IAU2000}$中的。
+值得一提的是常值偏差矩阵中的参数也是给定的，在CEO-based方法求解中，此偏差是包含在$(X,Y)_{\mathrm{IAU2000}}$中的。
 
 # **利用IERS提供的Fortran源程序进行转换**
 
@@ -236,7 +250,8 @@ $$
 | XYS2000A                                                                                 | X, Y, s                                                      |
 | interp.f                                                                                 | Interpolation of IERS polar motion and UT1 time series       |
 | uai2000.f                                                                                | IAU 2000 celestial pole offsets conversion (dpsi,deps,dX,dY) |
-| 上表最后可从[ftp://hpiers.obspm.fr/iers/models上下载得到。](ftp://hpiers.obspm.fr/iers/models上下载得到。) |                                                              |
+
+上表最后可从[ftp://hpiers.obspm.fr/iers/models上下载得到。](ftp://hpiers.obspm.fr/iers/models上下载得到。)
 
 
 
@@ -246,31 +261,31 @@ $$
 前面一再提到IAU 2000A/B章动岁差模型不包含高频率项，因此在完整的坐标转换过程中，必须考虑到IERS提供观测数据的高频率修正项。
 
 IERS每周发布Bulletins A，每月发布Bulletins B，它们都是描述EOP的参数，下面是综合的EOP参数文件(C 04)，其主要内容如下：
-![这里写图片描述](https://img-blog.csdn.net/20160803214913301)
-注意上述文件中，dPsi,dEpsilon是针对IAU 1980章动模型的修正项$(\delta\Delta\psi,\delta\Delta\epsilon)*{IAU1980}$，不是IAU 2000A章动模型的修正项$(\delta\Delta\psi,\delta\Delta\epsilon)*{IAU2000}$，因此不需要使用。
+![EOP数据示例](EOP.png)
+注意上述文件中，dPsi,dEpsilon是针对IAU 1980章动模型的修正项$(\delta\Delta\psi,\delta\Delta\epsilon)_{\mathrm{IAU1980}}$，不是IAU 2000A章动模型的修正项$(\delta\Delta\psi,\delta\Delta\epsilon)_{\mathrm{IAU2000}}$，因此不需要使用。
 
-根据UTC时刻的儒略日，加上数据列表$MJD,x,y,UT1-UTC$，可调用interp.f文件中的interp子程序插值计算出对应UTC时刻的$(x_p,y_p)$和$(UT1-UTC)*{IERS}$ 。在子程序interp中，先插值计算出IERS的观测数据$(x,y)*{IERS}$和$(UT1-UTC)*{IERS}$，然后内部调用子程序PMUT1_OCEANS和PM_GRAVI计算由潮汐和章动引起的高频率修正项$(\Delta x,\Delta y)*{tidal},(\Delta x,\Delta y)*{nutation}$和$(UT1-UTC)*{tidal}$，然后分别相加，给出最后的$(x_p,y_p)$和$UT1-UTC$ 。
-另外，根据IERS的观测数据列表$MJD,dX,dY,LOD,DAT$，可插值计算出$(dX,dY)*{IERS},LOD$和$DAT$。若为equinox-based方法转换，则需要调用uai2000.f文件中的子程序dXdY_dpsideps将$(dX,dY)*{IERS}$转换为$(\delta\Delta\psi,\delta\Delta\epsilon)_{IERS}$ 。
+根据UTC时刻的儒略日，加上数据列表$MJD,x,y,UT1-UTC$，可调用interp.f文件中的interp子程序插值计算出对应UTC时刻的$(x_p,y_p)$和$(UT1-UTC)_{\mathrm{IERS}}$ 。在子程序interp中，先插值计算出IERS的观测数据$(x,y)_{\mathrm{IERS}}$和$(UT1-UTC)_{\mathrm{IERS}}$，然后内部调用子程序PMUT1_OCEANS和PM_GRAVI计算由潮汐和章动引起的高频率修正项$(\Delta x,\Delta y)_{\mathrm{tidal}},(\Delta x,\Delta y)_{\mathrm{nutation}}$和$(UT1-UTC)_{\mathrm{tidal}}$，然后分别相加，给出最后的$(x_p,y_p)$和$UT1-UTC$ 。
+另外，根据IERS的观测数据列表$MJD,dX,dY,LOD,DAT$，可插值计算出$(dX,dY)_{\mathrm{IERS}}$、$LOD$和$DAT$。若为equinox-based方法转换，则需要调用uai2000.f文件中的子程序dXdY_dpsideps将$(dX,dY)_{\mathrm{IERS}}$转换为$(\delta\Delta\psi,\delta\Delta\epsilon)_{\mathrm{IERS}}$。
 
 有了$UT1-UTC$和$DAT$,则可求得$UT1,TT$和$t$ 。这些时间量在以后的子程序中都需要。
 
 ## **具体转换步骤**
 
-首先调用子程序SP2000求得$s^{'}$，再由上面插值求得的$(x_p,y_p)$，调用子程序POM2000即可求得极移矩阵$W(t)$。
+首先调用子程序SP2000求得$s'$，再由上面插值求得的$(x_p,y_p)$，调用子程序POM2000即可求得极移矩阵$W(t)$。
 求地球自转和岁差章动矩阵有两种方法，下面分别叙述：
 
 ### **1. CEO-based transformation**
 
 调用ERA2000求得地球自转角$\theta$；
-然后调用子程序XYS2000A求得$(X,Y)*{IAU2000}$ 和$s$，再加上上面观测数据插值的$(dX,dY)*{IERS}$，则可求得$(X,Y)$。根据$(X,Y,s)$，利用子程序BPN2000即可求得岁差章动转换矩阵$Q(t)$ 。
+然后调用子程序XYS2000A求得$(X,Y)_{\mathrm{IAU2000}}$ 和$s$，再加上上面观测数据插值的$(dX,dY)_{\mathrm{IERS}}$，则可求得$(X,Y)$。根据$(X,Y,s)$，利用子程序BPN2000即可求得岁差章动转换矩阵$Q(t)$ 。
 
 ### **2. Equinox-based transformation**
 
-调用子程序NU2000A求得章动量$(\Delta\psi,\Delta\epsilon)*{IAU2000}$，再加上由观测数据插值求得的$(dX,dY)*{IERS}$ 转换后的$(\delta\Delta\psi,\delta\Delta\epsilon)_{IERS}$ ，得到最后的$(\Delta\psi,\Delta\epsilon)$；
+调用子程序NU2000A求得章动量$(\Delta\psi,\Delta\epsilon)_{\mathrm{IAU2000}}$，再加上由观测数据插值求得的$(dX,dY)_{\mathrm{IERS}}$转换后的$(\delta\Delta\psi,\delta\Delta\epsilon)_{\mathrm{IERS}}$，得到最后的$(\Delta\psi,\Delta\epsilon)$；
 由$\Delta\epsilon$，调用GST2000即可求得地球自转角$\theta$;
 然后再由$(\Delta\psi,\Delta\epsilon)$调用子程序CBPN2000，求得岁差章动矩阵$Q(t)$。此处需要对子程序CBPN2000进行简单的说明，其内部进行常值偏差矩阵B和岁差章动矩阵P,N的计算，最后给出矩阵$Q(t)$。
 
-由上述两种方法之一求得$W(t),\theta$，和$Q(t)$，调用子程序T2C2000即可求得ITRS到GCRS的转换矩阵$H\cdot G^T(t)$。
+由上述两种方法之一求得$W(t),\theta$，和$Q(t)$，调用子程序T2C2000即可求得ITRS到GCRS的转换矩阵$H\cdot G^{T}(t)$。
 
 若采用方法二时，可以用子程序NU2000B替代NU2000A，其它都不变，此种转换的精度稍低(1mas)，但是其计算速度会快很多，在精度要求不是很高的情况下采用此种方法可使计算速度大大提高。
 
@@ -279,53 +294,41 @@ IERS每周发布Bulletins A，每月发布Bulletins B，它们都是描述EOP的
 1.)	下面给出GCRS和ITRS（包含速度）转换的完整表述：
 
 $$
-\begin{equation}
-\left\{
 \begin{aligned}
-\vec r_{ITRS} &=[Q(t)\cdot R(t)\cdot W(t)]^T\cdot \vec r_{GCRS}=H\cdot G(t)\cdot \vec r_{GCRS}\\
-\vec r_{TIRS} &=[Q(t)\cdot R(t)]^T\cdot \vec r_{GCRS}\\
-\vec V_{ITRS} &=W^T(t)\cdot \{R^T(t)\cdot Q^T(t)\vec V_{GCRS}-\vec \omega_e\times \vec r_{TIRS}\}
+\vec{r}_{\mathrm{ITRS}} &=[Q(t)\cdot R(t)\cdot W(t)]^{T}\cdot\vec{r}_{\mathrm{GCRS}}=H\cdot G(t)\cdot\vec{r}_{\mathrm{GCRS}} \\
+\vec{r}_{\mathrm{TIRS}} &=[Q(t)\cdot R(t)]^{T}\cdot\vec{r}_{\mathrm{GCRS}} \\
+\vec{V}_{\mathrm{ITRS}} &=W^{T}(t)\cdot\{R^{T}(t)\cdot Q^{T}(t)\vec{V}_{\mathrm{GCRS}}-\vec{\omega}_{e}\times\vec{r}_{\mathrm{TIRS}}\}
 \end{aligned}
-\right.
-\end{equation}
 $$
 
 和
 
 $$
-\begin{equation}
-\left\{
 \begin{aligned}
- \vec r_{GCRS}&=Q(t)\cdot R(t)\cdot W(t)\cdot\vec r_{ITRS} =H\cdot G^T(t)\cdot\vec r_{ITRS}\\ 
-\vec r_{TIRS} &=W(t)\cdot \vec r_{ITRS}\\
-\vec V_{GCRS} &=Q(t)\cdot R(t)\cdot \{W(t)\cdot \vec V_{ITRS}+\vec \omega_e\times \vec r_{TIRS}\}
+\vec{r}_{\mathrm{GCRS}} &=Q(t)\cdot R(t)\cdot W(t)\cdot\vec{r}_{\mathrm{ITRS}}=H\cdot G^{T}(t)\cdot\vec{r}_{\mathrm{ITRS}} \\
+\vec{r}_{\mathrm{TIRS}} &=W(t)\cdot\vec{r}_{\mathrm{ITRS}} \\
+\vec{V}_{\mathrm{GCRS}} &=Q(t)\cdot R(t)\cdot\{W(t)\cdot\vec{V}_{\mathrm{ITRS}}+\vec{\omega}_{e}\times\vec{r}_{\mathrm{TIRS}}\}
 \end{aligned}
-\right.
-\end{equation}
 $$
 
 其中
 
 $$
-\omega_e=7.292115146706979\times10^{-5}\{1-LOD/86400\}
+\omega_e=7.292115146706979\times10^{-5}\left(1-\mathrm{LOD}/86400\right)
 $$
 
 上式中的LOD由IERS的观测数据插值求得。
-注意上述公式中$\vec r_{TIRS}$和$\vec r_{ITRS}$的区别，$\vec r_{TIRS}$为地固系ITRS坐标$\vec r_{ITRS}$经过极移转换矩阵后的坐标。
+注意上述公式中$\vec{r}_{\mathrm{TIRS}}$和$\vec{r}_{\mathrm{ITRS}}$的区别，$\vec{r}_{\mathrm{TIRS}}$为地固系ITRS坐标$\vec{r}_{\mathrm{ITRS}}$经过极移转换矩阵后的坐标。
 
 2.)	若需要GCRS和J2000平赤道地心系的相互转换，只需要常值偏差矩阵B即可。其具体的源程序需要读者自行编制。
 
 $$
-\begin{equation}
-\left\{
 \begin{aligned}
- \vec r_{GCRS}&=B\cdot \vec r_{J2000}\\ 
-\vec V_{GCRS} &=B\cdot \vec V_{J2000}\\
-\vec r_{J2000} &=B^T\cdot  \vec r_{GCRS}\\
-\vec V_{J2000} &=B^T \vec V_{GCRS}
+\vec{r}_{\mathrm{GCRS}} &=B\cdot\vec{r}_{\mathrm{J2000}} \\
+\vec{V}_{\mathrm{GCRS}} &=B\cdot\vec{V}_{\mathrm{J2000}} \\
+\vec{r}_{\mathrm{J2000}} &=B^{T}\cdot\vec{r}_{\mathrm{GCRS}} \\
+\vec{V}_{\mathrm{J2000}} &=B^{T}\cdot\vec{V}_{\mathrm{GCRS}}
 \end{aligned}
-\right.
-\end{equation}
 $$
 
 3.)	在IERS提供的fortran源程序中，有部分子程序需要调用IAU SOFA软件包中的子程序，有关IAU SOFA软件包的说明和使用请参见我的文档《IAU SOFA软件包介绍》。	

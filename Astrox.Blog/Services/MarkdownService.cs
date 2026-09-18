@@ -1,6 +1,8 @@
 using System.Text;
 using Markdig;
 using Markdig.Extensions.AutoIdentifiers;
+using Markdig.Extensions.GenericAttributes;
+using Markdig.Extensions.Mathematics;
 using Markdig.Renderers.Html;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
@@ -13,11 +15,36 @@ public class MarkdownService
 
     public MarkdownService()
     {
-        _pipeline = new MarkdownPipelineBuilder()
+        var builder = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()
             .UseAutoIdentifiers(AutoIdentifierOptions.GitHub)
-            .DisableHtml() // strip raw HTML for safer rendering
-            .Build();
+            .DisableHtml(); // strip raw HTML for safer rendering
+
+        // {r} / {ITRS} 会被 GenericAttributes 收成 HTML 属性，破坏 LaTeX 下标。
+        for (var i = builder.Extensions.Count - 1; i >= 0; i--)
+        {
+            if (builder.Extensions[i] is GenericAttributesExtension)
+                builder.Extensions.RemoveAt(i);
+        }
+
+        ReplaceMathInlineParser(builder);
+        _pipeline = builder.Build();
+    }
+
+    private static void ReplaceMathInlineParser(MarkdownPipelineBuilder builder)
+    {
+        var parsers = builder.InlineParsers;
+        for (var i = 0; i < parsers.Count; i++)
+        {
+            if (parsers[i] is MathInlineParser and not CjkAwareMathInlineParser)
+            {
+                parsers.RemoveAt(i);
+                parsers.Insert(i, new CjkAwareMathInlineParser());
+                return;
+            }
+        }
+
+        parsers.Add(new CjkAwareMathInlineParser());
     }
 
     public string ToHtml(string? markdown)
@@ -72,6 +99,9 @@ public class MarkdownService
             {
                 case LiteralInline literal:
                     sb.Append(literal.Content.ToString());
+                    break;
+                case MathInline math:
+                    sb.Append(math.Content.ToString());
                     break;
                 case CodeInline code:
                     sb.Append(code.Content);

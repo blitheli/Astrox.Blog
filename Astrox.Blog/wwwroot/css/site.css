@@ -714,6 +714,17 @@ a:hover {
   border-radius: 6px;
 }
 
+.markdown-body .katex {
+  color: inherit;
+}
+
+.markdown-body div.math,
+.markdown-body .katex-display {
+  margin: 1.1rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .markdown-body table {
   width: 100%;
   border-collapse: collapse;
@@ -1075,20 +1086,6 @@ a:hover {
   font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 0.06em;
-}
-
-.footer-credit {
-  width: 100%;
-  font-size: 0.78rem;
-  opacity: 0.9;
-}
-
-.footer-credit a {
-  color: var(--cyan);
-}
-
-.footer-credit a:hover {
-  color: var(--cyan-bright);
 }
 
 @media (max-width: 900px) {

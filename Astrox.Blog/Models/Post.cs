@@ -18,7 +18,7 @@ public class Post
     [Required]
     public string Markdown { get; set; } = string.Empty;
 
-    /// <summary>Comma-separated tag labels, e.g. "航天,技术".</summary>
+    /// <summary>Comma-separated tag labels, e.g. "STK,轨道力学".</summary>
     [MaxLength(400)]
     public string? Tags { get; set; }
 

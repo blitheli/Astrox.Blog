@@ -1,7 +1,9 @@
 using Astrox.Blog.Data;
+using Astrox.Blog.Models;
 using Astrox.Blog.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Astrox.Blog.ViewComponents;
 
@@ -10,10 +12,12 @@ public class SiteSidebarViewComponent : ViewComponent
     public const int LatestCommentCount = 8;
 
     private readonly ApplicationDbContext _db;
+    private readonly BlogOptions _options;
 
-    public SiteSidebarViewComponent(ApplicationDbContext db)
+    public SiteSidebarViewComponent(ApplicationDbContext db, IOptions<BlogOptions> options)
     {
         _db = db;
+        _options = options.Value;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
@@ -23,14 +27,15 @@ public class SiteSidebarViewComponent : ViewComponent
             .Select(p => p.Tags)
             .ToListAsync();
 
-        var categories = published
+        var counts = published
             .SelectMany(tags => string.IsNullOrWhiteSpace(tags)
                 ? Enumerable.Empty<string>()
                 : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .GroupBy(t => t, StringComparer.OrdinalIgnoreCase)
-            .Select(g => new SidebarCategory(g.First(), g.Count()))
-            .OrderByDescending(c => c.Count)
-            .ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+
+        var categories = _options.CategoryList
+            .Select(name => new SidebarCategory(name, counts.TryGetValue(name, out var n) ? n : 0))
             .ToList();
 
         var comments = await _db.Comments.AsNoTracking()

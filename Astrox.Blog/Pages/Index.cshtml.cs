@@ -32,11 +32,7 @@ public class IndexModel : PageModel
             .OrderByDescending(p => p.PublishedAt ?? p.CreatedAt)
             .ToListAsync();
 
-        AllTags = published
-            .SelectMany(p => p.TagList)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(t => t)
-            .ToList();
+        AllTags = _options.CategoryList.ToList();
 
         if (ActiveTag is not null)
         {

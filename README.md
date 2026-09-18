@@ -54,7 +54,7 @@ export ConnectionStrings__DefaultConnection="Data Source=/data/astrox-blog.db"
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Data Source=astrox-blog.db"
+    "DefaultConnection": "Data Source=D:/IIS/astrox-blog.db"
   },
   "Blog": {
     "Title": "Astrox.Blog",
@@ -222,7 +222,7 @@ curl -sS "http://127.0.0.1:43147/api/posts/welcome-to-astrox-blog" \
 
 **IIS 前置**：服务器需安装 [.NET 10 ASP.NET Core Hosting Bundle](https://dotnet.microsoft.com/download/dotnet/10.0)，站点物理路径指向 `D:\IIS\Astrox.Blog`，应用程序池为「无托管代码」。
 
-**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。若 SQLite 放在站点目录内会被清掉；生产请把连接串指到站点外持久路径，并通过 IIS / 系统环境变量注入 `ConnectionStrings__DefaultConnection`、`Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
+**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。`appsettings.json` 默认连接串已指向站点外 `D:/IIS/astrox-blog.db`；仍可通过 IIS / 系统环境变量覆盖 `ConnectionStrings__DefaultConnection`，并注入 `Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
 
 ### 其他托管
 

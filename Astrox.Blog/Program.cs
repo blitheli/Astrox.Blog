@@ -51,6 +51,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSingleton<SiteUrlService>();
 builder.Services.AddSingleton<CommentAntiSpamService>();
+builder.Services.AddSingleton<PostMediaService>();
 
 var mediaRoot = MediaRootResolver.Resolve(
     builder.Configuration["Blog:MediaRoot"],
@@ -97,7 +98,7 @@ app.MapSeoEndpoints();
 await DbSeeder.InitializeAsync(app.Services);
 
 app.Logger.LogInformation(
-    "Astrox.Blog 已启动，环境 {Environment}，日志目录 {LogDirectory}，媒体目录 {MediaRoot}",
+    "Astrox.Blog 已启动，环境 {Environment}，日志目录 {LogDirectory}，媒体目录 {MediaRoot}（/media；文章图 /media/posts/{{slug}}）",
     app.Environment.EnvironmentName,
     logDirectory,
     mediaRoot);

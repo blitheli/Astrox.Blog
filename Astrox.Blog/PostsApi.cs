@@ -1,9 +1,7 @@
 using Astrox.Blog.Data;
 using Astrox.Blog.Models;
 using Astrox.Blog.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,15 +15,17 @@ public static class PostsApi
             .RequireAuthorization(new AuthorizeAttribute
             {
                 AuthenticationSchemes = ApiKeyAuthDefaults.Scheme
-            });
+            })
+            .DisableAntiforgery();
 
         group.MapGet("/", ListAsync);
         group.MapGet("/{slug}", GetBySlugAsync);
-        group.MapPost("/", CreateAsync);
-        group.MapPost("/from-zip", ImportFromZipAsync)
-            .DisableAntiforgery()
+        group.MapPost("/", CreateAsync)
             .WithMetadata(new RequestSizeLimitAttribute(PostZipImporter.MaxZipBytes));
-        group.MapPut("/{slug}", UpdateAsync);
+        group.MapPost("/from-zip", ImportFromZipAsync)
+            .WithMetadata(new RequestSizeLimitAttribute(PostZipImporter.MaxZipBytes));
+        group.MapPut("/{slug}", UpdateAsync)
+            .WithMetadata(new RequestSizeLimitAttribute(PostZipImporter.MaxZipBytes));
         group.MapDelete("/{slug}", DeleteAsync);
 
         return group;
@@ -59,33 +59,41 @@ public static class PostsApi
     }
 
     private static async Task<IResult> CreateAsync(
-        [FromBody] ApiPostRequest request,
+        HttpRequest request,
         ApplicationDbContext db,
+        PostMediaService media,
         ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger("PostsApi");
-        if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Markdown))
+        var parsed = await ParsePostPayloadAsync(request);
+        if (parsed.Error is not null)
+            return Results.BadRequest(new { error = parsed.Error });
+
+        var body = parsed.Body!;
+        if (string.IsNullOrWhiteSpace(body.Title) || string.IsNullOrWhiteSpace(body.Markdown))
             return Results.BadRequest(new { error = "title 与 markdown 为必填项" });
 
-        var slug = SlugHelper.Normalize(request.Slug, request.Title);
+        var slug = SoftNormalizeSlug(body.Slug, body.Title);
         if (await db.Posts.AnyAsync(p => p.Slug == slug))
         {
             logger.LogWarning("API 创建文章冲突，slug 已存在：{Slug}", slug);
             return Results.Conflict(new { error = $"slug 已存在：{slug}" });
         }
 
+        var markdown = await ApplyMediaAsync(media, slug, body.Markdown, parsed.Files, logger);
+
         var now = DateTime.UtcNow;
         var post = new Post
         {
-            Title = request.Title.Trim(),
+            Title = body.Title.Trim(),
             Slug = slug,
-            Summary = string.IsNullOrWhiteSpace(request.Summary) ? null : request.Summary.Trim(),
-            Markdown = request.Markdown,
-            Tags = request.NormalizedTags(),
-            IsPublished = request.Publish,
+            Summary = string.IsNullOrWhiteSpace(body.Summary) ? null : body.Summary.Trim(),
+            Markdown = markdown,
+            Tags = body.NormalizedTags(),
+            IsPublished = body.Publish,
             CreatedAt = now,
             UpdatedAt = now,
-            PublishedAt = request.Publish ? now : null
+            PublishedAt = body.Publish ? now : null
         };
 
         db.Posts.Add(post);
@@ -232,8 +240,9 @@ public static class PostsApi
 
     private static async Task<IResult> UpdateAsync(
         string slug,
-        [FromBody] ApiPostRequest request,
+        HttpRequest request,
         ApplicationDbContext db,
+        PostMediaService media,
         ILoggerFactory loggerFactory)
     {
         var logger = loggerFactory.CreateLogger("PostsApi");
@@ -244,24 +253,31 @@ public static class PostsApi
             return Results.NotFound(new { error = "文章不存在" });
         }
 
-        if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Markdown))
+        var parsed = await ParsePostPayloadAsync(request);
+        if (parsed.Error is not null)
+            return Results.BadRequest(new { error = parsed.Error });
+
+        var body = parsed.Body!;
+        if (string.IsNullOrWhiteSpace(body.Title) || string.IsNullOrWhiteSpace(body.Markdown))
             return Results.BadRequest(new { error = "title 与 markdown 为必填项" });
 
-        var newSlug = SlugHelper.Normalize(request.Slug ?? slug, request.Title);
+        var newSlug = SoftNormalizeSlug(body.Slug ?? slug, body.Title);
         if (newSlug != post.Slug && await db.Posts.AnyAsync(p => p.Slug == newSlug))
             return Results.Conflict(new { error = $"slug 已存在：{newSlug}" });
 
+        var markdown = await ApplyMediaAsync(media, newSlug, body.Markdown, parsed.Files, logger);
+
         var wasPublished = post.IsPublished;
-        post.Title = request.Title.Trim();
+        post.Title = body.Title.Trim();
         post.Slug = newSlug;
-        post.Summary = string.IsNullOrWhiteSpace(request.Summary) ? null : request.Summary.Trim();
-        post.Markdown = request.Markdown;
-        post.Tags = request.NormalizedTags();
-        post.IsPublished = request.Publish;
+        post.Summary = string.IsNullOrWhiteSpace(body.Summary) ? null : body.Summary.Trim();
+        post.Markdown = markdown;
+        post.Tags = body.NormalizedTags();
+        post.IsPublished = body.Publish;
         post.UpdatedAt = DateTime.UtcNow;
-        if (request.Publish && !wasPublished)
+        if (body.Publish && !wasPublished)
             post.PublishedAt = DateTime.UtcNow;
-        else if (!request.Publish)
+        else if (!body.Publish)
             post.PublishedAt = null;
 
         await db.SaveChangesAsync();
@@ -284,6 +300,88 @@ public static class PostsApi
         return Results.NoContent();
     }
 
+    private static async Task<string> ApplyMediaAsync(
+        PostMediaService media,
+        string slug,
+        string markdown,
+        IReadOnlyList<IFormFile> files,
+        ILogger logger)
+    {
+        foreach (var file in files)
+        {
+            try
+            {
+                await media.SaveUploadAsync(slug, file);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "API 保存附件图片失败：{Name}", file.FileName);
+            }
+        }
+
+        var uploads = PostMediaService.IndexFormFiles(files);
+        var result = media.ProcessMarkdown(markdown, slug, uploads);
+        foreach (var w in result.Warnings)
+            logger.LogWarning("API Markdown 图片：{Warning}", w);
+        foreach (var r in result.Rewritten)
+            logger.LogInformation("API Markdown 图片已改写：{Info}", r);
+        return result.Markdown;
+    }
+
+    private static async Task<ParsedPostPayload> ParsePostPayloadAsync(HttpRequest request)
+    {
+        if (request.HasFormContentType)
+        {
+            var form = await request.ReadFormAsync();
+            var title = form["title"].ToString();
+            var slug = form["slug"].ToString();
+            var summary = form["summary"].ToString();
+            var markdown = form["markdown"].ToString();
+            var tagsRaw = form["tags"].ToString();
+            var publishRaw = form["publish"].ToString();
+
+            bool publish = false;
+            if (!string.IsNullOrWhiteSpace(publishRaw))
+            {
+                publish = publishRaw is "1" or "true" or "True" or "on" or "yes" or "Yes";
+            }
+
+            object? tags = string.IsNullOrWhiteSpace(tagsRaw) ? null : tagsRaw;
+            // tags 也可多次提交：tags=a&tags=b
+            var tagValues = form["tags"];
+            if (tagValues.Count > 1)
+                tags = tagValues.Select(t => t?.ToString()).Where(t => !string.IsNullOrWhiteSpace(t)).ToArray();
+
+            var body = new ApiPostRequest
+            {
+                Title = title,
+                Slug = string.IsNullOrWhiteSpace(slug) ? null : slug,
+                Summary = string.IsNullOrWhiteSpace(summary) ? null : summary,
+                Markdown = markdown,
+                Tags = tags,
+                Publish = publish
+            };
+
+            var files = form.Files.Where(f => f.Length > 0).ToList();
+            return new ParsedPostPayload(body, files, null);
+        }
+
+        try
+        {
+            var body = await request.ReadFromJsonAsync<ApiPostRequest>();
+            if (body is null)
+                return new ParsedPostPayload(null, Array.Empty<IFormFile>(), "请求体无效");
+            return new ParsedPostPayload(body, Array.Empty<IFormFile>(), null);
+        }
+        catch (Exception)
+        {
+            return new ParsedPostPayload(null, Array.Empty<IFormFile>(), "无法解析 JSON 请求体；也可使用 multipart/form-data");
+        }
+    }
+
+    private static string SoftNormalizeSlug(string? slug, string title) =>
+        SlugHelper.Normalize(slug, title);
+
     private static object ToDto(Post p) => new
     {
         p.Id,
@@ -297,4 +395,9 @@ public static class PostsApi
         p.UpdatedAt,
         p.PublishedAt
     };
+
+    private sealed record ParsedPostPayload(
+        ApiPostRequest? Body,
+        IReadOnlyList<IFormFile> Files,
+        string? Error);
 }

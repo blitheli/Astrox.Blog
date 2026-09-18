@@ -7,15 +7,24 @@
 <section class="admin-header">
     <div>
         <h1>@(Model.IsNew ? "新建文章" : "编辑文章")</h1>
-        <p class="muted">支持 Markdown；可预览后再保存。</p>
+        <p class="muted">支持 Markdown；相对路径图片保存时会托管到 <code>/media/posts/{slug}/</code>（MediaRoot）；外链不变。</p>
     </div>
     <a class="btn ghost" asp-page="/Admin/Index">返回列表</a>
 </section>
 
-<form method="post" class="editor-layout">
+<form method="post" enctype="multipart/form-data" class="editor-layout">
     <input type="hidden" asp-for="Input.Id" />
     <div class="form-stack editor-fields">
         <div asp-validation-summary="ModelOnly" class="form-error"></div>
+        @if (Model.ImageMessages.Count > 0)
+        {
+            <ul class="image-messages">
+                @foreach (var msg in Model.ImageMessages)
+                {
+                    <li>@msg</li>
+                }
+            </ul>
+        }
         <label>
             <span>标题</span>
             <input asp-for="Input.Title" />
@@ -43,8 +52,17 @@
             <textarea asp-for="Input.Markdown" class="md-editor" rows="18"></textarea>
             <span asp-validation-for="Input.Markdown" class="field-error"></span>
         </label>
+        <label>
+            <span>上传图片并插入正文（png/jpg/gif/webp）</span>
+            <input asp-for="InsertImage" type="file" accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp" />
+        </label>
+        <label>
+            <span>随保存附带的图片文件（文件名需与 MD 中相对路径 basename 对应）</span>
+            <input asp-for="UploadImages" type="file" multiple accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp" />
+        </label>
         <div class="btn-row">
             <button type="submit" class="btn primary">保存</button>
+            <button type="submit" formaction="?handler=UploadImage" class="btn ghost">上传并插入</button>
             <button type="submit" formaction="?handler=Preview" class="btn ghost">预览</button>
         </div>
     </div>

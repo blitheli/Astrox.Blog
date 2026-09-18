@@ -7,11 +7,12 @@
 - **Astrox.Blog**：ASP.NET Core 10（`net10.0`）Razor Pages + SQLite（EF Core）+ Identity（单所有者）+ Markdig + Minimal API（`/api/posts`）。
 - 公开读者只读已发布文章；写操作需 Cookie 登录（`/Admin`）或 Bearer API Key。
 - **zip 导入**：`POST /api/posts/from-zip`（multipart 字段 `file`）解压后 `.md` 入库，图片写入站点外 `Blog:MediaRoot`（生产默认 `D:/IIS/astrox-blog-media`），经 `/media/{包名}/` 提供；相对图片路径会改写。部署清空站点目录不影响该媒体目录。
-- 用户说「将 Docs 下某子文件夹上传到阿里云」时，按下方「Docs 子文件夹上传到阿里云」立即执行，不要只给步骤说明。
+- 用户说「将 Docs 下某子文件夹上传到阿里云」时，按下方「Docs 子文件夹上传到阿里云」立即执行，不要只给步骤说明。勿再新增/恢复「同步 Docs 目录到阿里云」的 GitHub Actions workflow。
 - 中文 UI 文案为主；视觉为深色青霓虹科技风（`wwwroot/css/site.css`）。
 - SEO：`/robots.txt`、`/sitemap.xml`、canonical / OG / Twitter / JSON-LD（`Blog:PublicBaseUrl`）。
 - 外部集成（可选）：Umami（`Blog:Umami*`）；未配置则不注入。
 - **站内评论**：`Comment` 实体写入 SQLite；提交即公开、无审核；防刷见 `CommentAntiSpamService`（限流 / 蜜罐 / 最短填写时间 / 正文限制）。所有者可在文章页软删。无 Giscus / 第三方评论 SaaS。
+- **Markdown 图片（Admin / API）**：外链与已托管 `/media/...`、`/images/...` 不改写；相对路径经 `PostMediaService` 拷入 `Blog:MediaRoot/posts/{slug}/`，改写为 `/media/posts/{slug}/...`。Admin 保存与 `POST`/`PUT /api/posts` multipart 均会处理（与 zip 共用 MediaRoot）。
 
 
 
@@ -121,9 +122,7 @@ curl.exe -sS -X POST "https://<生产域名>/api/posts/from-zip" `
 - Workflow：`.github/workflows/deploy-aliyun-iis.yml` → 目标目录 `D:/IIS/Astrox.Blog`。
 - Repository secrets（与 RocketSim3D / ASTROX.Docs 同名）：`ALIYUN_HOST`、`ALIYUN_USERNAME`、`ALIYUN_PASSWORD`。
 - 服务器需 .NET 10 ASP.NET Core Hosting Bundle；部署会清空站点目录后上传 publish 输出（含 `web.config`）。
-- 勿在日志或文档中打印 Secret 值；`appsettings.json` 默认库路径为站点外 `D:/IIS/astrox-blog.db`，文章媒体为 `D:/IIS/astrox-blog-media`；生产 `Blog__*` 等仍可用 IIS 环境变量覆盖，库文件与上传图片勿放在会被清空的站点目录内。
-
-
+- 勿在日志或文档中打印 Secret 值；`appsettings.json` 默认库路径为站点外 `D:/IIS/astrox-blog.db`，文章媒体为 `D:/IIS/astrox-blog-media`（`Blog:MediaRoot`，映射 `/media`）；生产 `Blog__*` 等仍可用 IIS 环境变量覆盖，库文件与上传图片勿放在会被清空的站点目录内。
 
 ## 种子与首次运行
 

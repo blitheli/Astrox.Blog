@@ -23,8 +23,9 @@ public class BlogOptions
     public string ApiKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// Persistent article media root (zip 解压后的图片). Must live outside the IIS site directory.
-    /// Empty = ContentRoot/astrox-blog-media.
+    /// 持久化文章媒体根目录（zip 导入与 Admin/API 相对路径图片共用）。
+    /// 映射 URL 前缀 <c>/media</c>；Admin/API 文章图落在 <c>{MediaRoot}/posts/{slug}/</c>。
+    /// 须位于 IIS 站点目录外。空 = ContentRoot/astrox-blog-media。
     /// </summary>
     public string MediaRoot { get; set; } = string.Empty;
 

@@ -72,12 +72,15 @@ export ConnectionStrings__DefaultConnection="Data Source=/data/astrox-blog.db"
     "PublicBaseUrl": "https://blog.example.com",
     "UmamiScriptUrl": "",
     "UmamiWebsiteId": "",
-    "ExtraHeadSnippet": ""
+    "ExtraHeadSnippet": "",
+    "MediaRoot": "D:/IIS/Astrox.Blog.media"
   }
 }
 ```
 
 生产环境请用环境变量注入密钥，不要把真实密码 / API Key 提交进仓库。
+
+**MediaRoot**：文章图片物理根目录，URL 前缀为 `/images/posts`。留空则使用 `wwwroot/images/posts`。阿里云 IIS 每次部署会清空站点目录，**运行期上传的图片请把 MediaRoot 指到站点外**（与库文件同级外目录即可），例如环境变量 `Blog__MediaRoot=D:/IIS/Astrox.Blog.media`。
 
 ## SEO（站内）
 
@@ -139,10 +142,30 @@ export Blog__UmamiWebsiteId="00000000-0000-4000-8000-000000000000"
 
 ## 远程 Markdown 发布（API）
 
-认证：`Authorization: Bearer <Blog:ApiKey>`  
-`Content-Type: application/json`
+认证：`Authorization: Bearer <Blog:ApiKey>`
 
-### 创建
+支持两种请求体：
+
+1. **`multipart/form-data`（推荐，可带内部图片）**
+2. **`application/json`**（纯文；外链图可照常写在 Markdown 里）
+
+### Markdown 图片规则（Admin / `POST`·`PUT /api/posts`）
+
+| 链接类型 | 行为 |
+| --- | --- |
+| `http://` / `https://` 外链 | **不改写、不搬运** |
+| 已是站点路径 `/media/...` 或 `/images/...` | **不改写**（视为已托管） |
+| 相对路径（如 `./axis.png`、`axis.png`、`Docs/.../x.png`） | 拷贝到 `MediaRoot/posts/{slug}/`，Markdown 改写为 `/media/posts/{slug}/文件名` |
+
+允许扩展名：`png` / `jpg` / `jpeg` / `gif` / `webp`（不含 svg，降低 XSS 风险）。文件名会去掉路径穿越并做安全化。
+
+与 zip 导入共用 `Blog:MediaRoot`（空 = `ContentRoot/astrox-blog-media`，映射 `/media`）。生产请指到站点外，例如：
+
+```bash
+export Blog__MediaRoot="D:/IIS/astrox-blog-media"
+```
+
+### 创建（JSON）
 
 ```bash
 curl -sS -X POST "http://127.0.0.1:43147/api/posts" \
@@ -154,11 +177,40 @@ curl -sS -X POST "http://127.0.0.1:43147/api/posts" \
     "summary": "通过 API 推送的 Markdown",
     "tags": ["CI", "自动化"],
     "publish": true,
-    "markdown": "# 你好\n\n这是 **Markdown** 正文。"
+    "markdown": "# 你好\n\n这是 **Markdown** 正文。\n\n![外链图](https://example.com/a.png)"
   }'
 ```
 
+### 创建（multipart，带相对路径图片）
+
+字段：`title` / `slug` / `summary` / `tags` / `publish` / `markdown`，其余文件字段为图片（**文件名或字段名**需与 Markdown 中相对路径的 basename 对应）。
+
+```bash
+curl -sS -X POST "http://127.0.0.1:43147/api/posts" \
+  -H "Authorization: Bearer dev-astrox-api-key-change-me" \
+  -F "title=坐标系笔记" \
+  -F "slug=itrs-gcrs" \
+  -F "summary=带本地插图" \
+  -F "tags=航天,坐标" \
+  -F "publish=true" \
+  -F "markdown=# 说明
+
+外链保持不变：
+
+![remote](https://example.com/remote.png)
+
+相对路径会被托管：
+
+![axis](axis.png)
+" \
+  -F "axis.png=@./Docs/ITRS-GCRS-J2000/axis.png"
+```
+
+成功后正文中的 `axis.png` 会变成 `/media/posts/itrs-gcrs/axis.png`，文件落在 MediaRoot 对应目录。
+
 ### 按 slug 更新
+
+JSON：
 
 ```bash
 curl -sS -X PUT "http://127.0.0.1:43147/api/posts/from-ci" \
@@ -171,6 +223,8 @@ curl -sS -X PUT "http://127.0.0.1:43147/api/posts/from-ci" \
     "publish": true
   }'
 ```
+
+multipart 更新同理（`PUT` + `-F` 字段；可再次附带图片文件）。
 
 ### 删除
 
@@ -190,6 +244,8 @@ curl -sS "http://127.0.0.1:43147/api/posts/welcome-to-astrox-blog" \
 ```
 
 `tags` 可为字符串数组，或逗号分隔字符串。`slug` 可省略，将由标题生成。
+
+后台编辑页（`/Admin/Edit`）保存时同样扫描 Markdown；也可「上传并插入」或随保存附带文件（basename 对齐相对路径）。
 
 ### 上传 zip（Markdown + 图片）
 
@@ -231,7 +287,7 @@ curl -sS -X POST "http://127.0.0.1:43147/api/posts/from-zip" \
 
 **IIS 前置**：服务器需安装 [.NET 10 ASP.NET Core Hosting Bundle](https://dotnet.microsoft.com/download/dotnet/10.0)，站点物理路径指向 `D:\IIS\Astrox.Blog`，应用程序池为「无托管代码」。
 
-**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。`appsettings.json` 默认把 SQLite 放在站点外 `D:/IIS/astrox-blog.db`，文章图片放在 `D:/IIS/astrox-blog-media`。仍可通过 IIS / 系统环境变量覆盖 `ConnectionStrings__DefaultConnection`、`Blog__MediaRoot`，并注入 `Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
+**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。`appsettings.json` 默认把 SQLite 放在站点外 `D:/IIS/astrox-blog.db`，文章图片放在 `D:/IIS/astrox-blog-media`（`Blog:MediaRoot` → `/media`）。仍可通过 IIS / 系统环境变量覆盖 `ConnectionStrings__DefaultConnection`、`Blog__MediaRoot`，并注入 `Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
 
 ### 其他托管
 

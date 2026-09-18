@@ -1063,29 +1063,31 @@ a:hover {
 
 .site-footer {
   border-top: 1px solid var(--line);
-  padding: 1.4rem 0 2rem;
+  padding: 0.4rem 0;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
   background: var(--header-bg);
   backdrop-filter: blur(10px);
 }
 
 .footer-inner {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
 }
 
-.footer-inner p {
+.footer-meta {
   margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.85rem;
 }
 
 .footer-tag {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
 }
 
 @media (max-width: 900px) {
@@ -1143,5 +1145,13 @@ a:hover {
 
   .hero {
     padding-top: 0.75rem;
+  }
+
+  .site-footer {
+    padding: 0.35rem 0;
+  }
+
+  .footer-meta {
+    gap: 0.1rem 0.6rem;
   }
 }

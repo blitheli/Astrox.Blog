@@ -67,6 +67,7 @@
             <time datetime="@published.ToString("o")">
                 @published.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
             </time>
+            <span class="article-views">阅读 @Model.ViewCount.ToString("N0") 次</span>
             @if (!Model.Post.IsPublished)
             {
                 <span class="badge draft">草稿</span>

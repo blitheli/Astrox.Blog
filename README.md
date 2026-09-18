@@ -2,7 +2,7 @@
 
 Yunfei Li / **Astrox** 的个人博客：科幻科技风界面、所有者登录发布、支持通过 API 远程推送 Markdown。
 
-- **公开**：浏览已发布文章、按标签筛选、按 slug 阅读详情、站内评论（提交即公开）
+- **公开**：浏览已发布文章、按标签筛选、按 slug 阅读详情、站内评论（提交即公开）、站内访问计数
 - **管理**：Cookie 登录后创建 / 编辑 / 删除草稿与已发布文章（Markdown + 预览）；文章页可软删垃圾评论
 - **远程发布**：`Bearer` API Key 调用 `/api/posts`；也可上传 zip（Markdown + 图片）
 
@@ -97,7 +97,24 @@ export Blog__PublicBaseUrl="https://blog.example.com"
 
 管理与登录页默认 `noindex, nofollow`。草稿文章详情同样 noindex。
 
-## 分析（Umami，外部）
+## 访问统计（站内）
+
+本站自建轻量 PV / 阅读计数，写入 SQLite，**不依赖** Umami：
+
+| 指标 | 说明 |
+| --- | --- |
+| 站点总访问 | 公开页（首页、文章详情）每次成功 GET +1；侧栏「访问统计」展示 |
+| 文章阅读 | `/Posts/{slug}` 单独累加；文章页展示「阅读 N 次」 |
+
+**不计**：`/Admin`、`/Account`、`/api/`、SEO 端点与错误页。
+
+**防刷（轻量）**：同一访客（`IpHash` + URL）约 45 秒冷却（`IMemoryCache`）；User-Agent 含 `bot` / `crawler` / `spider` 等则跳过。IP 只存哈希，与评论一致。
+
+表结构：`SiteStats`（键值，如 `TotalPv`）+ `PostViewCounts`（`PostId` / `Count`）。已有库启动时 `CREATE TABLE IF NOT EXISTS`，无需删库。
+
+## 分析（Umami，外部可选）
+
+Umami 是**可选**的外部分析脚本，与上方站内计数互相独立：站内计数始终可用；Umami 仅在配置齐全时额外注入 tracker。
 
 在 Umami（自建或 [Umami Cloud](https://umami.is/)）创建站点后，填入脚本地址与 Website ID：
 
@@ -135,7 +152,7 @@ export Blog__UmamiWebsiteId="00000000-0000-4000-8000-000000000000"
 | 正文限制 | 最长 2000 字；空白/重复字符拒绝；外链过多拒绝 |
 | IP 哈希 | 只存哈希，不存明文 IP |
 
-启动时若库已存在但尚无 `Comments` 表，会执行 `CREATE TABLE IF NOT EXISTS`（无需手工删库）。删除文章时评论级联删除。
+启动时若库已存在但尚无 `Comments` 表，会执行 `CREATE TABLE IF NOT EXISTS`（无需手工删库）。删除文章时评论级联删除。访问统计表（`SiteStats` / `PostViewCounts`）同样在启动时补齐。
 
 ## 远程 Markdown 发布（API）
 

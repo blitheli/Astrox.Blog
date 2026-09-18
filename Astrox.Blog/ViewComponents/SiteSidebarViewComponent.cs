@@ -13,11 +13,16 @@ public class SiteSidebarViewComponent : ViewComponent
 
     private readonly ApplicationDbContext _db;
     private readonly BlogOptions _options;
+    private readonly PageViewService _pageViews;
 
-    public SiteSidebarViewComponent(ApplicationDbContext db, IOptions<BlogOptions> options)
+    public SiteSidebarViewComponent(
+        ApplicationDbContext db,
+        IOptions<BlogOptions> options,
+        PageViewService pageViews)
     {
         _db = db;
         _options = options.Value;
+        _pageViews = pageViews;
     }
 
     public async Task<IViewComponentResult> InvokeAsync()
@@ -55,12 +60,15 @@ public class SiteSidebarViewComponent : ViewComponent
         if (string.IsNullOrWhiteSpace(activeTag))
             activeTag = null;
 
+        var totalPv = await _pageViews.GetTotalPvAsync();
+
         return View(new SiteSidebarModel
         {
             Toc = toc,
             Categories = categories,
             ActiveTag = activeTag,
-            LatestComments = comments
+            LatestComments = comments,
+            TotalPv = totalPv
         });
     }
 
@@ -77,6 +85,7 @@ public sealed class SiteSidebarModel
     public IReadOnlyList<SidebarCategory> Categories { get; init; } = Array.Empty<SidebarCategory>();
     public string? ActiveTag { get; init; }
     public IReadOnlyList<SidebarComment> LatestComments { get; init; } = Array.Empty<SidebarComment>();
+    public long TotalPv { get; init; }
 }
 
 public sealed record SidebarCategory(string Name, int Count);

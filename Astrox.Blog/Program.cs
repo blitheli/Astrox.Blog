@@ -1,5 +1,6 @@
 using Astrox.Blog;
 using Astrox.Blog.Data;
+using Astrox.Blog.Middleware;
 using Astrox.Blog.Models;
 using Astrox.Blog.Services;
 using Microsoft.AspNetCore.Http.Features;
@@ -51,6 +52,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSingleton<SiteUrlService>();
 builder.Services.AddSingleton<CommentAntiSpamService>();
+builder.Services.AddScoped<PageViewService>();
 
 var mediaRoot = MediaRootResolver.Resolve(
     builder.Configuration["Blog:MediaRoot"],
@@ -89,6 +91,7 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<PageViewMiddleware>();
 
 app.MapRazorPages();
 app.MapPostsApi();

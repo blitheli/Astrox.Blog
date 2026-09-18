@@ -346,6 +346,33 @@ a:hover {
   font-size: 0.82rem;
 }
 
+.rail-stat {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.rail-stat-label {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.rail-stat-value {
+  color: var(--cyan-bright);
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.rail-stat-unit {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+}
+
 .rail-toc {
   display: grid;
   gap: 0.15rem;
@@ -616,10 +643,15 @@ a:hover {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  flex-wrap: wrap;
   color: var(--muted);
   font-family: var(--font-mono);
   font-size: 0.82rem;
   margin: 0.75rem 0;
+}
+
+.article-views {
+  color: var(--cyan);
 }
 
 .article-summary {

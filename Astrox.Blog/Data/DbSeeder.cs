@@ -20,6 +20,7 @@ public static class DbSeeder
 
         await db.Database.EnsureCreatedAsync();
         await DbSchemaUpgrader.EnsureCommentsTableAsync(db, logger);
+        await DbSchemaUpgrader.EnsurePageViewTablesAsync(db, logger);
 
         await EnsureOwnerAsync(userManager, options, logger);
         await EnsureSamplePostAsync(db, logger);

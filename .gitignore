@@ -16,4 +16,5 @@ publish/
 artifacts/
 Logs/
 *.log
+# 运行期 MediaRoot（开发默认 ContentRoot/astrox-blog-media）；勿提交上传内容
 astrox-blog-media/

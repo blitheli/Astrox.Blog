@@ -72,15 +72,14 @@ export ConnectionStrings__DefaultConnection="Data Source=/data/astrox-blog.db"
     "PublicBaseUrl": "https://blog.example.com",
     "UmamiScriptUrl": "",
     "UmamiWebsiteId": "",
-    "ExtraHeadSnippet": "",
-    "MediaRoot": "D:/IIS/Astrox.Blog.media"
+    "ExtraHeadSnippet": ""
   }
 }
 ```
 
 生产环境请用环境变量注入密钥，不要把真实密码 / API Key 提交进仓库。
 
-**MediaRoot**：文章图片物理根目录，URL 前缀为 `/images/posts`。留空则使用 `wwwroot/images/posts`。阿里云 IIS 每次部署会清空站点目录，**运行期上传的图片请把 MediaRoot 指到站点外**（与库文件同级外目录即可），例如环境变量 `Blog__MediaRoot=D:/IIS/Astrox.Blog.media`。
+**MediaRoot**：持久化文章媒体根目录（zip 导入与 Admin/API 相对路径图片共用），URL 前缀为 `/media`。空 = `ContentRoot/astrox-blog-media`。阿里云 IIS 每次部署会清空站点目录，**务必**把 MediaRoot 指到站点外（与库文件同级外目录即可）。
 
 ## SEO（站内）
 

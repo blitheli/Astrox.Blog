@@ -30,6 +30,8 @@ public class Post
 
     public DateTime? PublishedAt { get; set; }
 
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
     public IEnumerable<string> TagList =>
         string.IsNullOrWhiteSpace(Tags)
             ? Enumerable.Empty<string>()

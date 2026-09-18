@@ -46,7 +46,6 @@
         jsonLd["keywords"] = string.Join(", ", Model.Post.TagList);
 
     var jsonLdText = JsonSerializer.Serialize(jsonLd);
-    var giscus = blog.Giscus;
 }
 
 @section HeadMeta {
@@ -92,26 +91,79 @@
     </div>
 </article>
 
-@if (Model.Post.IsPublished && giscus.IsConfigured)
+@if (Model.Post.IsPublished)
 {
     <section class="comments" id="comments" aria-label="评论">
         <h2 class="comments-title">评论</h2>
-        <p class="muted comments-note">评论由 Giscus（GitHub Discussions）托管，无需站内审核。</p>
-        <script src="https://giscus.app/client.js"
-                data-repo="@giscus.Repo"
-                data-repo-id="@giscus.RepoId"
-                data-category="@giscus.Category"
-                data-category-id="@giscus.CategoryId"
-                data-mapping="@giscus.Mapping"
-                data-strict="0"
-                data-reactions-enabled="@(giscus.ReactionsEnabled ? "1" : "0")"
-                data-emit-metadata="0"
-                data-input-position="bottom"
-                data-theme="@giscus.Theme"
-                data-lang="@giscus.Lang"
-                data-loading="lazy"
-                crossorigin="anonymous"
-                async>
-        </script>
+        <p class="muted comments-note">站内评论 · 提交后立即公开 · 无需审核</p>
+
+        @if (!string.IsNullOrWhiteSpace(Model.CommentStatus))
+        {
+            <div class="flash" role="status">@Model.CommentStatus</div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.CommentError))
+        {
+            <div class="flash flash-error" role="alert">@Model.CommentError</div>
+        }
+
+        <form method="post" asp-page-handler="Comment" class="comment-form form-stack" autocomplete="off">
+            <input type="hidden" asp-for="Input.FormToken" />
+            <div class="hp-field" aria-hidden="true">
+                <label>
+                    <span>网站</span>
+                    <input asp-for="Input.Website" tabindex="-1" autocomplete="off" />
+                </label>
+            </div>
+            <div class="comment-form-row">
+                <label>
+                    <span>昵称 <em>*</em></span>
+                    <input asp-for="Input.AuthorName" maxlength="64" placeholder="怎么称呼你" />
+                </label>
+                <label>
+                    <span>邮箱（可选，不公开）</span>
+                    <input asp-for="Input.AuthorEmail" type="email" maxlength="200" placeholder="仅所有者可见" />
+                </label>
+            </div>
+            <label>
+                <span>评论 <em>*</em></span>
+                <textarea asp-for="Input.Body" rows="4" maxlength="2000" placeholder="说点什么（纯文本，最多 2000 字）"></textarea>
+            </label>
+            <div class="btn-row">
+                <button type="submit" class="btn primary">发表评论</button>
+            </div>
+            <p class="muted comment-hint">请勿灌水或刷屏；过快提交或频繁发言将被拒绝。</p>
+        </form>
+
+        @if (Model.Comments.Count == 0)
+        {
+            <p class="muted comments-empty">还没有评论，来写下第一条吧。</p>
+        }
+        else
+        {
+            <ol class="comment-list">
+                @foreach (var c in Model.Comments)
+                {
+                    <li class="comment-item">
+                        <header class="comment-meta">
+                            <span class="comment-author">@c.AuthorName</span>
+                            <time datetime="@c.CreatedAt.ToString("o")">
+                                @c.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                            </time>
+                            @if (Model.IsOwner)
+                            {
+                                <form method="post"
+                                      asp-page-handler="DeleteComment"
+                                      asp-route-commentId="@c.Id"
+                                      class="comment-delete"
+                                      onsubmit="return confirm('确认删除这条评论？');">
+                                    <button type="submit" class="btn danger sm">删除</button>
+                                </form>
+                            }
+                        </header>
+                        <div class="comment-body">@c.Body</div>
+                    </li>
+                }
+            </ol>
+        }
     </section>
 }

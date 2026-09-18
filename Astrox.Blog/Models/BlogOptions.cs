@@ -24,28 +24,8 @@ public class BlogOptions
     /// <summary>Optional raw HTML injected into &lt;head&gt; (e.g. extra analytics). Empty = skip.</summary>
     public string ExtraHeadSnippet { get; set; } = string.Empty;
 
-    public GiscusOptions Giscus { get; set; } = new();
-
     public bool IsUmamiConfigured =>
         !string.IsNullOrWhiteSpace(UmamiScriptUrl) && !string.IsNullOrWhiteSpace(UmamiWebsiteId);
 
     public bool IsExtraHeadConfigured => !string.IsNullOrWhiteSpace(ExtraHeadSnippet);
-}
-
-public class GiscusOptions
-{
-    public string Repo { get; set; } = string.Empty;
-    public string RepoId { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public string CategoryId { get; set; } = string.Empty;
-    public string Mapping { get; set; } = "pathname";
-    public string Theme { get; set; } = "noborder_dark";
-    public bool ReactionsEnabled { get; set; } = true;
-    public string Lang { get; set; } = "zh-CN";
-
-    public bool IsConfigured =>
-        !string.IsNullOrWhiteSpace(Repo)
-        && !string.IsNullOrWhiteSpace(RepoId)
-        && !string.IsNullOrWhiteSpace(Category)
-        && !string.IsNullOrWhiteSpace(CategoryId);
 }

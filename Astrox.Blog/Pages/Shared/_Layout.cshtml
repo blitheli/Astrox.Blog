@@ -27,6 +27,20 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+        (function () {
+            try {
+                var key = "astrox-theme";
+                var stored = localStorage.getItem(key);
+                var theme = (stored === "light" || stored === "dark")
+                    ? stored
+                    : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+                document.documentElement.setAttribute("data-theme", theme);
+            } catch (e) {
+                document.documentElement.setAttribute("data-theme", "dark");
+            }
+        })();
+    </script>
     <title>@pageTitle · @blog.Title</title>
     <meta name="description" content="@description" />
     @if (!string.IsNullOrWhiteSpace(robots))
@@ -75,23 +89,36 @@
                     <span class="brand-sub">@blog.OwnerName</span>
                 </span>
             </a>
-            <button type="button" class="nav-toggle" id="navToggle" aria-label="打开菜单" aria-expanded="false">
-                <span></span><span></span>
-            </button>
-            <nav class="site-nav" id="siteNav">
-                <a asp-page="/Index">文章</a>
-                @if (SignInManager.IsSignedIn(User))
-                {
-                    <a asp-page="/Admin/Index">管理</a>
-                    <form class="inline-form" asp-page="/Account/Logout" method="post">
-                        <button type="submit" class="link-btn">退出</button>
-                    </form>
-                }
-                else
-                {
-                    <a asp-page="/Account/Login">登录</a>
-                }
-            </nav>
+            <div class="header-actions">
+                <button type="button" class="theme-toggle" id="themeToggle" aria-label="切换为明亮主题">
+                    <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.75" />
+                        <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                              d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.05 5.05l1.56 1.56M17.39 17.39l1.56 1.56M5.05 18.95l1.56-1.56M17.39 6.61l1.56-1.56" />
+                    </svg>
+                    <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
+                              d="M19.5 13.2A7.5 7.5 0 0 1 10.8 4.5 7.6 7.6 0 1 0 19.5 13.2z" />
+                    </svg>
+                </button>
+                <button type="button" class="nav-toggle" id="navToggle" aria-label="打开菜单" aria-expanded="false">
+                    <span></span><span></span>
+                </button>
+                <nav class="site-nav" id="siteNav">
+                    <a asp-page="/Index">文章</a>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <a asp-page="/Admin/Index">管理</a>
+                        <form class="inline-form" asp-page="/Account/Logout" method="post">
+                            <button type="submit" class="link-btn">退出</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-page="/Account/Login">登录</a>
+                    }
+                </nav>
+            </div>
         </div>
     </header>
 

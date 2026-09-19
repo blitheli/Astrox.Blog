@@ -232,7 +232,7 @@ public sealed partial class PostZipImporter
             buffer.Append(cleaned);
         }
 
-        var summary = buffer.ToString().Trim();
+        var summary = Regex.Replace(buffer.ToString().Trim(), @"\s+", " ");
         if (summary.Length == 0)
             return null;
         return summary.Length <= 500 ? summary : summary[..500];

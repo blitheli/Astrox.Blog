@@ -38,8 +38,14 @@
   --font-display: "Orbitron", "Noto Sans SC", sans-serif;
   --font-body: "IBM Plex Sans", "Noto Sans SC", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --shell: min(1180px, calc(100% - 2rem));
+  --content: 960px;
   --rail: 248px;
+  --rail-gap: 1.75rem;
+  --shell: min(var(--content), calc(100% - 2rem));
+}
+
+body.has-rail {
+  --shell: min(calc(var(--content) + var(--rail) + var(--rail-gap)), calc(100% - 2rem));
 }
 
 [data-theme="light"] {
@@ -308,7 +314,7 @@ a:hover {
 .main-shell.has-rail {
   display: grid;
   grid-template-columns: var(--rail) minmax(0, 1fr);
-  gap: 1.75rem;
+  gap: var(--rail-gap);
   align-items: start;
 }
 

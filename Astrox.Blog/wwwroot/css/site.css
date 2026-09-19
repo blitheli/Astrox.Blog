@@ -806,8 +806,11 @@ a:hover {
 }
 
 /* Block + auto margins: center images and prevent text wrapping beside them.
-   CSDN-migrated md often has no blank line after ![...], so Markdig packs
-   preceding text + img + following text into one <p>. */
+   CSDN-migrated md often packs text + img into one <p>; keep img as block
+   (float:none; clear:both) so copy does not wrap beside it.
+   Do NOT use display:flex; flex-direction:column on that <p> — each child
+   (text, span.math, img) becomes a flex item and inline math like $R_o$
+   breaks onto its own line. Prefer blank lines around images in source md. */
 .markdown-body img {
   display: block;
   float: none;
@@ -819,26 +822,12 @@ a:hover {
   border-radius: 6px;
 }
 
-/* Force vertical stack when img shares a <p> with adjacent copy.
-   Do NOT use :only-child / text-align:center — text nodes are ignored by
-   :only-child, which would wrongly center the whole paragraph.
-   Keep :has() selectors un-nested so a bad compound cannot drop the rule. */
-.markdown-body p:has(> img),
-.markdown-body p:has(> a > img) {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.markdown-body p > img,
-.markdown-body p > a:has(> img) {
-  align-self: center;
-  max-width: 100%;
-}
-
+/* Linked images: center the anchor itself (no flex parent needed). */
 .markdown-body p > a:has(> img) {
   display: block;
   width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .markdown-body p > a:has(> img) > img {

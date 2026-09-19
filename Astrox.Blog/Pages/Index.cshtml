@@ -36,8 +36,9 @@
 else
 {
     <ul class="post-list">
-        @foreach (var post in Model.Posts)
+        @foreach (var card in Model.Posts)
         {
+            var post = card.Post;
             <li class="post-item">
                 <a class="post-link" asp-page="/Posts/View" asp-route-slug="@post.Slug">
                     <time datetime="@((post.PublishedAt ?? post.CreatedAt).ToString("o"))">
@@ -49,15 +50,18 @@ else
                         <p>@post.Summary</p>
                     }
                 </a>
-                @if (post.TagList.Any())
-                {
+                <div class="post-meta-row">
                     <div class="post-tags">
                         @foreach (var t in post.TagList)
                         {
                             <a class="tag sm" asp-page="/Index" asp-route-tag="@t">@t</a>
                         }
                     </div>
-                }
+                    <div class="post-stats">
+                        <span>@card.ViewCount.ToString("N0") 阅读</span>
+                        <a asp-page="/Posts/View" asp-route-slug="@post.Slug" asp-fragment="comments">@card.CommentCount 评论</a>
+                    </div>
+                </div>
             </li>
         }
     </ul>

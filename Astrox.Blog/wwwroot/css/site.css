@@ -621,11 +621,37 @@ a:hover {
   word-break: break-word;
 }
 
+.post-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+}
+
 .post-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
-  margin-top: 0.75rem;
+}
+
+.post-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.post-stats a {
+  color: var(--muted);
+}
+
+.post-stats a:hover {
+  color: var(--cyan);
 }
 
 .empty-state,
@@ -875,10 +901,10 @@ a:hover {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(14, 165, 233, 0.12));
+  background: linear-gradient(135deg, var(--tint), var(--tint-soft));
   border-color: var(--line-strong);
   color: var(--cyan-bright);
-  box-shadow: 0 0 18px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 0 18px var(--glow);
 }
 
 .btn.ghost {
@@ -1005,7 +1031,7 @@ a:hover {
 .form-stack textarea:focus {
   outline: none;
   border-color: var(--cyan);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+  box-shadow: 0 0 0 3px var(--tint);
 }
 
 .checkbox {

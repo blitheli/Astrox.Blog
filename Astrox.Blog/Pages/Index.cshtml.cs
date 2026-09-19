@@ -19,16 +19,15 @@ public class IndexModel : PageModel
 
     public BlogOptions Blog => _options;
     public string? ActiveTag { get; private set; }
-    public IList<Post> Posts { get; private set; } = new List<Post>();
+    public IList<PostCard> Posts { get; private set; } = new List<PostCard>();
     public IList<string> AllTags { get; private set; } = new List<string>();
 
     public async Task OnGetAsync(string? tag)
     {
         ActiveTag = string.IsNullOrWhiteSpace(tag) ? null : tag.Trim();
 
-        var query = _db.Posts.AsNoTracking().Where(p => p.IsPublished);
-
-        var published = await query
+        var published = await _db.Posts.AsNoTracking()
+            .Where(p => p.IsPublished)
             .OrderByDescending(p => p.PublishedAt ?? p.CreatedAt)
             .ToListAsync();
 
@@ -36,13 +35,28 @@ public class IndexModel : PageModel
 
         if (ActiveTag is not null)
         {
-            Posts = published
+            published = published
                 .Where(p => p.TagList.Contains(ActiveTag, StringComparer.OrdinalIgnoreCase))
                 .ToList();
         }
-        else
-        {
-            Posts = published;
-        }
+
+        var ids = published.Select(p => p.Id).ToList();
+        var views = await _db.PostViewCounts.AsNoTracking()
+            .Where(v => ids.Contains(v.PostId))
+            .ToDictionaryAsync(v => v.PostId, v => v.Count);
+        var comments = await _db.Comments.AsNoTracking()
+            .Where(c => ids.Contains(c.PostId) && !c.IsDeleted)
+            .GroupBy(c => c.PostId)
+            .Select(g => new { g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.Key, x => x.Count);
+
+        Posts = published
+            .Select(p => new PostCard(
+                p,
+                views.GetValueOrDefault(p.Id),
+                comments.GetValueOrDefault(p.Id)))
+            .ToList();
     }
 }
+
+public sealed record PostCard(Post Post, long ViewCount, int CommentCount);

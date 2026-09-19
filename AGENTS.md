@@ -29,7 +29,8 @@ dotnet run --urls http://127.0.0.1:43147
 
 ## 约定
 
-- 不要提交真实密钥或生产 `*.db`。
+- 不要提交真实密钥或生产 `*.db`。生产 SQLite / 媒体 / 日志必须在站点外（`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media`、`D:/IIS/astrox-blog-logs`），禁止写进 `D:/IIS/Astrox.Blog`。
+- 新文章先写在 `Docs/<子文件夹>/`（md + 同目录图片），用户说上传时按「Docs 子文件夹上传到阿里云」立刻执行。
 - 文章模型：`Post`（`Title` / `Slug` / `Summary` / `Markdown` / `Tags` 逗号串 / `IsPublished` / 时间戳）。
 - 评论模型：`Comment`（`PostId` / `AuthorName` / `AuthorEmail?` / `Body` / `CreatedAt` / `IpHash` / `UserAgent?` / `IsDeleted`）。
 - 访问统计：`SiteStat`（`Key` / `Value`）与 `PostViewCount`（`PostId` / `Count`）；启动时 `CREATE TABLE IF NOT EXISTS` 补表。

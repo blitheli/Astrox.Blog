@@ -42,6 +42,10 @@
   --rail: 248px;
   --rail-gap: 1.75rem;
   --shell: min(var(--content), calc(100% - 2rem));
+  --body-bg-image:
+    radial-gradient(1200px 600px at 80% -10%, var(--body-radial), transparent 55%),
+    linear-gradient(var(--starmap-veil), var(--starmap-veil)),
+    url("../images/bg-starmap.jpg");
 }
 
 body.has-rail {
@@ -83,6 +87,8 @@ body.has-rail {
   --link-hover: #0c4a6e;
   --card-shadow: 0 10px 28px rgba(15, 40, 70, 0.1), 0 0 18px rgba(14, 165, 233, 0.06);
   --hero-glow: rgba(2, 132, 199, 0.18);
+  /* data-theme 挂在 <html>；明亮主题用浅色纯底，不要星空图 */
+  --body-bg-image: none;
 }
 
 *,
@@ -101,10 +107,7 @@ body {
   color: var(--text);
   font-family: var(--font-body);
   background-color: var(--bg-0);
-  background-image:
-    radial-gradient(1200px 600px at 80% -10%, var(--body-radial), transparent 55%),
-    linear-gradient(var(--starmap-veil), var(--starmap-veil)),
-    url("../images/bg-starmap.jpg");
+  background-image: var(--body-bg-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

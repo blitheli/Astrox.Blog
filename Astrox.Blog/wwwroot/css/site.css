@@ -747,22 +747,44 @@ a:hover {
   font-size: 0.88rem;
 }
 
+/* Block + auto margins: center images and prevent text wrapping beside them.
+   CSDN-migrated md often has no blank line after ![...], so Markdig packs
+   preceding text + img + following text into one <p>. */
 .markdown-body img {
   display: block;
+  float: none;
+  clear: both;
   max-width: 100%;
   height: auto;
+  margin-block: 1rem;
   margin-inline: auto;
   border-radius: 6px;
 }
 
-/* Markdig often wraps a lone image in <p>; keep linked images centered too */
-.markdown-body p:has(> img:only-child),
-.markdown-body p:has(> a:only-child > img:only-child) {
-  text-align: center;
+/* Force vertical stack when img shares a <p> with adjacent copy.
+   Do NOT use :only-child / text-align:center — text nodes are ignored by
+   :only-child, which would wrongly center the whole paragraph.
+   Keep :has() selectors un-nested so a bad compound cannot drop the rule. */
+.markdown-body p:has(> img),
+.markdown-body p:has(> a > img) {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.markdown-body p > img,
+.markdown-body p > a:has(> img) {
+  align-self: center;
+  max-width: 100%;
 }
 
 .markdown-body p > a:has(> img) {
-  display: inline-block;
+  display: block;
+  width: fit-content;
+}
+
+.markdown-body p > a:has(> img) > img {
+  margin-inline: 0;
 }
 
 .markdown-body .katex {

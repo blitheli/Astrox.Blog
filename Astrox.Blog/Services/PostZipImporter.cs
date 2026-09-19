@@ -222,12 +222,17 @@ public sealed partial class PostZipImporter
                 continue;
             }
 
+            // Drop image markdown so long ![alt](uuid.png) tokens never inflate the card.
+            var cleaned = ImageMarkdown().Replace(line.Trim(), " ").Trim();
+            if (cleaned.Length == 0)
+                continue;
+
             if (buffer.Length > 0)
                 buffer.Append(' ');
-            buffer.Append(line.Trim());
+            buffer.Append(cleaned);
         }
 
-        var summary = buffer.ToString().Trim();
+        var summary = Regex.Replace(buffer.ToString().Trim(), @"\s+", " ");
         if (summary.Length == 0)
             return null;
         return summary.Length <= 500 ? summary : summary[..500];
@@ -252,4 +257,7 @@ public sealed partial class PostZipImporter
 
     [GeneratedRegex(@"^#{1,6}\s+(.+?)\s*#*\s*$")]
     private static partial Regex HeadingLine();
+
+    [GeneratedRegex(@"!\[[^\]]*\]\([^)]+\)")]
+    private static partial Regex ImageMarkdown();
 }

@@ -41,7 +41,9 @@
   --content: 960px;
   --rail: 248px;
   --rail-gap: 1.75rem;
-  --shell: min(var(--content), calc(100% - 2rem));
+  /* Prefer max-width over width:min(...,100%-2rem): % in custom props can
+     expand with overflowing children and eat the right margin. */
+  --shell-max: var(--content);
   --body-bg-image:
     radial-gradient(1200px 600px at 80% -10%, var(--body-radial), transparent 55%),
     linear-gradient(var(--starmap-veil), var(--starmap-veil)),
@@ -49,7 +51,7 @@
 }
 
 body.has-rail {
-  --shell: min(calc(var(--content) + var(--rail) + var(--rail-gap)), calc(100% - 2rem));
+  --shell-max: calc(var(--content) + var(--rail) + var(--rail-gap));
 }
 
 [data-theme="light"] {
@@ -163,8 +165,12 @@ a:hover {
 }
 
 .shell {
-  width: var(--shell);
+  /* padding sits outside --shell-max so the reading column stays ≈960px */
+  width: 100%;
+  max-width: calc(var(--shell-max) + 2rem);
   margin-inline: auto;
+  padding-inline: 1rem;
+  box-sizing: border-box;
 }
 
 .site-header {
@@ -181,7 +187,7 @@ a:hover {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.85rem 0;
+  padding-block: 0.85rem;
   position: relative;
 }
 
@@ -310,7 +316,7 @@ a:hover {
 }
 
 .main-shell {
-  padding: 2rem 0 4rem;
+  padding-block: 2rem 4rem;
   min-height: calc(100vh - 140px);
 }
 
@@ -323,6 +329,7 @@ a:hover {
 
 .main-col {
   min-width: 0;
+  overflow-x: clip;
 }
 
 .site-rail {
@@ -555,15 +562,19 @@ a:hover {
   padding: 0;
   display: grid;
   gap: 1rem;
+  min-width: 0;
 }
 
 .post-item {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--card-bg);
   padding: 1.15rem 1.25rem 1rem;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
   animation: rise-in 0.55s ease-out both;
+  overflow-wrap: anywhere;
 }
 
 .post-item:nth-child(2) { animation-delay: 0.05s; }
@@ -579,6 +590,8 @@ a:hover {
 .post-link {
   color: inherit;
   display: block;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .post-link time {
@@ -591,12 +604,15 @@ a:hover {
   margin: 0.35rem 0 0.4rem;
   font-size: 1.25rem;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .post-link p {
   margin: 0;
   color: var(--muted);
   font-size: 0.95rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .post-tags {

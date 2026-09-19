@@ -86,6 +86,23 @@ public class PostZipImporterTests : IDisposable
         Assert.Equal("真文章", Assert.Single(result.Posts).Title);
     }
 
+    [Fact]
+    public void Summary_skips_markdown_image_tokens()
+    {
+        using var zip = CreateZip(
+            ("wind.md", Encoding.UTF8.GetBytes(
+                "# 看不见的全球风\n\n" +
+                "开篇说明。![在这里插入图片描述](a22485d24dc348ca85e63b16cc2ae5d0.png) 后续文字。\n")));
+
+        var result = new PostZipImporter(_mediaRoot).Import(zip, "wind.zip");
+
+        var post = Assert.Single(result.Posts);
+        Assert.Equal("看不见的全球风", post.Title);
+        Assert.Equal("开篇说明。 后续文字。", post.Summary);
+        Assert.DoesNotContain("a22485d24dc348ca85e63b16cc2ae5d0.png", post.Summary);
+        Assert.DoesNotContain("![", post.Summary);
+    }
+
     private static MemoryStream CreateZip(params (string Name, byte[] Data)[] files)
     {
         var ms = new MemoryStream();

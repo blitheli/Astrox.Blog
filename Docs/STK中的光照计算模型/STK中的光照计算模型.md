@@ -22,7 +22,7 @@
 ![地面站和飞行器的光照示意图](53fb5961b96f91087a94f96f467d6b49.png)
 ## 坐标系及太阳方位角、高度角
 涉及到太阳位置计算时，通常涉及到太阳的方位角和高度角概念，因此首先确定好常用的坐标系和太阳方位角和高度角的定义。
-### 	地面站地平坐标系
+### 地面站地平坐标系
 地面站观测太阳时，采用当地水平坐标系（也称北东地坐标系），简称LH坐标系（Local Horizontal），其定义如下：
 
 1)	X轴指向当地北方向；
@@ -50,19 +50,20 @@ XY平面为当地水平面，垂直于地球椭球体法线，见下图。
 
 注意，对于飞行器本体坐标系（Body），则高度角以+Z轴方向为正。
 
-根据以上定义，实际计算时，首先求得某时刻太阳（通常为视太阳）在地面站LH系或飞行器VVLH系的位置，设为$\textbf{R}_s$：
-$$\textbf{R}_s=\left[X_s,Y_s,Z_s\right]^T$$
+根据以上定义，实际计算时，首先求得某时刻太阳（通常为视太阳）在地面站LH系或飞行器VVLH系的位置，设为$\mathbf{R}_s$：
+
+$$\mathbf{R}_s=\left[X_s,Y_s,Z_s\right]^T$$
 
 则太阳方位角Az和高度角El计算如下：
-$$ \left\{
-\begin{aligned}
-Az=tan2^{-1}(Y_s,X_s) \\
-El=sin^{-1}(-Z_s/R_s)
-\end{aligned}
-\right.
+
+$$
+\begin{cases}
+Az=\operatorname{atan2}(Y_s,X_s) \\
+El=\arcsin(-Z_s/R_s)
+\end{cases}
 $$
 
-##	光照计算模型
+## 光照计算模型
 无论是地面站还是飞行器，在精确计算光照和阴影的时间时，必须考虑到以下因素：
 
  1. 太阳圆盘的大小，以及被遮挡的部分大小；
@@ -81,28 +82,32 @@ $$
 不考虑地形时($\alpha_t=0$)，$\alpha_g$即为视太阳方向与当地水平面的夹角，即太阳仰角El。
 
 太阳圆盘视半径$\alpha_s$由下式给出：
+
 $$
-\alpha_s=sin^{-1}{\frac{R_o}{R_s}}
+\alpha_s=\arcsin\dfrac{R_o}{R_s}
 $$
+
 上式中，$R_o$为太阳圆盘半径，取值为695700km，对应的视半径约为0.27°，具体数值与太阳的距离变化而稍有不同。
 ![地面目标的光照计算模型](eef3ffc1c7dc6f319fcc94a0ed1efb32.png)
 下图为飞行器的光照计算模型示意图。与地面站不同的是，不需要考虑地形的遮挡，转而考虑地球的遮挡。
 
-某时刻，以观测点为中心，地心方向与地球边缘方向的夹角（称为地球视半径）为$\alpha_t$，视太阳中心（即太阳位置）方向与地球边缘方向的夹角为$\alpha_g$，太阳圆盘视半径为$\alpha_s$。观测点到地球的距离向量为$\textbf{R}_E$。
+某时刻，以观测点为中心，地心方向与地球边缘方向的夹角（称为地球视半径）为$\alpha_t$，视太阳中心（即太阳位置）方向与地球边缘方向的夹角为$\alpha_g$，太阳圆盘视半径为$\alpha_s$。观测点到地球的距离向量为$\mathbf{R}_E$。
 ![飞行器目标的光照计算模型](56a0e0786ee872d30ba968f836f675a4.png)
 地球视半径$\alpha_t$可由下式给出:
+
 $$
-\alpha_t=sin^{-1}{\frac{R_e}{R_E}}
+\alpha_t=\arcsin\dfrac{R_e}{R_E}
 $$
+
 上式中，$R_e$为地球赤道半径，常取6378.14km。
 
 根据上述两种光照模型，太阳光照状态的判别依据如下：
-$$ \left\{
-\begin{aligned}
-光照: &  \alpha_g>\alpha_s \\
-全影: &  \alpha_g<-\alpha_s \\
-半影: &  -\alpha_s \leq \alpha_g\leq\alpha_s
-\end{aligned}
-\right.
+
+$$
+\begin{cases}
+\text{光照}: & \alpha_g>\alpha_s \\
+\text{全影}: & \alpha_g<-\alpha_s \\
+\text{半影}: & -\alpha_s \leq \alpha_g\leq\alpha_s
+\end{cases}
 $$
 

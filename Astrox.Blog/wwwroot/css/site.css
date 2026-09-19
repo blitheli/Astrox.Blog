@@ -1,11 +1,12 @@
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg-0: #060a10;
-  --bg-1: #0b1220;
-  --bg-2: #101a2c;
-  --bg-bottom: #05080e;
-  --starmap-veil: rgba(6, 10, 16, 0.52);
+  /* 参考百度类深色页采样炭黑 #232429，纯色底（无星空图） */
+  --bg-0: #232429;
+  --bg-1: #2c2d34;
+  --bg-2: #34353c;
+  --bg-bottom: #1f2025;
+  --starmap-veil: rgba(35, 36, 41, 0.52);
   --line: rgba(56, 189, 248, 0.18);
   --line-strong: rgba(56, 189, 248, 0.35);
   --text: #d7e6f5;
@@ -18,17 +19,17 @@
   --glow: rgba(14, 165, 233, 0.22);
   --body-radial: rgba(14, 165, 233, 0.08);
   --grid-line: rgba(56, 189, 248, 0.035);
-  --header-bg: rgba(6, 10, 16, 0.78);
-  --panel-bg: linear-gradient(180deg, rgba(12, 22, 38, 0.88), rgba(7, 12, 22, 0.84));
-  --card-bg: linear-gradient(160deg, rgba(16, 26, 44, 0.82), rgba(8, 14, 24, 0.88));
-  --article-bg: linear-gradient(165deg, rgba(10, 16, 28, 0.82), rgba(6, 10, 18, 0.88));
-  --surface: rgba(11, 18, 32, 0.72);
-  --code-bg: #050911;
-  --input-bg: rgba(5, 9, 17, 0.9);
-  --preview-bg: rgba(8, 14, 24, 0.75);
-  --comment-form-bg: rgba(8, 14, 24, 0.55);
-  --comment-item-bg: rgba(5, 9, 17, 0.55);
-  --nav-menu-bg: rgba(8, 14, 24, 0.96);
+  --header-bg: rgba(35, 36, 41, 0.78);
+  --panel-bg: linear-gradient(180deg, rgba(44, 45, 52, 0.88), rgba(32, 33, 38, 0.84));
+  --card-bg: linear-gradient(160deg, rgba(48, 49, 56, 0.82), rgba(35, 36, 41, 0.88));
+  --article-bg: linear-gradient(165deg, rgba(42, 43, 49, 0.82), rgba(35, 36, 41, 0.88));
+  --surface: rgba(42, 43, 50, 0.72);
+  --code-bg: #1a1b1f;
+  --input-bg: rgba(28, 29, 34, 0.9);
+  --preview-bg: rgba(40, 41, 47, 0.75);
+  --comment-form-bg: rgba(40, 41, 47, 0.55);
+  --comment-item-bg: rgba(28, 29, 34, 0.55);
+  --nav-menu-bg: rgba(40, 41, 47, 0.96);
   --tint: rgba(14, 165, 233, 0.1);
   --tint-soft: rgba(14, 165, 233, 0.08);
   --link-hover: #fff;
@@ -44,10 +45,8 @@
   /* Prefer max-width over width:min(...,100%-2rem): % in custom props can
      expand with overflowing children and eat the right margin. */
   --shell-max: var(--content);
-  --body-bg-image:
-    radial-gradient(1200px 600px at 80% -10%, var(--body-radial), transparent 55%),
-    linear-gradient(var(--starmap-veil), var(--starmap-veil)),
-    url("../images/bg-starmap.jpg");
+  /* 暗色同明亮：纯色底，不要星空图盖住 #232429 */
+  --body-bg-image: none;
 }
 
 body.has-rail {

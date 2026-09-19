@@ -14,11 +14,12 @@
         ?? (request.Path.HasValue ? request.Path.Value! : "/");
     var canonicalUrl = SiteUrls.Absolute(request, canonicalPath);
     var robots = ViewData["Robots"] as string;
-    var noIndex = canonicalPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase)
+    var isAdmin = canonicalPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase);
+    var noIndex = isAdmin
         || canonicalPath.StartsWith("/Account", StringComparison.OrdinalIgnoreCase);
     if (string.IsNullOrWhiteSpace(robots) && noIndex)
         robots = "noindex, nofollow";
-    var showSidebar = !canonicalPath.StartsWith("/Admin", StringComparison.OrdinalIgnoreCase)
+    var showSidebar = !isAdmin
         && !canonicalPath.StartsWith("/Account", StringComparison.OrdinalIgnoreCase)
         && !canonicalPath.StartsWith("/Error", StringComparison.OrdinalIgnoreCase);
 }
@@ -75,7 +76,7 @@
         @Html.Raw(blog.ExtraHeadSnippet)
     }
 </head>
-<body class="@(showSidebar ? "has-rail" : null)">
+<body class="@(showSidebar ? "has-rail" : null) @(isAdmin ? "is-admin" : null)">
     <div class="bg-grid" aria-hidden="true"></div>
     <div class="bg-glow" aria-hidden="true"></div>
 

@@ -54,6 +54,11 @@ body.has-rail {
   --shell-max: calc(var(--content) + var(--rail) + var(--rail-gap));
 }
 
+/* Admin list/edit: wider shell so side-by-side editor is usable */
+body.is-admin {
+  --shell-max: 1280px;
+}
+
 [data-theme="light"] {
   color-scheme: light;
   --bg-0: #f2f7fc;
@@ -1032,9 +1037,15 @@ a:hover {
 
 .editor-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* minmax(0, 1fr) lets tracks shrink; plain 1fr is minmax(auto, 1fr)
+     and wide preview content would steal width from the form column */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.25rem;
   align-items: start;
+}
+
+.editor-fields {
+  min-width: min(100%, 20rem);
 }
 
 .preview-pane {
@@ -1043,6 +1054,8 @@ a:hover {
   padding: 1rem 1.1rem;
   background: var(--preview-bg);
   min-height: 320px;
+  min-width: 0;
+  overflow-x: auto;
   position: sticky;
   top: 5rem;
 }

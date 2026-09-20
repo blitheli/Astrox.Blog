@@ -1,12 +1,11 @@
 # 浏览器运行C#代码(不使用Blazor方式)初探
 
-@[TOC](浏览器运行C#代码-不使用Blazor)
 一直以来，对于.Net开发人员来说，难以将C#代码直接转化为WASM方式在浏览器里运行，本文介绍了一种使用.Net 10模板工程的方式，可将C#代码转换为WASM，而不使用Blazor方式。
 
 本文为翻译，原文参见：[Running .NET in the browser without Blazor](https://andrewlock.net/running-dotnet-in-the-browser-without-blazor/)
 
 在本文中，我将展示如何在不使用 Blazor 的情况下在浏览器中运行 .NET，而仅依赖 Blazor 所构建的 WASM 基础架构。我还将介绍 .NET 10 中的一些改进，主要围绕客户端文件指纹识别。
-# 背景
+## 背景
 2017 年，Steve Sanderson 展示了Blazor的技术演示，WebAssembly (WASM) 从此进入 .NET 领域。Blazor 是一个完全基于组件的 Web 框架，用于使用 HTML 和 C# 构建 Web 应用程序。它可以在多种渲染模式下运行，其中交互式WebAssembly 模式完全在浏览器中运行，并充分利用了 WASM 的强大功能。
 
 当谈论 .NET 和 WASM 时，大多数人会立即想到 Blazor，但还有其他几种方法可以将 .NET 与 WASM 结合起来：
@@ -21,7 +20,7 @@
 
 据我所知，此功能从 .NET 7 开始就已提供。在本文中，我使用的是 .NET 10 预览版 6 的工作负载和模板，但它们并没有发生太大变化。
 
-# 安装实验性的 WASM 模板
+## 安装实验性的 WASM 模板
 用于构建可从 JavaScript 运行的 .NET 应用程序的模板不包含在默认 SDK 中。这些模板是实验性的，因此需要显式安装。要安装哪个 NuGet 包取决于所需的模板版本：
 - .NET 8：Microsoft.NET.Runtime.WebAssembly.Templates
 - .NET 9：Microsoft.NET.Runtime.WebAssembly.Templates.net9
@@ -34,6 +33,7 @@ dotnet new install Microsoft.NET.Runtime.WebAssembly.Templates.net10
 ```
 
 这将安装三个模板：
+
 ![.net webassembly templates](856c67ca1cb644f798d7a3a9036aed7f.png)
 
 或者，您可以安装**wasm-experimental**工作负载，其中包括模板以及......一堆东西😅我不太确定这些额外的东西实际上是用来做什么的，因为据我所知，这些都不是必需的🤷‍♂️
@@ -42,21 +42,26 @@ dotnet workload install wasm-experimental
 ```
 请注意，如果您要对生成的[应用程序进行 AOT 编译](https://github.com/dotnet/runtime/blob/main/src/mono/wasm/features.md#aot)，则还需要安装**wasm-tools**工作负载。这将提供更好的性能，但会大大增加文件大小（从而增加启动时间），因此您需要权衡利弊。
 
-# 创建 .NET WASM 应用程序
+## 创建 .NET WASM 应用程序
 安装模板后，我们可以创建一个新的应用程序：
 ```
 dotnet new wasmbrowser
 ```
 该模板创建以下文件：
+
 ![模板生成的文件的屏幕截图](a5b5fae122a44fceb79c050221a97257.png)
+
 我们很快就会看到这些文件，但首先我们要运行这个应用程序。你可以用一个简单的命令来运行它dotnet run：
+
 ![dotnet run webassembly](4af24cdc7d35469f9237c4f746632d5c.png)
+
 如果你在浏览器中打开该应用，你会看到模板是一个简单的秒表应用程序。它会在你打开页面后立即启动，然后你可以暂停、重置和启动计时器：
 
 ![wasmbrowser 应用程序的屏幕截图](3e4d8cf510cf42cfb9aae3b2688cec00.png)
+
 那么它是如何工作的呢？在本文的剩余部分，我们将探讨该模板及其工作原理。
 
-# 探索模板
+## 探索模板
 我们先来看看Program.cs，它是一个顶级程序，包含一个名为 的辅助类型**StopwatchSample**。这个“程序”本身非常简单，如下所示。首先，它会写入控制台（将显示在浏览器的控制台窗口中），然后如果向程序传递了正确的参数，则可以选择性地调用静态方法。然后它会进入一个无限循环，每秒StopwatchSample.Start()调用一次。Render()
 ```
 Console.WriteLine("Hello, Browser!");
@@ -119,7 +124,9 @@ partial class StopwatchSample
 最终，它是一段读起来有些粗糙的代码，所以我不会在这里详细介绍，但它本质上只是在 .NET（WASM）世界和 JavaScript 世界之间进行编组，绑定现有的 JavaScript 函数（在的情况下[JSImport]），或描述要公开给 JavaScript 调用的方法的形状。
 
 JSImportGenerator 生成的代码的屏幕截图，显示了编组代码
+
 ![JSImportGenerator 生成的代码的屏幕截图](abec5531691c4a79bd63da7b9300270c.png)
+
 为了理解生成的代码与什么交互，我们接下来看一下 HTML 和 JavaScript 代码。HTML 代码非常简单：
 ```
 <!DOCTYPE html>
@@ -202,7 +209,7 @@ await runMain();
 - 
 围绕这些功能的工具的一个好处是，您可以直接dotnet run或间接地F5在浏览器中运行您的应用程序，但最终您会希望在生产中运行它时发布您的项目。
 
-# 发布您的 WASM 应用程序
+## 发布您的 WASM 应用程序
 您可以使用简单的**dotnet publish -c Release**默认方式发布您的应用程序，工具将编译您的应用程序，发布和修剪框架引用，并且 gzip 和 brotli 都会压缩输出。
 
 另一个有趣的点是这些资产的客户端指纹识别。.NET 9 引入了静态资产的服务器端指纹识别（带有MapStaticAssets()），在 .NET 10 中，您可以选择对 Blazor WebAssembly 应用程序和无 Blazor 的 WASM 应用程序进行类似的资产指纹识别（正如我们正在讨论的）。
@@ -263,7 +270,7 @@ await runMain();
 </Project>
 ```
 
-# 减小已发布应用程序的大小
+## 减小已发布应用程序的大小
 出于兴趣，我检查了这个示例应用程序的发布大小（在发布模式下），它大致如下所示：
 
 - 未压缩时为 6.8MB
@@ -281,5 +288,5 @@ await runMain();
 
 这就是全部内容了。这种在 JavaScript 中运行 .NET 代码的方法比使用 Blazor 或与其他 Web 框架交互的方法要底层得多，因此你不太可能从这一层看到巨大的价值。但是，如果你不需要Blazor，那么这可能正是你所需要的！
 
-# 概括
+## 概括
 在本文中，我描述了使用 WebAssembly (WASM) 运行 .NET 代码的各种方式，重点介绍了如何在不使用 Blazor Web 组件框架的情况下在浏览器中运行 .NET 代码。我介绍了使用 WASM 在浏览器中运行 .NET 的基本模板，并分析了 .NET 和 JavaScript 代码，以了解它们如何协同工作。最后，我介绍了 .NET 10 中客户端指纹

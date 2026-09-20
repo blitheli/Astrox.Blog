@@ -1,4 +1,8 @@
-#前言
+# STK Component 矢量几何工具系列--坐标轴(Axes)
+
+STK Component 矢量几何工具库可创建并计算矢量、坐标轴、点与坐标系随时间的变化。本文从 Axes / AxesEvaluator 基类入手，结合 AxesLinearRate、AxesInAxes 等示例，说明任意两坐标轴之间的旋转关系与用法。
+
+## 前言
 
 STK组件包含一个全功能的矢量几何工具库，用于创建矢量，坐标轴，点和坐标系等，以及计算每个参数如何随时间变化。 例如，Point可以表示由轨道积分器计算的卫星位置，然后可以计算卫星在任何已定义坐标系中的位置、速度；Axes可以表示运动的卫星的轨道坐标轴，然后可以计算此轨道坐标轴相对任何坐标轴的转换矩阵。
 
@@ -11,7 +15,8 @@ STK Component矢量几何工具库与STK桌面软件的Vector Geomentry Tool是�
 **继续阅读本文前，请先阅读并掌握前面两章基础：**
 1. [STK Component：Evaluator pattern(计算器模式)](http://blog.csdn.net/u011575168/article/details/53349479)
 2. [STK Component 矢量几何工具系列--坐标轴(Axes)转换基础](http://blog.csdn.net/u011575168/article/details/53229184)
-#Axes基类与AxesEvaluator基类
+
+## Axes基类与AxesEvaluator基类
 所有的坐标轴类都继承自一个共同的基类：Axes，我们首先看看Axes内部的代码实现：
 ```
 //	坐标轴的基类,继承自DefinitionalObject和IServiceProvider接口
@@ -40,6 +45,7 @@ public abstract class Axes : DefinitionalObject, IServiceProvider
 	//...其他属性和方法
 }
 ```
+
 上述代码隐藏了不重要的部分，仅仅显示两个重要的方面：
 1.  Root属性。注意，这个是静态(static）属性，也就意味着无论你程序中有多少个坐标轴对象，他们都有**共同的、全局的、唯一的**属性，这个属性也是Axes对象(AxesRoot)，通过静态构造函数创建。静态构造函数在首次使用Axes时调用，且仅调用一次。为什么创建这个全局对象？我们知道，在计算坐标轴转换时，总是有两个坐标轴（新和旧），每个新的坐标轴总是相对于另一个旧坐标轴定义的，那么这个全局的Root对象就作为所有坐标轴的终极参考对象，Root本身不参与任何计算，仅仅作为一个坐标轴参考基准！**实际上AxesRoot被定义为ICRF坐标系的坐标轴，也是地球惯性系(Earth Inertial Coordinate System)的坐标轴。**
 2. GetEvaluator方法,此方法为虚方法(Abstract)，需要在Axes的继承类中重写具体的方法（override）。在Evaluator pattern(计算器模式)章节中，我们说过，采用Evaluator方式是为了把一个对象的定义和它的计算功能相分开，Axes也采用这个模式。GetEvaluator方法返回AxesEvaluator类对象，用于计算此坐标轴相对旧坐标轴的转换矩阵。
@@ -61,6 +67,7 @@ public abstract class AxesEvaluator : MotionEvaluator<UnitQuaternion, Cartesian>
     //...其他属性和方法
 }
 ```
+
 可以看出，AxesEvaluator类重要的两点 ： 
 1.  DefinedInIntervals属性。这个属性用来保存旧坐标系对象，注意，定义一个Axes继承类时，其旧坐标的保存并不是在Axes继承类中，而是在其AxesEvaluator类中。DefinedInIntervals属性是TimeIntervalCollection&lt;Axes&gt;类型，仔细查看其源代码，就可以知道其是时间段的集合，每个时间段保留一个Axes对象。可以用下图来表示：
 ![TimeIntervalCollection](20161211124630854.png)
@@ -71,8 +78,7 @@ Component中，最常用的是整个时间集合仅有一个时间段，见上�
 Axes和AxesEvaluator的重要属性和方法可由下图表示。
 ![Axes和AxesEvaluator](20161210122614006.png)
 
-
-#一个例子：AxesLinearRate类
+## 一个例子：AxesLinearRate类
 先来看一个STK Component中Evaluator的例子，展示如何使用AxesLinearRate类。
 ```
 //	创建新的坐标系
@@ -100,6 +106,7 @@ JulianDate dateToEvaluate = new JulianDate(new GregorianDate(2007, 11, 20, 12, 0
 //	使用获得的evaluator计算某时刻的旧坐标系到新坐标系的转换矩阵(单位四元数形式)
 UnitQuaternion rotationFromJ2000 = evaluator.Evaluate(dateToEvaluate);
 ```
+
 上面的例子中，创建了一个坐标系对象axes，并计算其基准坐标系（旧坐标系）到它的转换矩阵。可以看出，axes对象仅仅用来描述一个新的坐标系是如何指向的（相对旧坐标系而言），而从旧坐标系到新坐标系的转换计算工作是由另一个类来实现的，它就是AxesEvaluator，是通过axes对象的GetEvaluator()方法来获取的。由AxesEvaluator类的函数Evaluate(JulianDate date)来计算两个坐标系的转换关系。**这种将对象的定义和其计算功能分开就是STK Component中的Evaluator模式。**
 可以推测的是AxesEvaluator对象evaluator中必然保留或者直接指向axes中的相关定义参数，否则evaluator无法计算两个坐标系的转换。
 
@@ -173,6 +180,7 @@ public class AxesLinearRate : Axes
     }
 }
 ```
+
 在AxesLinearRate代码中，强调以下几点：
 1.  类AxesLinearRate继承基类Axes，重写基类Axes的方法GetEvaluator，用来获取其计算类AxesEvaluator对象；
 2.  AxesEvaluator类的实现是由内部类Evaluator来实现的，并且在AxesLinearRate的内部，在内部类Evaluator中，保存了类AxesLinearRate的相关参数；
@@ -180,7 +188,8 @@ public class AxesLinearRate : Axes
 4.  内部类Evaluator中，属性DefinedInIntervals仅保留了一个时间段，且Axes对象为AxesLinearRate类中的旧坐标轴()
 
 将AxesLinearRate类与上节中的Axes和AxesEvaluator多对比较，加深相关概念的理解。
-#任意两坐标轴转换(AxesInAxes类)
+
+## 任意两坐标轴转换(AxesInAxes类)
 上面以AxesLinearRate类为例，给出了求解其旧坐标轴到新坐标轴的转换过程。如果已经有了两个坐标轴，那么如何求解两个坐标轴的相互转换？
 
 如下图，在地球上某点创建一个当地地平坐标轴axesOnEarth（AxesEastNorthUp类对象），在月球上创建一个当地地平坐标轴axesOnMoon（AxesEastNorthUp类对象），那么axesOnMoon到axesOnEarth的坐标转换矩阵（或四元数）如何求解？
@@ -210,6 +219,7 @@ AxesEvaluator axesEval = moon2earth.GetEvaluator();
 JulianDate dateInUtc = new JulianDate(2454245, 0.0, TimeStandard.CoordinatedUniversalTime);
 UnitQuaternion q_m2e = axesEval.Evaluate(dateInUtc);
 ```
+
 从上面的代码可以看出，两个坐标轴的相互转换的具体实现过程在获取到的AxesEvaluator对象axesEval中。
 
 从前面的Axes和AxesEvaluator的介绍我们知道，每一个坐标轴Axes的继承类，必定在其内部创建一个AxesEvaluator的继承类，在AxesEvaluator的继承类中，保存了其原坐标轴，也即旧坐标轴。不难想象，其保留的旧坐标轴也必定有它自己的AxesEvaluator，在其中保留它的旧坐标轴。通过这样追溯旧坐标轴，就形成了一个坐标轴的链路。从两个原始坐标轴分别追溯其各自的坐标轴链路，必定能够找到两者的交点（同一个旧坐标轴），从而将两个坐标轴链路串成一个坐标轴链路。
@@ -233,7 +243,8 @@ UnitQuaternion q_m2e = axesEval.Evaluate(dateInUtc);
 
 在求解最终的axesOnMoon到axesOnEarth的转换时，分别计算ChainMoon和ChainEarth，最后将两者再合并计算，得到最终的两坐标轴的转换。
 ![AxesEvaluator的链路](20161213225350242.png)
-#小结
+
+## 小结
 1.  每个新的Axes继承类都在类的内部创建AxesEvaluator的继承类，通过GetEvaluator()方法获取到内部AxesEvaluator继承类的实例；在内部AxesEvaluator继承类中，通过Evaluate()方法中实现具体的两坐标轴转换过程，并在DefinedInIntervals属性中保留原坐标轴（旧坐标轴）;
 2. 任意两坐标轴转换时，通过查找其旧坐标轴链路（两个链路必有交点）来计算两者的转换！
 

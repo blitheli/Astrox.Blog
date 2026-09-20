@@ -1,8 +1,8 @@
 # Cesium中的DataSource和Entity关系
 
+本章梳理 Cesium 中 DataSource 与 Entity 的关系：Entity 是面向业务的高层对象，底层仍落到 Primitive；通过 DataSource 加载的数据最终也以 Entity 形式组织，文中结合示例说明二者分工与使用场景。
 
-本章主要探讨一下Cesium中的DataSource和Entity。
-# 介绍
+## 介绍
 首先简单说一下Entity与Primitive。
 
 Cesium为开发者提供了丰富的图形绘制和空间数据管理的API，可以分为两类，一类是面向图形开发人员的低层次API，通常被称为Primitive API，另一类是用于驱动数据可视化的高层次API，称为Entity API。
@@ -57,6 +57,7 @@ scene.primitives.add(new Cesium.Primitive({
   })
 }));
 ```
+
  - **添加DataSource**
 ```javascript
 const viewer = new Cesium.Viewer('cesiumContainer');
@@ -71,12 +72,13 @@ viewer.dataSources.add(Cesium.GeoJsonDataSource.load('../../SampleData/ne_10m_us
 //	添加czml类型的数据
 viewer.dataSources.add(Cesium.CzmlDataSource.load("../SampleData/simple.czml"));
 ```
+
 从以上例子中，我们可以看出:
 1. 添加一个新的Primitive对象是存放在scene中的primitives集合(PrimitiveCollection类)里的；
 2. 添加一个新的Entity对象是存放在viewer里的enitites集合(EntityCollection类)里的；
 3. 添加一个新的DataSource是存放在viewer里的dataSources集合(DataSourceCollection类)里的
 
-# DataSource与Entity
+## DataSource与Entity
 DataSource有多种类型文件形式，如czml，GeoJson等，不同的文件类型只是为了不同方式的输入数据结构而已，本质上内部还是转换为Entity对象保存。
 
 我们来看看Viewer里的entites和dataSources属性定义，源代码文件位于："Source\Widgets\Viewer\Viewer.js"，此处仅列出了关节的代码片段，并添加了部分注释。
@@ -143,6 +145,7 @@ Object.defineProperties(Viewer.prototype, {
   },
   //...
 ```
+
 从代码中可以看出，viewer.dataSources与其viewer.dataSourceDisplay.dataSources是同一个对象；
 而viewer.entities是viewer._dataSourceDisplay.defaultDataSource.entities属性。
 

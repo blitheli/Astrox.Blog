@@ -1,22 +1,21 @@
 # 麒麟系统(Linux)上配置Nginx服务反向代理asp.net core 应用程序
 
-@[TOC](目录)
 
-# 一、前言
+## 一、前言
 前面详细描述了如何在麒麟系统上部署.Net Core运行环境，并成功运行了Asp.Net Core webApi应用程序。
 
 不过这种方式并不能持久，一旦关闭远程shell会话，或者服务器重启，应用进程就结束了。因此我们需要一个守护进程(配置)来管理我们的dotnet 后台进程，当服务器启动的时候可以自动运行我们的Asp.Net core web应用程序。
 
 本章讲述如何使用Nginx反向代理服务来反向代理终止HTTP 请求，并将其转发到 ASP.NET Core 应用程序上。
 
-# 二、Nginx反向代理服务器
+## 二、Nginx反向代理服务器
 Nginx是一款轻量级Web服务器，也是一款反向代理服务器。
 
 Kestrel 是一个跨平台的适用于 ASP.NET Core 的 Web 服务器。 Kestrel 是包含在 ASP.NET Core 项目模板中的 Web 服务器，默认处于启用状态。
 
 Kestrel 非常适合从 ASP.NET Core 提供动态内容。 但是，Web 服务功能不像服务器（如 IIS、Apache 或 Nginx）那样功能丰富。 反向代理服务器可以卸载 HTTP 服务器的工作负载，如提供静态内容、缓存请求、压缩请求和 HTTPS 终端。 反向代理服务器可能驻留在专用计算机上，也可能与 HTTP 服务器一起部署。
 
-## 1.下载
+### 1.下载
 官网下载：http://nginx.org/en/download.html
 尽量选择稳定版本，我们是Linux系统，因此选择下图中红圈的版本：nginx-1.20.1。点击之后，会自动下载（同时可看到下载地址:http://nginx.org/download/nginx-1.20.1.tar.gz），然后将压缩包上传到Linux服务器上即可。
 
@@ -25,7 +24,7 @@ Kestrel 非常适合从 ASP.NET Core 提供动态内容。 但是，Web 服务�
 wget http://nginx.org/download/nginx-1.20.1.tar.gz
 ```
 ![在这里插入图片描述](e6ee84d8ec087e651ca1063db69b9803.png)
-## 2.安装
+### 2.安装
 Linux服务器终端上，依次输入以下命令：
 ```bash
 # 安装依赖
@@ -46,7 +45,7 @@ make install
 nginx: /etc/nginx /usr/local/nginx
 [root@liyunfei-kylin ~]# 
 ```
-## 3.启动
+### 3.启动
 通过上面的命令获取到路径，然后并进入sbin目录，可以看见一个可执行文件nginx，通过./nginx执行。
 ```bash
 [root@liyunfei-kylin ~]# cd /usr/local/nginx/sbin
@@ -110,7 +109,7 @@ http {
 
 ....
 ```
-## 4. 常用命令
+### 4. 常用命令
 下面给出了nginx常用的命令。
 ```bash
 cd /usr/local/nginx/sbin/
@@ -122,7 +121,7 @@ ps auxIgrep nginx 查看nginx进程
 ```
 当我们修改了 配置文件后(/usr/local/nginx/conf/nginx.conf)，需要重新加载配置文件，即: -s reload命令。
 
-## 5. Nginx开机自启动
+### 5. Nginx开机自启动
 需要将nginx设置为随Linux系统开机自启动方式，这样配置完成后即使重启系统网站也会自动运行的。
 
 修改/etc/rc.d/rc.local文件，添加最后一行内容：
@@ -154,8 +153,8 @@ touch /var/lock/subsys/local
 
 最后，使用reboot命令重启Linux系统，然后使用"ps aux | grep nginx"命令查看nginx是否真的成功的自启动了。
 
-# 三、Asp.Net Core
-## 1. Startup.Configure中增加中间件调用
+## 三、Asp.Net Core
+### 1. Startup.Configure中增加中间件调用
 在使用Nginx反向代理Asp.Net Core程序时，由于请求通过反向代理转发，因此在Asp.Net Core中，需要使用Microsoft.AspNetCore.HttpOverrides 包中的中间件。 此中间件使用 X-Forwarded-Proto 标头来更新 Request.Scheme，使重定向 URI 和其他安全策略能够正常工作。
 
 此中间件应在其他中间件之前运行。 
@@ -175,7 +174,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 ...
 ```
 重新编译并发布Asp.Net Core应用程序，并上传到Linux服务器上。
-## 2. .Net Core程序开机自启动
+### 2. .Net Core程序开机自启动
 前一章中我们介绍过，使用dotnet命令可以启动.Net Core应用程序。这种方式下，一旦Linux系统重启就必须重新重新输入dotnet命令才能重启.Net Core应用程序。
 
 使用Systemd，它可用于创建服务文件以启动和监视基础 Web 应用， 可以提供启动、停止和管理进程的许多强大的功能。
@@ -245,7 +244,7 @@ Sep 14 15:07:18 liyunfei-kylin dotnet-example[3075]:       Content root path: /r
 
 打开浏览器，输入 http://124.71.167.97:8000/swagger，即可打开网站的WebApi接口页面(Swagger)。
 
-# 四、Nginx反向代理Asp.Net Core应用程序
+## 四、Nginx反向代理Asp.Net Core应用程序
 下面开始将Nginx 配置为反向代理以将 HTTP 请求转发到 ASP.NET Core 应用程序。
 
 使用下面语句打开文件nginx.conf
@@ -347,14 +346,14 @@ server {
 
 在浏览器里输入：http://124.71.167.97/swagger，即可看到Asp.Net Core的WebApi页面。大功告成！！
 ![Nginx转发](22d9791fbd33728e93280361b82a63e1.jpeg)
-# 五、总结
+## 五、总结
 这篇文章给出了Nginx服务器的下载、安装，以及Asp.Net Core应用程序的配置。并且在Linux系统里，都给出了两者随系统启动的方法。最后给出了利用Nginx反向代理Asp.Net Core应用程序的配置方法。
 
 我们在访问网站时，由Nignx服务器接收Http请求，并通过端口8000转发给Asp.Net Core应用程序；然后再接收Asp.Net Core应用程序返回的数据，再发回给客户端。
 
 对于本文的配置来说，Nginx起的作用不大，我们完全可以不用Nginx，直接访问地址: http://124.71.167.97:8000/swagger，直接与Ketrel服务器连接。
 
-# 参考
+## 参考
 1.  [Linux下安装Nginx](https://www.jianshu.com/p/9f2c162ac77c)
 2. 狂神, [Linux下安装nginx](https://www.kuangstudy.com/bbs/1424752534395879426)
 3. [Linux安装nginx并设置开机自启（命令行方式）](https://blog.csdn.net/fei1234456/article/details/107234075)

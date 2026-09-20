@@ -1,6 +1,6 @@
 # 使用Jest测试Cesium源码
 
-@[TOC](使用Jest测试Cesium源码)
+业务代码常直接引用 Cesium 的 ES6 源码以便调试，但官方 Jasmine Spec 是全量打包后再跑，不便于单独测某一个类。本文介绍在 Node 环境下用 Jest 对 Cesium 源码做单测（不涉及浏览器），并配 Babel 以支持 `import`，以 `Cartesian3` 为例走通配置与断言。
 
 # 介绍
 在使用Cesium时，我们常常需要编写自己的业务代码，其中需要引用Cesium的源码，这样方便调试。此外，目前代码中直接使用ES6的模块(Import等语法)，而不是之前的CommonJS方式。

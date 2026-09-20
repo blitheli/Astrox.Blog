@@ -1,7 +1,8 @@
 # Cesium与STK中的天空盒子(skybox)
 
 天空盒子是计算机图形学中的概念，用于在3D展示中，显示观测者上下左右前后的全景图像。
-# 星空图介绍
+
+## 星空图介绍
 在STK和Cesium中，常常以地球为中心天体，背景就是宇宙星空，观测者超哪个方向看，就可以看到对应方向的星空。我们知道，宇宙中所有的星系都离地球很远，且在短时间内恒星的自行（单位时间内恒星在天球切面上走过的距离对观测者所张的角度叫自行）非常小，因此我们可假设星空背景是不变的，可以用一张星空图片来代替宇宙，在3D场景中作为远景展示。
 ![天球-星空背景](cf375dc02b8d9d7aaa6136300ef3169a.jpeg)
 显然，我们无法做一个球面的星空图，想像一下地球的表面也是球形的，我们是如何处理的？把它展开为一张平面图，专业的说法叫映射，也就是地图Map的原始含义。
@@ -14,7 +15,8 @@
 ![TychoSkymapII](a2cc382766eb20c91748cb92b6116d22.jpeg)
 具备GIS（地理信息系统）基本知识可知，等距圆柱投影，其经线和纬线是等距的直线，由此可形成一个完美方形的笛卡尔格网。在此投影中，各极点被表示为通过格网顶部和底部的直线，其长度与赤道相同。经纬网沿赤道和中央经线对称。这是一种非常经典的地图投影方式，我们常常可以看到此种投影方式的地球地图。
 ![地球的等距圆柱投影](90e75865870b766c26ca0decfcea2a86.jpeg)
-# 天空盒子(skybox)原理
+
+## 天空盒子(skybox)原理
 天空盒子的制作方法并没有采用上述方法。
 
 想象一下，一个立方体盒子将天球包围，从球心到球面上任意一点的连线延伸出去必然与立方体盒子的一个面相交，从而将球面上的一个点映射到立方体的一个面上。最终完整的天球映射到立方体盒子的两个面上，形成6张正方形的图片。所以说天空盒子的贴图是6张（也叫立方体贴图），分别对应6个方向的星空背景贴图。
@@ -22,7 +24,8 @@
 在实际的渲染中，将这个立方体始终罩在摄像机的周围，让摄像机始终处于这个立方体的中心位置，然后根据视线与立方体的交点的坐标，来确定究竟要在哪一个面上进行纹理采样。
 ![cube map](b41f714f1edc011ea8ad82c8b0a8d332.jpeg)
 在制作立方体贴图过程中，我们的球面星空背景图通常为一张等距圆柱投影的2D图，因此需要等距圆柱投影到立方体投影的转换过程。
-# STK中的天空盒子
+
+## STK中的天空盒子
 STK软件中，新建场景后，3D窗口的默认星空背景是零零散散的星星，也可以通过加载高分辨率图片来替换星空背景，见下图。
 ![stk-天空盒子](3b321936a58ef89c5d96e438bde7363d.jpeg)
 STK星空背景的设置：打开3D窗口的属性窗口，选择“Celestial”标签页， 在"Star"属性框内，“Show”复选框用于控制星空背景是否显示；显示时有两种显示方式：
@@ -34,7 +37,8 @@ STK星空背景的设置：打开3D窗口的属性窗口，选择“Celestial”
 
 其中高分辨率星空背景图在"STK Celestial Imagery"文件夹内，其中"mwpan2.ctm"文件用于STK的星空背景设置时选择，"dataFiles"文件夹中有6张pdttx格式的图片，每张图片约24M，即为ＳＴＫ的星空背景的skybox。
 ![stk高分辨率星空背景贴图文件](098a888fe540f6c0f23a803133120b81.jpeg)
-# Cesium中的天空盒子
+
+## Cesium中的天空盒子
 在Cesium 3D场景中，同样也是使用6张贴图实现了星空背景的skybox。
 
 下载Cesium代码包后，星空背景的贴图在"Build\Cesium\Assets\Textures\SkyBox"目录下，见下图。每张图片仅有150k左右，为1024×1024大小，即1k，因此分辨率非常低。
@@ -42,7 +46,8 @@ STK星空背景的设置：打开3D窗口的属性窗口，选择“Celestial”
 在之前的Release版本中，Cesium还提供过2048*2048分辨率的星空背景贴图（见下图）,我从Github上找到了原始版本，见下图。
 ![cesium skybox 2k](61bd4697a3ef24d776579fcb743efcae.jpeg)
 从贴图的名称可以看出它们都是根据依巴谷第谷星表制作而成的，原图就是上面的第二张图。
-# Cesium中天空盒子加载
+
+## Cesium中天空盒子加载
 有了6幅立方体贴图，在Cesium中加载的代码如下：
 ```javascript
 scene.skyBox = new Cesium.SkyBox({
@@ -56,6 +61,7 @@ scene.skyBox = new Cesium.SkyBox({
   }
 });
 ```
+
 由代码可知，加载时，需要明确positiveX/negativeX....等参数对应的贴图编号。我们约定下面对应关系：
 
 ```
@@ -66,8 +72,10 @@ negativeY	=ny=my
 positiveZ	=pz
 negativeZ	=nz=mz
 ```
+
 在Cesium提供的skybox贴图名称后缀中，有得用nx/ny/nz表示，有的用mx/my/mz表示，因此我们将其等效。
-# 天空盒子制作
+
+## 天空盒子制作
 适用于STK或Cesium的星空背景的天空盒子生成的程序在网上始终没有直接找到现成的，但是立方体贴图的制作基本原理都是通用的，无非就是最后生成的cubemap的贴图方位不对而已。
 
 在网上找到了生成立方体贴图的python代码，经过调整后，可直接生成6个立方体贴图，供stk或cesium使用。
@@ -174,7 +182,6 @@ def convertFace(imgIn, imgOut, faceIdx):
 
             outPix[xOut, yOut] = (int(round(r)), int(round(g)), int(round(b)))
 
-
 ## ★★★
 ## 由使用者自行提供原图的路径fp，此原图应为星空背景的2D图，在地心天球坐标系下，且投影方式为
 ##   等距圆柱投影（ plate carrée projection /Cylindrical-Equidistant）。
@@ -185,7 +192,6 @@ def convertFace(imgIn, imgOut, faceIdx):
 #fp = 'starmap_2020_8k.png'
 #fp = 'TychoSkymapII.t5_16384x08192.jpg'
 fp = 'starmap_2020_16k.png'
-
 
 imgIn = Image.open(fp)
 inSize = imgIn.size
@@ -212,11 +218,11 @@ for face in range(6):
 
 print('complete!!!')  
 ```
+
 下面给出两种转换后的贴图在Cesium中的表现：
 ![Cesium skybox Tychoskymap-starmap](dbb1294bfdae1a9361f9a17900ed999d.jpeg)
 
-
-## 参考
+### 参考
 1. [天空盒(SkyBox)的实现原理与细节](https://blog.csdn.net/yjr3426619/article/details/81224101)
 2. [计算机图形学(OPENGL):天空盒](https://www.jianshu.com/p/709789d4623f)
 3. [恒星星空图绘制（二）——星表详解](https://zhuanlan.zhihu.com/p/82496762)
@@ -226,4 +232,3 @@ print('complete!!!')
 7. [cesium星空背景贴图](https://share.weiyun.com/kyaXdoc7)
 8. [Cesium之天空盒对应方位](https://blog.csdn.net/weixin_40184249/article/details/102808142)
 9. [Deep Star Maps 2020](https://svs.gsfc.nasa.gov/4851)
-

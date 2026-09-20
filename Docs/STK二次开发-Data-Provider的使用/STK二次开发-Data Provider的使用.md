@@ -1,4 +1,8 @@
-#说明
+# STK二次开发-Data Provider的使用
+
+本文说明如何在 STK 二次开发中通过 Object Model 使用 Data Provider 获取报告数据，涵盖 Report Style 结构、关联对象、分组与直接获取方式、输入时间参数以及计算结果读取等关键步骤。
+
+## 说明
 在STK中，Report&Graph Manager控制面板用于生成STK对象（如卫星、地面站或Access等)的报告和图表，如卫星在J2000坐标系下的位置、速度等参数。它允许用户打开已存在的报告/图表、创建新的报告/图表以及改变报告/图表的格式。
 
 Report&Graph Manager的打开方式有以下几种：
@@ -17,7 +21,8 @@ Report&Graph Manager的打开方式有以下几种：
 而使用Object Model类库方式，则直接与具体的Data Providers（数据提供者）打交道，此种方式获取不到缺省安装、用于自己创建的报告。
 
 下面具体阐述使用Object Model方式如何识别、计算以及获取具体的数据。
-#Report Style（报告样式）结构
+
+## Report Style（报告样式）结构
 上图中可以看出一个Report Style是由具体的Data Providers组成的，我们来看一个具体的例子。
 
 在“Installed Styles”中找到"J2000 Position Velocity"样式，这个报告样式用来生成卫星在J2000系下的位置和速度的。选中该样式，然后点击属性 ，则可打开该样式的属性窗口，见下图。
@@ -33,7 +38,8 @@ Data Providers窗口中列出了所有的与某个STK对象（此处为卫星）
 值得注意的是上面提到的名称：Group、Data Provider和Element，请读者关注，这也是Object Model中有关Data Provider类库的基础，后面具体代码中会多次涉及到。我们将会使用这些概念具体的阐述如何使用Object Model代码获取与报告样式相同的数据。
 下图给出了三者在层次结构上的关系图。
 ![Group/Data Provider/Element层次示意图](0a126fd7a8c4774386c8be546f30d0bf.png)
-#关联STK对象
+
+## 关联STK对象
 要想获取STK对象的Data Provider类，首先要获取到STK场景中的相应对象，如卫星或地面站。
 
 假设已经有一个STK场景在运行，场景的相关设置为：
@@ -55,9 +61,11 @@ IAgStkObject satellite = stkRoot.CurrentScenario.Children["Satellite1"];
 //  获取地面站对象
 IAgStkObject facility = stkRoot.CurrentScenario.Children["Facility1"];
 ```
+
 注意，获取卫星对象时，缺省使用接口IAgStkObject，我们并没有强制转换为卫星对象的接口（IAgSatellite），地面站的接口类似。IAgStkObject接口为STK中所有对象的基类接口，即拥有所有对象共有的属性与方法。下图为其部分属性。
 ![IAgStkObject的部分属性](ba217f41bab541b03f5500fe1c8cf37d.png)
-#获取对象的Data Provider
+
+## 获取对象的Data Provider
 本节阐述如何获取一个STK对象的特定的Data Provider，以下面三个具体的Data Provider 为例：
 - 卫星J2000系下的位置（速度），在Cartesian Postion(Velocity)文件夹(Group)下，名称：J2000；
 - 卫星轨道面的Beta角，名称：Beta Angle；
@@ -82,7 +90,8 @@ IAgStkObject facility = stkRoot.CurrentScenario.Children["Facility1"];
 上图中，继承自接口IAgDataProviderInfo还有一个类：AgDataProviderGroup。这个类实际上就是图5中的“Group”，仍然是Data Provider的集合。
 
 下面具体给出几种获取对象的特定Data Provider的方式。
-##通过Group获取
+
+### 通过Group获取
 一般来说，大多数的Data Provider都存放在相应的Group下，因此这种方式是最一般的方式。
 
 以获取卫星在J2000系下的位置速度为例，其位置、速度的Data Provider获取代码如下：
@@ -101,10 +110,12 @@ IAgDataProviderGroup carVel = dpVel as IAgDataProviderGroup;
 IAgDataPrvTimeVar dpJ2000Pos = carPos.Group["J2000"] as IAgDataPrvTimeVar;
 IAgDataPrvTimeVar dpJ2000Vel = carVel.Group["J2000"] as IAgDataPrvTimeVar;
 ```
+
 最终我们获取的Data Provider为dp J2000Pos和dp J2000Vel，分别代表卫星在J2000系下的位置和速度。
 
 上述获取的过程为先获取Data Provider的Group，再通过其Group属性获取具体的Data Provider（需要强制转换为对应的接口）。
-##直接获取
+
+### 直接获取
 有的Data Provider并不存放在Group内，因此可以直接获取，见下代码。
 
 获取卫星Beta角的Data Provider，最终强制转换为接口IAgDataPrvTimeVar。
@@ -113,13 +124,15 @@ IAgDataPrvTimeVar dpJ2000Vel = carVel.Group["J2000"] as IAgDataPrvTimeVar;
 //  这里强制转换为IAgDataPrvTimevar接口
 IAgDataPrvTimeVar dpInfo = satellite.DataProviders["Beta Angle"] as IAgDataPrvTimeVar;
 ```
+
 获取地面站位置的Data Provider，最终强制转换为接口IAgDataPrvFixed。
 ```
 //  获取地面站位置的Data Provider,获取到的对象缺省使用IAgDataProviderInfo接口
 //  这里强制转换为IAgDataPrvFixed接口 
 IAgDataPrvFixed dpInfo = facility.DataProviders["Cartesian Position"] as IAgDataPrvFixed;
 ```
-##通过DataProviders提供的方法直接获取(推荐)
+
+### 通过DataProviders提供的方法直接获取(推荐)
 前面说过，任何一个STK对象都存在DataProviders属性，这个属性是一个集合，实现了接口IAgDataProviderCollection，这个接口提供了几个方法，可以直接获取到特定Data Provider的接口。
 ![DataProviders属性提供的方法](bce653e226e8f5afb8812f0a19d2be83.png)
 下面代码演示了通过特定的方法直接获取卫星J2000的位置、速度的Data Provider，其接口类型为IAgDataPrvTimeVar。
@@ -130,26 +143,31 @@ IAgDataPrvTimeVar dpPos2, dpVel2;
 dpPos2 = satellite.DataProviders.GetDataPrvTimeVarFromPath("Cartesian Position//J2000");
 dpVel2 = satellite.DataProviders.GetDataPrvTimeVarFromPath("Cartesian Velocity//J2000");
 ```
+
 获取卫星的Beta角的Data Provider，直接获得接口IAgDataPrvTimeVar对象。
 ```
 //  通过DataProviders的方法直接获取接口为IAgDataPrvTimeVar的Data Provider
 IAgDataPrvTimeVar dpInfo2;
 dpInfo2 = satellite.DataProviders.GetDataPrvTimeVarFromPath("Beta Angle");
 ```
+
 获取地面站位置的Data Provider，直接获得接口IAgDataPrvFixed对象。
 ```
 //  通过DataProviders的方法直接获取接口为IAgDataPrvFixed的Data Provider
 IAgDataPrvFixed dpInfo2;
 dpInfo2 = facility.DataProviders.GetDataPrvFixedFromPath("Cartesian Position");
 ```
+
 从上面几个代码示例中可以看出，使用DataProviders属性提供的几种方法，可以直接获取到特定接口的Data Provider对象，不需要进行接口的强制转换。
 
 **建议读者在获取STK对象的Data Provider时，采用此种方式进行。**
-#Data Provider的输入参数及计算
+
+## Data Provider的输入参数及计算
 获取到了Data Provider对象后，就可以进行相关数据的计算了，对于不同接口的Data Provider对象，其计算的方法也不同，见下图。
 ![三种Data Provider接口的具体方法](ffd4463e8d5444a684ec1b02bff1547b.png)
 可以看出，前两种接口的方法较为简单，第三种也是最常用的接口提供的方法较多，每个接口都包含了Exec和ExecElements方法，其返回值都缺省为IAgDrResult接口对象。
-##IAgDataPrvFixed接口方法
+
+### IAgDataPrvFixed接口方法
 由于此种接口的Data Provider与时间无关，输入参数不需要时间。
 
 使用Exec方法计算，Exec方法无输入参数，获取的结果包含Data Provider的所有元素。
@@ -179,8 +197,10 @@ Array elems = new object[] { "x", "z" };
 //  输入参数为Array数组，返回结果中仅包含x，z元素
 IAgDrResult resInfo = dpInfo.ExecElements(ref elems);
 ```
+
 如无特别需求，建议使用第一种方法，形式简单。
-##IAgDataPrvInterval接口方法
+
+### IAgDataPrvInterval接口方法
 使用Exec方法计算，Exec方法的输入参数为初始时刻、结束时刻，获取的结果包含Data Provider的所有元素。
 
 使用ExecElements方法计算，需要初始时刻、结束时刻、Array数组作为输入参数，Array数组包含了需要计算元素的名称，获取的结果仅包含Data Provider中的指定元素
@@ -208,7 +228,8 @@ IAgDrResult resInfo2 = dpInfo.ExecElements("18 Mar 2009 16:00:00.00",
                                       "19 Mar 2009 16:00:00.00", ref elems);
 
 ```
-##IAgDataPrvTimeVar接口方法
+
+### IAgDataPrvTimeVar接口方法
 此接口中的Exec和ExecElements方法同前两个接口的方法类似，此外还提供数个专门用于计算特定时刻的方法。
 
 对于随时间变化的参数，我们在生成报告时，相应的输入参数通常指定初始时刻、结束时刻以及时间间隔，见下图。
@@ -259,7 +280,7 @@ IAgDrTimeArrayElements resInfo5 = dpPos2.ExecSingleElementsArray(ref times, ref 
 
 ```
 
-##预定义数据的设置(PreData)
+### 预定义数据的设置(PreData)
 在生成报告时，有部分Data Provider需要额外的输入参数，这些输入参数必须在计算之前设定。
 例如，在计算卫星相对运动时，最常用的Data Provider是"Relative Motion"，这里面提供了卫星RIC和NTC两种坐标系的元素。
 
@@ -292,6 +313,7 @@ IAgDrResult result = RICdp.ExecElements("18 Mar 2009 16:00:00.00",
 IAgDrResult result2 = RICdp.Exec("18 Mar 2009 16:00:00.00", "19 Mar 2009 16:00:00.00", 60);
 
 ```
+
 可以看出，相比上面各节的输入与计算方法而言，仅在计算前设置了Data Provider的PreData属性（需先转换为IAgDataProvider接口)。
 
 下面给出另外一个需要预先设定参数的例子。
@@ -321,13 +343,15 @@ Array elems = new object[] { "Time", "x", "y", "z" };
 IAgDrResult result = dpPos.ExecElements("18 Mar 2009 16:00:00.00", 
                                    "19 Mar 2009 16:00:00.00", 60, ref elems);
 ```
-#Data Provider的数据获取
+
+## Data Provider的数据获取
 前面叙述了如何获得一个STK对象的Data Provider，以及如何给这个Data Provider的输入参数赋值以及计算。现在到了最后一步，如何获得最终计算的数据。
 
 从上节的演示代码中我们知道，三种接口类型的Data Provider的计算结果基本上都缺省返回IAgDrResult的接口对象。下图为IAgDrResult接口的属性图，其中里面的DataSets属性为一个集合（IAgDrDataSetCollection），集合中的元素就对应Data Provider中的元素，如J2000系下的x,y,z元素，每个元素用接口IAgDrDataSet代表，通过其GetValues方法返回具体数值的数组。
 ![IAgDrResult的接口示意图](91671c42ec09728913ca5284d657914b.png)
 下面分不同接口的Data Provider具体阐述如何获取具体的数据。
-##IAgDataPrvTimeVar接口
+
+### IAgDataPrvTimeVar接口
 对于随时间变化的参数，其输出的结果也随时间变化，每个元素参数为一列。
 
 下图为使用STK报告生成的卫星在J2000系下的位置和速度，加上时间一共7列，每列为一元素的数值。
@@ -380,6 +404,7 @@ Array arrayX2 = dsPos.GetDataSetByName("x").GetValues();
 Array arrayVx2 = dsVel.GetDataSetByName("x").GetValues();
 
 ```
+
 如果只是想计算某几个时刻的位置（或速度），则可以使用稍微简洁的方法来获取，下面代码演示了获取两个时刻的位置。
 
 ```
@@ -404,7 +429,8 @@ Array arrayY = resInfo5.GetArray(1);
 Array arrayZ = resInfo5.GetArray(2);
 
 ```
-##IAgDataPrvInterval接口
+
+### IAgDataPrvInterval接口
 典型的时间段接口的为可见性分析（Access）数据的结果。
 
 下图为卫星与地面站的Access报告结果。一共有四个元素，每个元素一列。
@@ -440,7 +466,8 @@ Array arrayStop = datasets[2].GetValues();
 Array arrayDuration = datasets[3].GetValues();
 
 ```
-##IAgDataPrvFixed接口
+
+### IAgDataPrvFixed接口
 与时间无关的Data Provider的计算不需要时间，计算结果也仅有元素的数值，并没有数组。
 
 同上两节类似，在Object Model中，仍然以数组的形式保存最终的结果，只是数组的长度为1。
@@ -464,9 +491,11 @@ Array arrayY = datasets[1].GetValues();
 Array arrayZ = datasets[2].GetValues();
 
 ```
-##小结
+
+### 小结
 从以上各节的代码可以看出，绝大多数的Data Provider的计算结果都缺省为IAgDrResult接口，都可以通过其DataSets属性来获取数据的数组，并可通过数组编号（0,1,2...）依次获取数组结果，也可以通过元素的名称来获取数组。
-#输入的时间格式
+
+## 输入的时间格式
 在以上Data Provider的计算中，所有输入参数中涉及到的时间都是以UTCG格式来输入的，这是STK中的缺省时间格式。
 
 在STK界面中，打开场景属性的设置页面，在“Basic”页面中，“Units”标签页用来设置各种单位的输入输出格式。其中时间格式（DateFormat）有众多的格式可以选择，见下图。

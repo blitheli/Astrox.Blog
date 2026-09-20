@@ -1,14 +1,16 @@
 # Cesium简介
 
-# 一、Cesium介绍
+Cesium 是基于 JavaScript 与 WebGL 的开源三维地球与地图引擎，支持 3D、2D 与 2.5D 哥伦布视图。本文介绍其主要能力（动态时空数据可视化、全球高精度地形、开箱即用的几何与标注）以及官方示例入口，便于快速了解 Cesium 能做什么。
+
+## 一、Cesium介绍
 
 ![](ed65afb4606aa7048e19a2fd8e2cd565.jpeg)
 
 Cesium是国外一个基于JavaScript编写的使用WebGL的地图引擎。Cesium支持3D,2D,2.5D形式的地图展示，可以自行绘制图形，高亮区域，并提供良好的触摸支持，且支持绝大多数的浏览器和mobile。
 
-# 二、Cesium特点
+## 二、Cesium特点
 
-## 1、一个API - 三种视图
+### 1、一个API - 三种视图
 
 *（原图 OneApiThreeViews 外链已失效，未收录）*
 
@@ -16,7 +18,7 @@ Cesium支持三维地球（3D），二维地图（2D）以及2.5D哥伦布视图
 
 ![3D](9001d4191e46afca7c07490f74882218.png) ![2D](a4405933686bd5fa507d9b4e4e820e17.png) ![2.5D](820022cec64228f2b703d81a0ad6c889.png)
 
-## 2、动态地理空间数据的可视化
+### 2、动态地理空间数据的可视化
 
 ![](4b7c07785a8693ab93d6afe2b394c8e1.png)
 
@@ -32,7 +34,7 @@ Cesium支持三维地球（3D），二维地图（2D）以及2.5D哥伦布视图
 
   * 使用插件扩展核心Cesium。
 
-## 3、内置的高性能和高精度
+### 3、内置的高性能和高精度
 
 ![](c2a2acd58328f7f4c6931d9d297b7b52.png)
 
@@ -41,11 +43,11 @@ Cesium支持三维地球（3D），二维地图（2D）以及2.5D哥伦布视图
   * 控制摄像头和创造飞行路径。
   * 使用动画控件控制动画时间。
 
-# 三、Cesium示例
+## 三、Cesium示例
 
 以下将示例如何运行一个Cesium应用程序：
 
-## 1、确保浏览器支持Cesium
+### 1、确保浏览器支持Cesium
 
 验证Cesium在Web浏览器中工作的最简单方法是运行HelloWorld例子，[点击这里](http://cesiumjs.org/Cesium/Apps/HelloWorld.html)。如果你看到一些像下面的图片，恭喜你，你运行的该Web浏览器支持运行Cesium，那么你可以跳到下一部分阅读；否则，继续阅读。
 
@@ -59,11 +61,11 @@ Cesium是建立在几个新的HTML5技术之上的，其中最重要的是WebGL�
 
 （3）如果你仍然有问题，尝试访问[http://get.webgl.org/](http://get.webgl.org/)，它提供了额外的问题解决建议。你也可以在[Cesium论坛](http://cesiumjs.org/forum.html)寻求帮助。
 
-## 2、选择编辑器或IDE
+### 2、选择编辑器或IDE
 
 如果你已经是一个经验丰富的开发者，你很可能会有一个最喜爱的编辑器和开发环境；例如，大多数的Cesium的团队使用日蚀。如果你刚刚开始，一个伟大的自由和开放源码编辑器，记事本++，你可以从网上下载他们的网站。最终，任何文本编辑器会做的，所以去一个你最舒服。
 
-## 3、下载Cesium
+### 3、下载Cesium
 
 如果你还没有这样做，点击这个按钮来获取最新的Cesium：[下载Cesium](http://cesiumjs.org/downloads.html)。  
 下载完成之后将zip文件解压到你选择的新目录，解压之后文件目录类似于下图。
@@ -72,7 +74,7 @@ Cesium是建立在几个新的HTML5技术之上的，其中最重要的是WebGL�
 
 不能直接双击运行index.html，在实际工作中，它需要运行在Web服务器上。
 
-## 4、设置Web服务器
+### 4、设置Web服务器
 
 为了运行Cesium的应用，我们需要一个本地Web服务器的主机文件。我们所有的例子将使用Node.js。当然你也可以使用自己的服务器，只要把上一节的目录放在服务器根目录下。
 
@@ -87,7 +89,7 @@ Cesium是建立在几个新的HTML5技术之上的，其中最重要的是WebGL�
 
 ![](3a987a0ada753614bd05f4132d339225.png)
 
-## 5、运行Hello world!
+### 5、运行Hello world!
 
 现在我们的Cesium已经运行在Web服务器上，我们可以启动Web浏览器并输入网址http://localhost:8080/HelloWorld.html。这与我们刚开始测试WebGL时看到的Hello World应用程序是一样的，但现在是运行在你自己的系统中，而不是在Cesium网站上。如果我们在编辑器中打开helloworld.html，我们会看到以下代码：
 [code] 
@@ -140,6 +142,6 @@ Cesium是建立在几个新的HTML5技术之上的，其中最重要的是WebGL�
     var viewer = new Cesium.CesiumViewer('cesiumContainer');
 [/code]
 
-## 6、接下来干嘛
+### 6、接下来干嘛
 
 通过以上的学习，恭喜你，你已经开始写你自己的Cesium应用和网页了。那么根据自己的情况，你可能对其他[Cesium教程](http://cesiumjs.org/tutorials.html)感兴趣。如果你是一个新手，通过[Cesium Sandcastle](http://cesiumjs.org/Cesium/Apps/Sandcastle/index.html)这个编码的应用，您不仅可以查看几十个实例，也可以查看和编辑自己的源代码，从应用程序中运行查看你的改变。最后，无论你如何学习，[参考文献](http://cesiumjs.org/Cesium/Build/Documentation/)对每个人来说都是一个非常宝贵的资源。

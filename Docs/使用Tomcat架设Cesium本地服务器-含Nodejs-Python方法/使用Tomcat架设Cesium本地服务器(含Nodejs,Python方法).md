@@ -115,7 +115,7 @@ tomcat提供web服务默认的端口号是8080，如果想要修改端口号，�
 
 ### 一个例子
 例如，我想将下面的图片加载到3D地球上
-![WhiteOnBlue.bmp](30d0af04c25de3865ecc29a72177638c.bmp)
+![WhiteOnBlue](30d0af04c25de3865ecc29a72177638c.png)
 则将图片WhiteOnBlue.bmp放在lyf文件夹下的imag文件夹内，然后修改lyfHelloworld.html中代码如下：
 ```
 <body>

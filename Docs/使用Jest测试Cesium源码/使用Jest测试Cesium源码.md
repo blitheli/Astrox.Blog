@@ -2,18 +2,18 @@
 
 业务代码常直接引用 Cesium 的 ES6 源码以便调试，但官方 Jasmine Spec 是全量打包后再跑，不便于单独测某一个类。本文介绍在 Node 环境下用 Jest 对 Cesium 源码做单测（不涉及浏览器），并配 Babel 以支持 `import`，以 `Cartesian3` 为例走通配置与断言。
 
-# 介绍
+## 介绍
 在使用Cesium时，我们常常需要编写自己的业务代码，其中需要引用Cesium的源码，这样方便调试。此外，目前代码中直接使用ES6的模块(Import等语法)，而不是之前的CommonJS方式。
 
 本文介绍如何使用流行的前端测试工具jest来实现自动化测试。此处暂时使用nodejs来调试代码，不涉及浏览器。
 
 Cesium自身包含总多的测试代码(Spec文件夹下)，并使用Jasmine来运行测试。不过它的测试都是所有文件打包好后再测试的，不便于我们单独测试某一个类。因此本文使用Jest来单独进行测试。
 
-# 环境
+## 环境
 - Cesium :110版本，可直接从官方网站上下载。[https://cesium.com/downloads/](https://cesium.com/downloads/)
 - 开发环境: Visual Studio Code（下面简称VSC），nodejs环境
 
-# Cesium安装
+## Cesium安装
 Cesium的安装和使用此处仅做简单介绍，如果是初学者可以搜索相关的教程。
 
 - 将压缩包解压缩后，使用VSC可打开。
@@ -28,7 +28,7 @@ npm install命令则根据package.json中的依赖安装相应的包（新创建
 - 将原来的"test"内容修改为"jest”，以便后续使用jest进行测试。
 
 ![cesium目录及package.json](1ad3a95ad2d8c69724034c2bd00756fd.png)
-# Jest
+## Jest
 Jest 是由 Facebook 推出的一个前端测试框架，具有许多非常好的特性，譬如执行速度快、API友好、自动监控、Snapshot、测试覆盖率、Mock等各种特性，并且适用于Babel、TypeScript、Node、React、Angular、Vue等。
 
 ### 安装Jest模块包
@@ -65,7 +65,7 @@ npm install --save-dev @babel/preset-env
 ### 安装Jest的VSC插件
 在VSC的扩展里搜索"Jest"，安装这个插件。这个插件可以让我们方便的管理和测试我们的测试算例。
 ![在这里插入图片描述](fcc533e1cc6b08bbd9420590fd7cb004.png)
-# 测试例子
+## 测试例子
 这里，我们假设测试Cesium的源码里的Cartesian3类。100版本以后，源码都放到"packages"文件夹内了。
 
 在项目根目录下新建“mytest”目录，新增"Cartesian3.test.js“文件，代码如下：
@@ -103,7 +103,7 @@ describe("Core/Cartesian3", function () {
 
 ![Jest测试](203060f6346463815f8be0f9c68c1591.png)
 
-# 小结
+## 小结
 本文我们通过安装Jest相关包，通过可视化的方式进行单个测试文件的测试，测试文件中引用了Cesium的源码，便于我们调试时查看源代码的运行。此处仅使用nodejs测试相关代码，与浏览器无关。
 
 

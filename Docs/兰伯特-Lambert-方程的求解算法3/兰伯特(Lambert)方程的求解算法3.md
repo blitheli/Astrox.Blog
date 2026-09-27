@@ -24,18 +24,22 @@
 
 #### 参数处理
 输入参数$\theta$为转移角度，允许大于$2\pi$，因此首先将其转换为$2\pi$以内。
-$$m=INT(\frac{\theta}{2\pi})\\
-\theta=\theta-m*2\pi$$ 
+$$
+\begin{aligned}
+m&=\operatorname{INT}\left(\frac{\theta}{2\pi}\right) \\
+\theta&=\theta-m\cdot 2\pi
+\end{aligned}
+$$
 上式中$INT$为取整，由此可得到转移圈数$m$。
 依据输入参数，计算下列变量：
-$$ 
-\begin{array}{l}
-c=\sqrt{(r_1-r_2)^2+4r_1r_2sin^2(\theta/2)} \\ 
-s=(r_1+r_2+c)/2 \\
-q=\sqrt{r_1r_2}cos(\theta/2)/s \\
-1-q^2=c/s \\
-T_i=\sqrt{8\mu/s^3}\Delta t
-\end{array}
+$$
+\begin{aligned}
+c&=\sqrt{(r_1-r_2)^2+4r_1r_2\sin^2(\theta/2)} \\
+s&=(r_1+r_2+c)/2 \\
+q&=\sqrt{r_1r_2}\,\cos(\theta/2)/s \\
+1-q^2&=c/s \\
+T_i&=\sqrt{8\mu/s^3}\,\Delta t
+\end{aligned}
 $$
 #### 调用XLAMB
 有了$m,q,1-q^2,T_i$，则直接调用XLAM程序得到方程的根$x,x_+$，以及根的个数$n$。
@@ -44,56 +48,62 @@ $$
 当$m>0$时，通常$n=2$（也有可能为0或1）,则$x,x_+$返回值皆有效。
 #### 速度公式
 有了$x$，则可得到起点、终点的径向和切向速度大小公式：
-$$ 
-\begin{array}{l}
-V_{1r1}=\gamma((qz-x)-\rho(qz+x))/r_1 \\ 
-V_{2r1}=-\gamma((qz-x)+\rho(qz+x))/r_2 \\ 
-V_{1t1}=\gamma\sigma(z+qx)/r_1 \\ 
-V_{2t1}=\gamma\sigma(z+qx)/r_2 
-\tag1
-\end{array}
+$$
+\begin{aligned}
+V_{1r1}&=\gamma((qz-x)-\rho(qz+x))/r_1 \\
+V_{2r1}&=-\gamma((qz-x)+\rho(qz+x))/r_2 \\
+V_{1t1}&=\gamma\sigma(z+qx)/r_1 \\
+V_{2t1}&=\gamma\sigma(z+qx)/r_2
+\end{aligned}
+\tag{1}
 $$
 上式中：
-$$ 
-\begin{array}{l}
-\gamma =\sqrt{\mu s/2} \\ 
-\rho =(r_1-r_2)/c \\ 
-\sigma =2\sqrt{\frac{r_1r_2}{c^2}}sin(\frac{\theta}{2})
-\end{array}
+$$
+\begin{aligned}
+\gamma&=\sqrt{\mu s/2} \\
+\rho&=(r_1-r_2)/c \\
+\sigma&=2\sqrt{\frac{r_1r_2}{c^2}}\sin\left(\frac{\theta}{2}\right)
+\end{aligned}
 $$
 注意，上式中，若$c=0$时，$\rho=0,\sigma=1$
 若有两个解，则将$x_+$带入式(1)，即可得到第2个解$V_{1r2}、V_{2r2}、V_{1t2}、V_{2t2}$。
 #### $qz-x、qz+x、z+qx$的求解
 式(1)中，涉及到$qz-x、qz+x、z+qx$的计算，在算法中，是通过TLAMB求解的，即：
-$$T,T',T'',T'''=T(m,q,1-q^2,x,n=-1)$$
+$$
+T,\,T',\,T'',\,T'''=T(m,q,1-q^2,x,n=-1)
+$$
 则返回值中
 $$
-T'=qz-x \\
-T''=qz+x \\
-T'''=z+qx
+\begin{aligned}
+T'&=qz-x \\
+T''&=qz+x \\
+T'''&=z+qx
+\end{aligned}
 $$
 TLAMB内部计算时的逻辑如下：
 1. $qx==0$时
 $$
-T'=qz-x \\
-T''=qz+x \\
-T'''=z+qx
+\begin{aligned}
+T'&=qz-x \\
+T''&=qz+x \\
+T'''&=z+qx
+\end{aligned}
 $$
 2. $qx<0$时
 $$
-\begin{array}{l}
-T'=qz-x \\
-T''=(1-q^2)(q^2u-x^2)/(qz-x) \\
-T'''=(1-q^2)/(z-qx)
-\end{array}
+\begin{aligned}
+T'&=qz-x \\
+T''&=(1-q^2)(q^2u-x^2)/(qz-x) \\
+T'''&=(1-q^2)/(z-qx)
+\end{aligned}
 $$
 3. $qx>0$时
 $$
-\begin{array}{l}
-T'=(1-q^2)(q^2u-x^2)/(qz+x) \\
-T''=qz+x \\
-T'''=z+qx
-\end{array}
+\begin{aligned}
+T'&=(1-q^2)(q^2u-x^2)/(qz+x) \\
+T''&=qz+x \\
+T'''&=z+qx
+\end{aligned}
 $$
 实际上，上面后两种情形本质都和第1种情形（$qx==0$）相同，只不过为了提高计算的精度改变一下公式形式而已。
 

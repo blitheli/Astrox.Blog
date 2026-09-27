@@ -13,8 +13,8 @@ $$
 拉格朗日和高斯曾经都研究过这个问题，并给出相应的表达式，有兴趣的读者可直接参考相关教科书，此处不再详述。
 
 下面介绍比较高效的求解算法，主要由R.H.Gooding在1990年的数篇文献中给出。想要详细了解，可参考他的两篇文献：
-1. [A procedure for the solution of Lambert's orbital boundary-value problem](https://download.csdn.net/download/u011575168/12114449)
-2. [On the Solution of Lambert's Orbital Boundary-Value Problem](https://download.csdn.net/download/u011575168/12114452)
+1. [A procedure for the solution of Lambert's orbital boundary-value problem](/media/%E5%85%B0%E4%BC%AF%E7%89%B9-Lambert-%E6%96%B9%E7%A8%8B%E7%9A%84%E6%B1%82%E8%A7%A3%E7%AE%97%E6%B3%951/Gooding1990-CeMDA48-145.pdf)
+2. [On the Solution of Lambert's Orbital Boundary-Value Problem](/media/%E5%85%B0%E4%BC%AF%E7%89%B9-Lambert-%E6%96%B9%E7%A8%8B%E7%9A%84%E6%B1%82%E8%A7%A3%E7%AE%97%E6%B3%951/Gooding1988-RAE-TR88027.pdf)
 
 本文基于上述两篇文献，直接给出算法。
 ## 初始化

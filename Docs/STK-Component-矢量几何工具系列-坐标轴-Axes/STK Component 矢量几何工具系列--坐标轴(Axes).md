@@ -13,8 +13,8 @@ STK Component矢量几何工具库与STK桌面软件的Vector Geomentry Tool是�
 在STK Component中，有关坐标系旋转的类在命名空间 AGI.Foundation.Coordinates中的。
 
 **继续阅读本文前，请先阅读并掌握前面两章基础：**
-1. [STK Component：Evaluator pattern(计算器模式)](http://blog.csdn.net/u011575168/article/details/53349479)
-2. [STK Component 矢量几何工具系列--坐标轴(Axes)转换基础](http://blog.csdn.net/u011575168/article/details/53229184)
+1. [STK Component：Evaluator pattern(计算器模式)](/Posts/stk-componentevaluator-pattern%E8%AE%A1%E7%AE%97%E5%99%A8%E6%A8%A1%E5%BC%8F)
+2. [STK Component 矢量几何工具系列--坐标轴(Axes)转换基础](/Posts/stk-component-%E7%9F%A2%E9%87%8F%E5%87%A0%E4%BD%95%E5%B7%A5%E5%85%B7%E7%B3%BB%E5%88%97-%E5%9D%90%E6%A0%87%E8%BD%B4axes%E8%BD%AC%E6%8D%A2%E5%9F%BA%E7%A1%80)
 
 ## Axes基类与AxesEvaluator基类
 所有的坐标轴类都继承自一个共同的基类：Axes，我们首先看看Axes内部的代码实现：

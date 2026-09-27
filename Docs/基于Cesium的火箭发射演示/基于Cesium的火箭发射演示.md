@@ -5,6 +5,10 @@
 借助于Cesium，可以开发出网页版本的火箭飞行演示系统。下面是我个人网站上做的以美国ULA未来“火神“”火箭为模型的全过程飞行演示。
 [基于Cesium的火箭飞行过程演示](http://astrox.cn:8761/VulcanRocket/VulcanLaunch.html)
 
+## 网页嵌入
+
+<iframe src="/media/demos/VulcanRocket/VulcanLaunch.html" width="100%" height="500" style="border:0" allowfullscreen loading="lazy"></iframe>
+
 所涉及到的相关信息有：
  1. 火箭的发射弹道是我自己计算的，也可以利用STK软件生成，数据为地固系下的位置、速度；记住，一定要在地固系下，因为Cesium中所有的数据都是在地球固连系下（WGS84系）表示的；
  2. 火箭模型直接引用Cesium的网站模型库（http://assets.agi.com/models/launchvehicle.glb），大家如果把最后的"launchvehicle"替换成其它模型的名字即可，当然你要知道名字，呵呵；

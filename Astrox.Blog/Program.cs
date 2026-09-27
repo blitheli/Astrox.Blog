@@ -53,6 +53,7 @@ builder.Services.AddSingleton<MarkdownService>();
 builder.Services.AddSingleton<SiteUrlService>();
 builder.Services.AddSingleton<CommentAntiSpamService>();
 builder.Services.AddScoped<PageViewService>();
+builder.Services.AddScoped<PostNavigationService>();
 
 var mediaRoot = MediaRootResolver.Resolve(
     builder.Configuration["Blog:MediaRoot"],

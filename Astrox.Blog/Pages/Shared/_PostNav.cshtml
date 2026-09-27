@@ -1,0 +1,43 @@
+@model Astrox.Blog.Services.PostNeighbors
+@{
+    var previous = Model.Previous;
+    var next = Model.Next;
+}
+
+<nav class="post-nav" aria-label="相邻文章">
+    @if (previous is not null)
+    {
+        <a class="post-nav-item prev"
+           asp-page="/Posts/View"
+           asp-route-slug="@previous.Slug"
+           title="@previous.Title">
+            <span class="post-nav-label">← 上一篇</span>
+            <span class="post-nav-title">@previous.Title</span>
+        </a>
+    }
+    else
+    {
+        <span class="post-nav-item prev disabled" aria-disabled="true">
+            <span class="post-nav-label">← 上一篇</span>
+            <span class="post-nav-title">已是最新</span>
+        </span>
+    }
+
+    @if (next is not null)
+    {
+        <a class="post-nav-item next"
+           asp-page="/Posts/View"
+           asp-route-slug="@next.Slug"
+           title="@next.Title">
+            <span class="post-nav-label">下一篇 →</span>
+            <span class="post-nav-title">@next.Title</span>
+        </a>
+    }
+    else
+    {
+        <span class="post-nav-item next disabled" aria-disabled="true">
+            <span class="post-nav-label">下一篇 →</span>
+            <span class="post-nav-title">已是最早</span>
+        </span>
+    }
+</nav>

@@ -59,6 +59,11 @@
     <script type="application/ld+json">@Html.Raw(jsonLdText)</script>
 }
 
+@if (Model.Post.IsPublished)
+{
+    <partial name="_PostNav" model="Model.Neighbors" />
+}
+
 <article class="article">
     <header class="article-header">
         <a class="back-link" asp-page="/Index">← 返回列表</a>
@@ -91,6 +96,11 @@
         @Html.Raw(Model.HtmlContent)
     </div>
 </article>
+
+@if (Model.Post.IsPublished)
+{
+    <partial name="_PostNav" model="Model.Neighbors" />
+}
 
 @if (Model.Post.IsPublished)
 {

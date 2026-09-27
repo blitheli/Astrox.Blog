@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cesium demo 测试</title>
+  <link rel="stylesheet" href="https://registry.npmmirror.com/cesium/1.145.0/files/Build/Cesium/Widgets/widgets.css" />
+  <script src="https://registry.npmmirror.com/cesium/1.145.0/files/Build/Cesium/Cesium.js"></script>
+  <style>
+    html, body, #cesiumContainer { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; background: #000; }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+  <script>
+    // 不使用 Cesium Ion：关闭默认 Ion 影像/地形，改用免 token 的 ArcGIS World Imagery 瓦片 + 椭球地形。
+    // （OpenStreetMap 官方瓦片在国内访问不稳定；高德瓦片无 CORS 头，WebGL 无法作为纹理使用。）
+    const imagery = new Cesium.UrlTemplateImageryProvider({
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      maximumLevel: 18,
+      credit: "Esri, Maxar, Earthstar Geographics"
+    });
+
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      baseLayer: new Cesium.ImageryLayer(imagery),
+      terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+      baseLayerPicker: false,
+      geocoder: false,
+      homeButton: true,
+      sceneModePicker: true,
+      navigationHelpButton: false,
+      animation: false,
+      timeline: false,
+      fullscreenButton: true,
+      infoBox: true,
+      selectionIndicator: true
+    });
+    viewer.scene.globe.enableLighting = false;
+
+    // 示例点：上海
+    const shanghai = viewer.entities.add({
+      name: "上海",
+      position: Cesium.Cartesian3.fromDegrees(121.4737, 31.2304),
+      point: { pixelSize: 12, color: Cesium.Color.CYAN, outlineColor: Cesium.Color.WHITE, outlineWidth: 2 },
+      label: {
+        text: "上海",
+        font: "16px sans-serif",
+        fillColor: Cesium.Color.WHITE,
+        outlineColor: Cesium.Color.BLACK,
+        outlineWidth: 3,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+        pixelOffset: new Cesium.Cartesian2(0, -20)
+      },
+      description: "示例点：上海（121.4737°E, 31.2304°N）"
+    });
+
+    // 先显示整个地球，再飞到上海
+    setTimeout(function () {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(121.4737, 31.2304, 1500000),
+        duration: 3
+      });
+    }, 1500);
+  </script>
+</body>
+</html>

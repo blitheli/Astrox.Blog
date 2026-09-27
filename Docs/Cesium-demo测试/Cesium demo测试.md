@@ -14,7 +14,7 @@ Markdown 本身不能运行 JavaScript，也不适合直接写一整段 Cesium �
 
 ## 二、最小 Cesium demo
 
-demo 使用国内访问较快的 npmmirror CDN 加载固定版本的 Cesium（`cesium@1.145.0`），**不使用 Cesium Ion token**：底图改为免 token 的 ArcGIS World Imagery 瓦片，地形用椭球 `EllipsoidTerrainProvider`，从而避免 Ion 默认影像/地形因缺少 token 而报错。页面加载后先显示整个地球，随后飞到示例点「上海」。
+demo 使用国内访问较快的 npmmirror CDN 加载固定版本的 Cesium（`cesium@1.145.0`），**不使用 Cesium Ion token**：底图用两层：底层是 Cesium 自带、随 CDN 一起加载的 NaturalEarthII 离线影像（保底，分辨率较低但总能显示），上层是国内访问快、免 token 且支持 CORS 的高德卫星影像；高德瓦片连续加载失败时自动移除上层，回退到 NaturalEarthII。地形用椭球 `EllipsoidTerrainProvider`，从而避免 Ion 默认影像/地形因缺少 token 而报错。页面加载后先显示整个地球，随后飞到示例点「上海」。
 
 ```html
 <!DOCTYPE html>
@@ -33,20 +33,36 @@ demo 使用国内访问较快的 npmmirror CDN 加载固定版本的 Cesium（`c
 <body>
   <div id="cesiumContainer"></div>
   <script>
-    // 免 token 底图：ArcGIS World Imagery
-    const imagery = new Cesium.UrlTemplateImageryProvider({
-      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      maximumLevel: 18,
-      credit: "Esri, Maxar, Earthstar Geographics"
-    });
-
+    // 底层保底：Cesium 自带的 NaturalEarthII 离线影像（不用 Ion 默认影像）
     const viewer = new Cesium.Viewer("cesiumContainer", {
-      baseLayer: new Cesium.ImageryLayer(imagery),          // 不用 Ion 默认影像
+      baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+        Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"))
+      ),
       terrainProvider: new Cesium.EllipsoidTerrainProvider(), // 不用 Ion 地形
       baseLayerPicker: false,
       geocoder: false,
       animation: false,
       timeline: false
+    });
+
+    // 上层主底图：高德卫星影像（免 token、支持 CORS；国内为 GCJ-02 坐标，有数百米偏移）
+    const primary = new Cesium.UrlTemplateImageryProvider({
+      url: "https://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+      subdomains: ["1", "2", "3", "4"],
+      minimumLevel: 1,
+      maximumLevel: 18,
+      credit: "高德地图"
+    });
+    const primaryLayer = viewer.imageryLayers.addImageryProvider(primary);
+
+    // 主底图连续失败 6 次：移除上层，回退到 NaturalEarthII
+    let failed = 0;
+    primary.errorEvent.addEventListener((err) => {
+      err.retry = false;
+      if (++failed === 6 && viewer.imageryLayers.contains(primaryLayer)) {
+        viewer.imageryLayers.remove(primaryLayer, true);
+        console.warn("主底图加载失败，已回退到 NaturalEarthII");
+      }
     });
 
     // 示例点：上海
@@ -92,5 +108,5 @@ demo 使用国内访问较快的 npmmirror CDN 加载固定版本的 Cesium（`c
 1. **Markdown 渲染器要保留原始 HTML**：如果 Markdown 管线开启了"禁用 HTML"（例如 Markdig 的 `DisableHtml()`）或做了 HTML 过滤，`<iframe>` 会被当成普通文本转义显示，而不是真正嵌入。本站仍保留 `DisableHtml()`，只对**单独一行**、`src` 以 `/media/` 开头的 iframe 做白名单放行（仅保留 `src`、`width`、`height`、`style`、`title`、`allowfullscreen`、`loading`、`frameborder` 属性），所以 iframe 标签要写在同一行、前后空一行。
 2. **X-Frame-Options / CSP**：若站点、反向代理（Nginx）或 IIS 给 demo 页面加了 `X-Frame-Options: DENY`，或 `Content-Security-Policy` 的 `frame-ancestors 'none'`，浏览器会拒绝在 iframe 中显示。同源嵌入时使用 `SAMEORIGIN` 或 `frame-ancestors 'self'` 即可。
 3. **MIME 类型**：静态目录需要以正确的 `Content-Type` 返回 `.html`（`text/html`）和 `.js`（`text/javascript`），否则浏览器不会执行或会直接下载文件。
-4. **CDN 与底图可访问性**：国内访问建议选 npmmirror 等国内 CDN，并固定版本号；底图瓦片服务需要返回 CORS 头（`Access-Control-Allow-Origin`），否则 WebGL 无法把瓦片当作纹理使用。OpenStreetMap 官方瓦片在国内访问不稳定。
+4. **CDN 与底图可访问性**：国内访问建议选 npmmirror 等国内 CDN，并固定版本号；底图瓦片服务需要返回 CORS 头（`Access-Control-Allow-Origin`），否则 WebGL 无法把瓦片当作纹理使用。OpenStreetMap 官方瓦片、ArcGIS World Imagery 等境外瓦片在国内部分网络下访问不稳定，建议像本文一样叠一层随 Cesium 发布的 NaturalEarthII 作为保底，并在主底图失败时自动回退。
 5. **性能**：一个页面嵌入多个 Cesium iframe 会同时创建多个 WebGL 上下文，占用较多显存，建议每篇文章只嵌一两个，并加 `loading="lazy"`。

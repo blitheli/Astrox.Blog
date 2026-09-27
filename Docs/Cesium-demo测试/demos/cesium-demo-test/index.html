@@ -13,16 +13,16 @@
 <body>
   <div id="cesiumContainer"></div>
   <script>
-    // 不使用 Cesium Ion：关闭默认 Ion 影像/地形，改用免 token 的 ArcGIS World Imagery 瓦片 + 椭球地形。
-    // （OpenStreetMap 官方瓦片在国内访问不稳定；高德瓦片无 CORS 头，WebGL 无法作为纹理使用。）
-    const imagery = new Cesium.UrlTemplateImageryProvider({
-      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      maximumLevel: 18,
-      credit: "Esri, Maxar, Earthstar Geographics"
-    });
-
+    // 不使用 Cesium Ion：关闭默认 Ion 影像/地形，地形用椭球 EllipsoidTerrainProvider。
+    // 底图两层：
+    //   1) 底层保底：Cesium 自带的 NaturalEarthII 离线影像（随 Cesium CDN 一起加载，分辨率低但总能显示）；
+    //   2) 上层主底图：高德卫星影像（国内访问快、免 token、返回 CORS 头）。
+    // 主底图瓦片连续失败时自动移除上层，回退到 NaturalEarthII。
+    // 注：高德瓦片在国内为 GCJ-02 坐标，与 WGS84 有数百米偏移，演示尺度下可忽略。
     const viewer = new Cesium.Viewer("cesiumContainer", {
-      baseLayer: new Cesium.ImageryLayer(imagery),
+      baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+        Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl("Assets/Textures/NaturalEarthII"))
+      ),
       terrainProvider: new Cesium.EllipsoidTerrainProvider(),
       baseLayerPicker: false,
       geocoder: false,
@@ -35,6 +35,27 @@
       infoBox: true,
       selectionIndicator: true
     });
+
+    const primary = new Cesium.UrlTemplateImageryProvider({
+      url: "https://wprd0{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}",
+      subdomains: ["1", "2", "3", "4"],
+      minimumLevel: 1,
+      maximumLevel: 18,
+      credit: "高德地图"
+    });
+    const primaryLayer = viewer.imageryLayers.addImageryProvider(primary);
+
+    let failed = 0;
+    const MAX_FAILURES = 6;
+    primary.errorEvent.addEventListener(function (err) {
+      err.retry = false;
+      failed++;
+      if (failed === MAX_FAILURES && viewer.imageryLayers.contains(primaryLayer)) {
+        viewer.imageryLayers.remove(primaryLayer, true);
+        console.warn("主底图（高德影像）加载失败，已回退到 NaturalEarthII 离线底图");
+      }
+    });
+
     viewer.scene.globe.enableLighting = false;
 
     // 示例点：上海

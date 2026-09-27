@@ -64,6 +64,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Orbitron:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="icon" href="~/img/site-logo.jpg" type="image/jpeg" asp-append-version="true" />
+    <link rel="apple-touch-icon" href="~/img/site-logo.jpg" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/katex/katex.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
@@ -83,7 +85,7 @@
     <header class="site-header">
         <div class="shell header-inner">
             <a class="brand" asp-page="/Index">
-                <span class="brand-mark">◈</span>
+                <img class="brand-mark" src="~/img/site-logo.jpg" asp-append-version="true" width="40" height="40" alt="@blog.Title" />
                 <span class="brand-text">
                     <span class="brand-name">@blog.Title</span>
                     <span class="brand-sub">@blog.OwnerName</span>

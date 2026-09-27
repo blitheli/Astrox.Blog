@@ -242,17 +242,15 @@ a:hover {
 }
 
 .brand-mark {
-  color: var(--cyan);
-  font-size: 1.35rem;
-  text-shadow: 0 0 12px var(--glow);
-  animation: mark-flicker 5s ease-in-out infinite;
-}
-
-@keyframes mark-flicker {
-  0%, 100% { opacity: 1; }
-  48% { opacity: 1; }
-  50% { opacity: 0.55; }
-  52% { opacity: 1; }
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 0 10px var(--glow);
+  background: var(--surface);
 }
 
 .brand-text {

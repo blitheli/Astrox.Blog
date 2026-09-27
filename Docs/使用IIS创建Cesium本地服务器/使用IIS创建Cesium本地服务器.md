@@ -1,6 +1,6 @@
 # 使用IIS创建Cesium本地服务器
 
-研究学习Cesium少不了创建本地服务器。创建本地服务器有多种方式：IIS(微软windows系统自带)、Tomcat、Python、NodeJS。后面几种方式的创建请参考之前的博文：[**使用Tomcat架设Cesium本地服务器(含Nodejs,Python方法)**](https://blog.csdn.net/u011575168/article/details/80031663)
+研究学习Cesium少不了创建本地服务器。创建本地服务器有多种方式：IIS(微软windows系统自带)、Tomcat、Python、NodeJS。后面几种方式的创建请参考之前的博文：[**使用Tomcat架设Cesium本地服务器(含Nodejs,Python方法)**](/Posts/%E4%BD%BF%E7%94%A8tomcat%E6%9E%B6%E8%AE%BEcesium%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%90%ABnodejspython%E6%96%B9%E6%B3%95)
 
 本文介绍使用微软自身的Web服务器组件(IIS)创建Cesium本地服务器，步骤非常简单。对IIS不熟悉的同学自行百度或谷歌。
 

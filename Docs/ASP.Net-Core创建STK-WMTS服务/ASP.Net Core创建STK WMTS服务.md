@@ -1,6 +1,6 @@
 # ASP.Net Core创建STK WMTS服务
 
-在前面文章中，介绍了如何在STK中，通过插件（ArcGIS REST Client插件和Web Map Services插件），使得STK中的3D窗口（2D窗口目前不支持）可直接自动加载网络地图。详见：[STK加载WMS、WMTS服务](https://blog.csdn.net/u011575168/article/details/84670751)
+在前面文章中，介绍了如何在STK中，通过插件（ArcGIS REST Client插件和Web Map Services插件），使得STK中的3D窗口（2D窗口目前不支持）可直接自动加载网络地图。详见：[STK加载WMS、WMTS服务](/Posts/stk%E5%8A%A0%E8%BD%BDwmswmts%E6%9C%8D%E5%8A%A1)
 
 当在局域网内，怎么办？也就是说我们有了类似谷歌街道图或谷歌卫星图的瓦片数据，如何搭建一个提供WMTS的网站？使得STK在局域网内仍然可以链接大容量地图数据服务？
 

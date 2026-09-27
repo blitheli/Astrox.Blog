@@ -1,6 +1,6 @@
 # STK加载WMS、WMTS服务
 
-在STK软件中，其3D/2D窗口中地球（其它行星类似）的地图图片是通过特定格式（带经纬度信息）的图片直接加载而成，详细步骤参考： [STK中STK加载地图与高清影像图](https://blog.csdn.net/u011575168/article/details/80244175)。
+在STK软件中，其3D/2D窗口中地球（其它行星类似）的地图图片是通过特定格式（带经纬度信息）的图片直接加载而成，详细步骤参考： [STK中STK加载地图与高清影像图](/Posts/stk%E5%8A%A0%E8%BD%BD%E5%9C%B0%E5%9B%BE%E4%B8%8E%E9%AB%98%E6%B8%85%E5%BD%B1%E5%83%8F%E5%9B%BE)。
 
 在GIS方面，无论是栅格图还是矢量图都可以通过网络地图服务的形式来获取，例如平时我们通过网页浏览的百度地图、谷歌地图等，都是通过网络地图服务方式，实时从服务器端获取所需的地图数据。
 
@@ -8,7 +8,7 @@
 
 **在STK中，以插件的形式提供了对WMS和WMTS两种格式的网络地图服务的支持，使得STK中的3D窗口（2D窗口目前不支持）可直接自动加载不同层级的地图。**
 
-有关WMTS的简单介绍，可参考这篇文章：[5分钟学GIS | WMTS服务初步理解与读取](https://blog.csdn.net/supermapsupport/article/details/76806670)。
+有关WMTS的简单介绍，可参考这篇文章：5分钟学GIS | WMTS服务初步理解与读取。
 
 ## ArcGIS REST Client插件
 ArcGIS REST Client插件提供连接ArcGIS网络地图服务器的接口，并可以添加相应的数据到STK 3D窗口中。ArcGIS网络地图基本上都是WMTS形式提供服务接口的。

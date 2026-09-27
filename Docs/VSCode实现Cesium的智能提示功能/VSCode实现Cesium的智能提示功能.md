@@ -1,6 +1,6 @@
 # VSCode实现Cesium的智能提示功能
 
-之前在[“VSC调试Cesium代码及模块功能初探”](https://blog.csdn.net/u011575168/article/details/104401258)介绍了在vs code中如何调试cesium的源代码中的部分函数。目前看来，在整体引入Cesium时就无能为力了。
+之前在[“VSC调试Cesium代码及模块功能初探”](/Posts/vsc%E8%B0%83%E8%AF%95cesium%E4%BB%A3%E7%A0%81%E5%8F%8A%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD%E5%88%9D%E6%8E%A2)介绍了在vs code中如何调试cesium的源代码中的部分函数。目前看来，在整体引入Cesium时就无能为力了。
 
 从1.70版本开始，CesiumJS附带了正式的TypeScript类型定义，即Cesium.d.ts文件。d.ts大名叫TypeScript Declaration File，里面存放一些声明，类似于C/C++的.h头文件。d.ts文件的一个越来越广泛的应用场景是编辑器智能提示（具体见IntelliSense based on TypeScript Declaration Files）。
 

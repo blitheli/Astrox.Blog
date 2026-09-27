@@ -3,7 +3,7 @@
 ## IIS发布网站
 在使用windows系统发布网站时，采用IIS，见下图流程
 ![IIS添加网站](0e531e1fae73c8c0d5bf9753dd5082c0.png)
-有关IIS发布网站的详细步骤可参考：[使用IIS创建Cesium本地服务器](https://blog.csdn.net/u011575168/article/details/104384305)
+有关IIS发布网站的详细步骤可参考：[使用IIS创建Cesium本地服务器](/Posts/%E4%BD%BF%E7%94%A8iis%E5%88%9B%E5%BB%BAcesium%E6%9C%AC%E5%9C%B0%E6%9C%8D%E5%8A%A1%E5%99%A8)
 
 ## HTTP 错误 500.19
 我使用的为阿里云服务器，操作系统为:windows server 2019。

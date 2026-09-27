@@ -36,6 +36,7 @@ dotnet run --urls http://127.0.0.1:43147
 - 评论模型：`Comment`（`PostId` / `AuthorName` / `AuthorEmail?` / `Body` / `CreatedAt` / `IpHash` / `UserAgent?` / `IsDeleted`）。
 - 访问统计：`SiteStat`（`Key` / `Value`）与 `PostViewCount`（`PostId` / `Count`）；启动时 `CREATE TABLE IF NOT EXISTS` 补表。
 - Markdown 经 `MarkdownService` 渲染，已 `DisableHtml()`；公式写法见下方「Markdown 公式」。评论正文为纯文本并 HTML 转义。
+- 唯一的原始 HTML 例外：**单独一行**、`src` 以 `/media/` 开头的 `<iframe ...></iframe>`（`Services/MediaIframeExtension.cs`），用于嵌入 media 目录下的 demo 页。仅保留 `src` / `width` / `height` / `style` / `title` / `allowfullscreen` / `loading` / `frameborder`，其余属性丢弃；外站、`javascript:`、跨行写法、同行夹带其它标签的，以及其它一切 HTML 仍按文本转义。demo 文件手动放 `D:/IIS/astrox-blog-media/<目录>/`，并在 Docs 文章文件夹留副本。
 - API 认证方案名：`ApiKey`（`Services/ApiKeyAuthenticationHandler.cs`）。
 - 新增管理页放在 `Pages/Admin`，并保持 `[Authorize]`。
 - 优先小改动、可运行；勿引入多作者 CMS、第三方评论 SaaS 或 OAuth，除非用户明确要求。

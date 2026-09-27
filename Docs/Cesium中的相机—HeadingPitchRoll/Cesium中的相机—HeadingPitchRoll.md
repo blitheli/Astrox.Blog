@@ -47,40 +47,57 @@ roll的意思是翻滚，中文中飞机的翻滚是什么，就是绕着机身�
 **注意，在Cesium中，常使用对象headingPitchRoll来表示相机的三次旋转角度，使用heading属性表示绕z轴旋转的角度（绕-z轴为正）；使用pitch表示绕y轴旋转的角度(绕-y轴为正）；使用roll表示绕x轴旋转角度（绕+x轴为正）；旋转顺序仍为321（ZYX)。**
 
 因此，对比$\psi\theta\phi$，有以下关系：
+
 $$
-\psi = -heading \\
-\theta = -pitch \\
-\phi = roll
+\begin{aligned}
+\psi &= -heading \\
+\theta &= -pitch \\
+\phi &= roll
+\end{aligned}
 $$
+
 ### 旋转矩阵的表示
 因此，以后再考虑HeadingPitchRoll旋转时，可正常按照321转序，欧拉角为$\psi、 \theta 、\phi$，只要注意前两个角度需要添加负号。
 
 相机坐标系经过三次基本旋转（ZYX）后，以$\begin{bmatrix} X,Y,Z\end{bmatrix}^{T}$表示点P在相机坐标系$o-XYZ$中的坐标分量（始终不变），$\begin{bmatrix} x,y,z\end{bmatrix}^{T}$表示点P随相机旋转后在原坐标系$o-xyz$中的坐标分量，则有：
-$$\begin{bmatrix} {x}\\{y} \\{z} \end{bmatrix}=M(\psi,\theta,\phi)
-\begin{bmatrix} X \\Y \\Z \end{bmatrix}  =
-M_z(\psi)\cdot M_y(\theta)\cdot  M_x(\phi)\cdot
-\begin{bmatrix} X \\Y \\Z \end{bmatrix}  \\=
-\begin{bmatrix} 
-\cos\psi &-\sin\psi & 0 \\
-\sin\psi &\cos\psi & 0\\
-0 & 0 &1
-\end{bmatrix}
-\begin{bmatrix} 
-\cos\theta &0 &\sin\theta\\
-0 & 1 &0\\
--\sin\theta &0 &\cos\theta\\
-\end{bmatrix}
-\begin{bmatrix} 
-1 & 0 &0 \\
-0 &\cos\theta &-\sin\theta \\
-0 &\sin\theta &\cos\theta \end{bmatrix}
-\begin{bmatrix} X \\Y \\Z \end{bmatrix}  \\=
-\begin{bmatrix} 
-\cos\theta\cos\psi &-\cos\phi\sin\psi+\sin\phi\sin\theta\cos\psi &\sin\phi\sin\psi+\cos\phi\sin\theta\cos\psi \\
-\cos\theta\sin\psi &\cos\phi\cos\psi+\sin\phi\sin\theta\sin\psi &-\sin\phi\cos\psi+\cos\phi\sin\theta\sin\psi \\
--\sin\theta &\sin\phi\cos\theta &\cos\phi\cos\theta \end{bmatrix}
-\begin{bmatrix} X \\Y \\Z \end{bmatrix}  \qquad(1)
-$$ 
+
+$$
+\begin{aligned}
+\begin{pmatrix} x \\ y \\ z \end{pmatrix}
+&=
+M(\psi,\theta,\phi)
+\begin{pmatrix} X \\ Y \\ Z \end{pmatrix}
+=
+M_z(\psi)\cdot M_y(\theta)\cdot M_x(\phi)\cdot
+\begin{pmatrix} X \\ Y \\ Z \end{pmatrix} \\
+&=
+\begin{pmatrix}
+\cos\psi & -\sin\psi & 0 \\
+\sin\psi & \cos\psi & 0 \\
+0 & 0 & 1
+\end{pmatrix}
+\begin{pmatrix}
+\cos\theta & 0 & \sin\theta \\
+0 & 1 & 0 \\
+-\sin\theta & 0 & \cos\theta
+\end{pmatrix}
+\begin{pmatrix}
+1 & 0 & 0 \\
+0 & \cos\theta & -\sin\theta \\
+0 & \sin\theta & \cos\theta
+\end{pmatrix}
+\begin{pmatrix} X \\ Y \\ Z \end{pmatrix} \\
+&=
+\begin{pmatrix}
+\cos\theta\cos\psi & -\cos\phi\sin\psi+\sin\phi\sin\theta\cos\psi & \sin\phi\sin\psi+\cos\phi\sin\theta\cos\psi \\
+\cos\theta\sin\psi & \cos\phi\cos\psi+\sin\phi\sin\theta\sin\psi & -\sin\phi\cos\psi+\cos\phi\sin\theta\sin\psi \\
+-\sin\theta & \sin\phi\cos\theta & \cos\phi\cos\theta
+\end{pmatrix}
+\begin{pmatrix} X \\ Y \\ Z \end{pmatrix}
+\end{aligned}
+\tag{1}
+$$
+
 旋转矩阵$M(\psi,\theta,\phi)$是将点P在相机坐标系中的坐标分量转换到相机旋转前的原坐标系中的坐标分量。
 
 Cesium中，使用Matrix3对象表示3×3矩阵，其中表示相机HeadingPitchRoll的旋转矩阵（$M(\psi,\theta,\phi)$）代码如下：
@@ -140,16 +157,27 @@ Cesium中，使用Matrix3对象表示3×3矩阵，其中表示相机HeadingPitch
 ```
 ### 四元素的表示
 参考[Cesium中的相机—四元素](/Posts/cesium%E4%B8%AD%E7%9A%84%E7%9B%B8%E6%9C%BA%E5%9B%9B%E5%85%83%E7%B4%A0)一文中连续旋转的四元素乘法规则，相机从原坐标系$o-xyz$历经321（ZYX）三次旋转的四元素表示为：
-$$q(\psi,\theta,\phi)=q_z(\psi)\cdot q_y(\theta) \cdot q_x(\phi)=
-\begin{bmatrix}\cos(\psi/2) \\0 \\0 \\ \sin(\psi/2) \end{bmatrix}
-\begin{bmatrix}\cos(\theta/2) \\0 \\ \sin(\theta/2) \\0 \end{bmatrix}
-\begin{bmatrix}\cos(\phi/2) \\ \sin(\phi/2) \\0 \\0  \end{bmatrix} \\=
-\begin{bmatrix}
- \cos(\phi/2)\cos(\theta/2)\cos(\psi/2)+\sin(\phi/2)\sin(\theta/2)\sin(\psi/2)\\
- \sin(\phi/2)\cos(\theta/2)\cos(\psi/2)-\cos(\phi/2)\sin(\theta/2)\sin(\psi/2)\\
- \cos(\phi/2)\sin(\theta/2)\cos(\psi/2)+\sin(\phi/2)\cos(\theta/2)\sin(\psi/2)\\
- \cos(\phi/2)\cos(\theta/2)\sin(\psi/2)-\sin(\phi/2)\sin(\theta/2)\cos(\psi/2)
-\end{bmatrix}  \qquad(2)$$ 
+
+$$
+\begin{aligned}
+q(\psi,\theta,\phi)
+&=
+q_z(\psi)\cdot q_y(\theta) \cdot q_x(\phi)
+=
+\begin{pmatrix}\cos(\psi/2) \\ 0 \\ 0 \\ \sin(\psi/2) \end{pmatrix}
+\begin{pmatrix}\cos(\theta/2) \\ 0 \\ \sin(\theta/2) \\ 0 \end{pmatrix}
+\begin{pmatrix}\cos(\phi/2) \\ \sin(\phi/2) \\ 0 \\ 0 \end{pmatrix} \\
+&=
+\begin{pmatrix}
+\cos(\phi/2)\cos(\theta/2)\cos(\psi/2)+\sin(\phi/2)\sin(\theta/2)\sin(\psi/2) \\
+\sin(\phi/2)\cos(\theta/2)\cos(\psi/2)-\cos(\phi/2)\sin(\theta/2)\sin(\psi/2) \\
+\cos(\phi/2)\sin(\theta/2)\cos(\psi/2)+\sin(\phi/2)\cos(\theta/2)\sin(\psi/2) \\
+\cos(\phi/2)\cos(\theta/2)\sin(\psi/2)-\sin(\phi/2)\sin(\theta/2)\cos(\psi/2)
+\end{pmatrix}
+\end{aligned}
+\tag{2}
+$$
+
 上式中，$q_z(\psi)$表示绕Z轴旋转$\psi$角度的四元素，其它类似。
 
 参考[Cesium中的相机—四元素](/Posts/cesium%E4%B8%AD%E7%9A%84%E7%9B%B8%E6%9C%BA%E5%9B%9B%E5%85%83%E7%B4%A0)文中式（5），将四元素$q(\psi,\theta,\phi)$可表示为旋转矩阵，则本文中，式（1）和式（2）相等。

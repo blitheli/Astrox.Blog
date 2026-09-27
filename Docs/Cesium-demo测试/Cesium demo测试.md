@@ -73,13 +73,10 @@ demo 使用国内访问较快的 npmmirror CDN 加载固定版本的 Cesium（`c
 
 ## 三、在 md 中嵌入 iframe
 
-文章里只需要写下面这一段（宽度 100%、高度 500 像素、无边框、允许全屏）：
+文章里只需要写下面这一段（宽度 100%、高度 500 像素、无边框、允许全屏；iframe 须独占一行）：
 
 ```html
-<iframe src="/media/demos/cesium-demo-test/index.html"
-        width="100%" height="500" style="border:0"
-        allowfullscreen loading="lazy"
-        title="Cesium demo测试"></iframe>
+<iframe src="/media/demos/cesium-demo-test/index.html" width="100%" height="500" style="border:0" allowfullscreen loading="lazy" title="Cesium demo测试"></iframe>
 
 <a href="/media/demos/cesium-demo-test/index.html" target="_blank">全屏打开</a>
 ```
@@ -92,7 +89,7 @@ demo 使用国内访问较快的 npmmirror CDN 加载固定版本的 Cesium（`c
 
 ## 五、注意事项
 
-1. **Markdown 渲染器要保留原始 HTML**：如果 Markdown 管线开启了"禁用 HTML"（例如 Markdig 的 `DisableHtml()`）或做了 HTML 过滤，`<iframe>` 会被当成普通文本转义显示，而不是真正嵌入。
+1. **Markdown 渲染器要保留原始 HTML**：如果 Markdown 管线开启了"禁用 HTML"（例如 Markdig 的 `DisableHtml()`）或做了 HTML 过滤，`<iframe>` 会被当成普通文本转义显示，而不是真正嵌入。本站仍保留 `DisableHtml()`，只对**单独一行**、`src` 以 `/media/` 开头的 iframe 做白名单放行（仅保留 `src`、`width`、`height`、`style`、`title`、`allowfullscreen`、`loading`、`frameborder` 属性），所以 iframe 标签要写在同一行、前后空一行。
 2. **X-Frame-Options / CSP**：若站点、反向代理（Nginx）或 IIS 给 demo 页面加了 `X-Frame-Options: DENY`，或 `Content-Security-Policy` 的 `frame-ancestors 'none'`，浏览器会拒绝在 iframe 中显示。同源嵌入时使用 `SAMEORIGIN` 或 `frame-ancestors 'self'` 即可。
 3. **MIME 类型**：静态目录需要以正确的 `Content-Type` 返回 `.html`（`text/html`）和 `.js`（`text/javascript`），否则浏览器不会执行或会直接下载文件。
 4. **CDN 与底图可访问性**：国内访问建议选 npmmirror 等国内 CDN，并固定版本号；底图瓦片服务需要返回 CORS 头（`Access-Control-Allow-Origin`），否则 WebGL 无法把瓦片当作纹理使用。OpenStreetMap 官方瓦片在国内访问不稳定。

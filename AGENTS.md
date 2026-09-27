@@ -8,6 +8,7 @@
 - 公开读者只读已发布文章；写操作需 Cookie 登录（`/Admin`）或 Bearer API Key。
 - **zip 导入**：`POST /api/posts/from-zip`（multipart 字段 `file`）解压后 `.md` 入库，图片写入站点外 `Blog:MediaRoot`（生产默认 `D:/IIS/astrox-blog-media`），经 `/media/{包名}/` 提供；相对图片路径会改写。部署清空站点目录不影响该媒体目录。
 - 用户说「将 Docs 下某子文件夹上传到阿里云」时，按下方「Docs 子文件夹上传到阿里云」立即执行，不要只给步骤说明。
+- 用户说修改文章内容（公式、文字、链接、标题、图片等）时，按下方「修改文章内容」执行：先改 `Docs/` 再上传，禁止只改线上库。
 - 中文 UI 文案为主；视觉为深色青霓虹科技风（`wwwroot/css/site.css`）。
 - SEO：`/robots.txt`、`/sitemap.xml`、canonical / OG / Twitter / JSON-LD（`Blog:PublicBaseUrl`）。
 - 外部集成（可选）：Umami（`Blog:Umami*`）；未配置则不注入。与站内访问计数无关。
@@ -30,7 +31,7 @@ dotnet run --urls http://127.0.0.1:43147
 ## 约定
 
 - 不要提交真实密钥或生产 `*.db`。生产 SQLite / 媒体 / 日志必须在站点外（`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media`、`D:/IIS/astrox-blog-logs`），禁止写进 `D:/IIS/Astrox.Blog`。
-- 新文章先写在 `Docs/<子文件夹>/`（md + 同目录图片），用户说上传时按「Docs 子文件夹上传到阿里云」立刻执行。
+- 新文章先写在 `Docs/<子文件夹>/`（md + 同目录图片），用户说上传时按「Docs 子文件夹上传到阿里云」立刻执行。改已有文章见「修改文章内容」。
 - 文章模型：`Post`（`Title` / `Slug` / `Summary` / `Markdown` / `Tags` 逗号串 / `IsPublished` / 时间戳）。
 - 评论模型：`Comment`（`PostId` / `AuthorName` / `AuthorEmail?` / `Body` / `CreatedAt` / `IpHash` / `UserAgent?` / `IsDeleted`）。
 - 访问统计：`SiteStat`（`Key` / `Value`）与 `PostViewCount`（`PostId` / `Count`）；启动时 `CREATE TABLE IF NOT EXISTS` 补表。
@@ -70,6 +71,19 @@ dotnet run --urls http://127.0.0.1:43147
 | KaTeX 红字 / 矩阵挤成一行 | LaTeX 不完整（缺 `\\`、错环境） | 改 md 为 `pmatrix`/`aligned` |
 
 核对：`.markdown-body` 里不应再有裸 `$R(t)$`；`.katex-error` 应为 0。本地文章 URL：`http://127.0.0.1:43147/Posts/{slug}`。
+
+
+
+## 修改文章内容
+
+用户说修改文章内容时（公式、文字、链接、标题格式、图片等），按本节执行，不要只改线上数据库。
+
+1. **先改仓库里的原始 md**：在 `Docs/<子文件夹>/` 改对应源文，直接提交并 push 到 `main`，**不开 PR**。
+2. **再上传更新线上**：按下方「Docs 子文件夹上传到阿里云」把该文件夹上传；同 slug 为覆盖更新，不是新建。
+3. **禁止只用 API 改线上库而不改 Docs**：否则仓库与线上不一致，以后重新上传会被 Docs 旧版覆盖。
+4. **保留既有 tags 等字段**：`from-zip` 更新时表单中的 `tags` 会覆盖原值，不传会被清空。上传前先 `GET /api/posts/{slug}` 读出现有 `tags`（必要时一并读 `title` / `summary`），再用 `-Tags`（及 `-Title` / `-Summary` 等）一起带上。
+5. **上传后核对线上页面**：公式按「Markdown 公式」检查 `.katex-error` 为 0、正文无裸 `$`；文章页与至少一张图片 HTTP 200。
+6. **非图片静态下载文件**（zip 等）：导入器不会拷贝。需手动放到 `D:/IIS/astrox-blog-media/<包名>/`，md 中用绝对地址 `/media/<包名>/<文件>` 链接（参见 README「媒体目录与静态资源下载」；如该节尚未合入则忽略此引用）。
 
 
 

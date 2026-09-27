@@ -14,6 +14,7 @@ public class ViewModel : PageModel
     private readonly MarkdownService _markdown;
     private readonly CommentAntiSpamService _antiSpam;
     private readonly PageViewService _pageViews;
+    private readonly PostNavigationService _postNav;
     private readonly ILogger<ViewModel> _logger;
 
     public ViewModel(
@@ -21,18 +22,21 @@ public class ViewModel : PageModel
         MarkdownService markdown,
         CommentAntiSpamService antiSpam,
         PageViewService pageViews,
+        PostNavigationService postNav,
         ILogger<ViewModel> logger)
     {
         _db = db;
         _markdown = markdown;
         _antiSpam = antiSpam;
         _pageViews = pageViews;
+        _postNav = postNav;
         _logger = logger;
     }
 
     public Post Post { get; private set; } = null!;
     public string HtmlContent { get; private set; } = string.Empty;
     public long ViewCount { get; private set; }
+    public PostNeighbors Neighbors { get; private set; } = new(null, null);
     public IList<Comment> Comments { get; private set; } = new List<Comment>();
     public bool IsOwner => User.Identity?.IsAuthenticated == true;
 
@@ -63,6 +67,12 @@ public class ViewModel : PageModel
         HtmlContent = _markdown.ToHtml(post.Markdown);
         ViewData["ArticleToc"] = _markdown.ExtractToc(post.Markdown);
         ViewCount = await _pageViews.GetPostViewCountAsync(post.Id);
+        if (post.IsPublished)
+        {
+            var sortKey = post.PublishedAt ?? post.CreatedAt;
+            Neighbors = await _postNav.GetNeighborsAsync(sortKey, post.Id);
+        }
+
         await LoadCommentsAsync(post.Id);
         PrepareFormToken();
         return Page();

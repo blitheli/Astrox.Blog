@@ -12,7 +12,7 @@
 
 共计 4000字 | 建议阅读时间 未知
 
-_**1 **_glTF简介
+## 1 glTF简介
 
 之前介绍了Cesium的Property，Material，Batch，GroundPrimitive这些内容，可以说是简单地物和风格的解决思路。当Cesium把这些技术点整合起来，我们便具备了渲染模型的威力。也就是今天要讲的glTF模型渲染。
 
@@ -28,48 +28,49 @@ glTF的全称是GL传输格式，是一种针对GL(WebGL，OpenGL ES以及OpenGL
 
 ![dictionary-objects](5a3c7127edddf645e4c8155a5e7f1153.png)
 
-_**2 **_glTF渲染
+## 2 glTF渲染
 
 东西再好，光说不练假把式。设计好了，只是一个开始而不是完结，还需要持续的推广和应用。这年头酒香也怕巷子深，伯牙难觅钟子期的画面有没有。下面我们来看看glTF是如何渲染模型的，talk is cheap and show me the code~
 
-**▽** 加载&渲染
-    
-    
-    var entity = viewer.entities.add({
-        name : url,
-        position : position,
-        orientation : orientation,
-        model : {
-            uri : url,
-            minimumPixelSize : 128,
-            maximumScale : 20000
-        }
-    });
-    
-    var model = scene.primitives.add(Cesium.Model.fromGltf({
-        url : './duck/duck.gltf'
-    }));
-    
-    // 内部通过该方法来解析JSON对象，获取表述信息和具体的数据内容
-    function parseBinaryGltfHeader(uint8Array) {
-        var json = getStringFromTypedArray(uint8Array, sceneOffset, sceneLength);
-        return {
-            glTF: JSON.parse(json),
-            binaryOffset: binOffset
-        };    
+### 加载&渲染
+
+```javascript
+var entity = viewer.entities.add({
+    name : url,
+    position : position,
+    orientation : orientation,
+    model : {
+        uri : url,
+        minimumPixelSize : 128,
+        maximumScale : 20000
     }
+});
+
+var model = scene.primitives.add(Cesium.Model.fromGltf({
+    url : './duck/duck.gltf'
+}));
+
+// 内部通过该方法来解析JSON对象，获取表述信息和具体的数据内容
+function parseBinaryGltfHeader(uint8Array) {
+    var json = getStringFromTypedArray(uint8Array, sceneOffset, sceneLength);
+    return {
+        glTF: JSON.parse(json),
+        binaryOffset: binOffset
+    };
+}
+```
 
 如上是加载glTF的过程，也是提供两种方式，一种是以Entity的方式，一种是以Primitive的方式，消费数码相机（前者）和单反相机（后者）的差别。同时，Cesium对Model的渲染也是基于状态的更新的，这个和地球，Entity的渲染思路是一致的。Model有三个状态，加载(NEEDS_LOAD)，解析(LOADING)，和结束(LOADED)。在不同状态下做该做的事，各司其职，互不干涉。
 
 下面我们详细介绍这个过程中三个重要的部分。 
 
-**▽** BufferView&Accessor
+### BufferView&Accessor
 
 ![1](6d12ef9366756c57a4c00e4a117f41b9.jpeg)
 
 如图，红框部分，从下往上看。Buffer缓存是一个二进制的数据块，是几何对象，动画和蒙皮等数据信息的组合，在json中申明了这个数据块的类型arraybuffer和长度。BufferView，缓存视图，是Buffer的子集，如果Buffer是一本书的内容，那么BufferView就是一个目录，将这本书划分成章节，并表示该章节的起始页和长度。缓存和缓存视图并不包含类型信息。他们只是简单定义从文件中取出的原始数据，并不知道这些数据到底有什么涵义和结构。glTF文件中的对象（网格，蒙皮，动画）都不会直接访问缓存或缓存视图，而是通过Accessor访问器，这样我们拿到这块数据后，知道这块数据是vec4，float还是其他类型。 
 
-**▽** Mesh
+### Mesh
 
 ![2](b20913131fbabdd4a5287de9eb645d48.jpeg)
 
@@ -77,7 +78,7 @@ _**2 **_glTF渲染
 
 该Mesh可以有多个Primitive组成，每个图元有attribute顶点数据，indices顶点索引，mode类型为triangles，还有material材质，这些内容我们已经在之前的章节介绍过，不知道你还给我多少。我们再看material对象，里面用到了technique，其他的都是具体的光照模型的参数值，稍微特殊的是diffuse，是一张纹理。technique里面封装了着色器需要的参数，包括attribute和uniform，以及GL状态states，对应的着色器代码program，还有shaders，texture纹理的封装等，这些对象的值是一个accessor，进而获取对应的值。。这些对象我们之前都详细介绍过，我们顺藤摸瓜，算是对之前内容的温习，并串联成一个完整体系。可以说，里面的技术点都和以前的内容一样，glTF定义了他们之间交互的规范，将他们封装为一个整体。
 
-**▽** Scene&Animation
+### Scene&Animation
 
 ![3](bd51c96f1bb3c1926187380409f87b7a.jpeg)
 
@@ -85,11 +86,11 @@ _**2 **_glTF渲染
 
 当然，Cesium内部提供了动画的解析（_runtime），在createRuntimeAnimations方法中实现，详细的自己来看。其中包括TIME计时器，samplers插值方式，所对应的动画节点和具体的属性（比如rotation）。这样每一帧会更新对应的值。
 
-_**3 **_总结
+## 3 总结
 
 如上是glTF的一个介绍，下面来谈几点个人的想法。
 
-**▽** 必要性
+### 必要性
 
 设计一个二进制文件的风险很大的，多数情况下会是一个失败的产品。所以，当你觉得你需要一个新的数据格式时，你最好的选择就是回家睡觉，早上起来想想是否还有这种冲动。如果时间久了，冲动还在，再理性的衡量也不迟。《Unix编程艺术》里面概括了两个衡量点：时效性和数据量。当已有的数据格式无法满足你对这两点的需要时，或许你真的有充分的理由来设计一个新的数据格式了。
 
@@ -97,7 +98,7 @@ _**3 **_总结
 
 所以，这个人经验一定要丰富，谨慎，能够做决定的人越少越好，不仅着眼于当前要解决的问题，还要综合考虑通用性。但这又是一个困惑，也要控制它的应用范围，随着硬件性能的提高，避免过渡设计和优化。比如glTF提供了扩展，提供了场景树，相机的信息，这都是出于通用性的考虑，但这个是否实用，就不好判断了。 
 
-**▽** Accessor&Json表述
+### Accessor&Json表述
 
 这是glTF数据读取的机制，设计的很优雅，很值得我们学习。
 
@@ -105,7 +106,7 @@ _**3 **_总结
 
 当然，如果实现这种读取方式，我们就需要一个“目录”页，glTF提供了json形式的header，这个header是json形式，也可以是xml格式，好处是灵活，兼容性强。相比xml，json是浏览器内部封装成对象，效率高，缺点查询不方便。
 
-**▽** 产品化
+### 产品化
 
 万事开头难，何况是创造一个新的东西，而且，当这个新的东西落地后，一切才刚刚开始。你需要完善的文档和配套工具，需要和相关的厂商（数据&硬件）合作，是否开源，许可协议等，一堆事情要做，而且要做好。如果只是草草了事，只是看起来漂亮，还是无法得到别人的认可，纯属自娱自乐的行为，那就大为失色了。 
 

@@ -15,22 +15,37 @@
 
 下面仍然分两种方式，分别给出，以便区别。
 ### 第一种旋转矩阵(仅坐标系旋转)
-若以$\begin{bmatrix} x,y,z\end{bmatrix}^{T}$表示点P在原坐标系$o-xyz$中的坐标分量，$\begin{bmatrix} x',y',z'\end{bmatrix}^{T}$表示点P在旋转后的坐标系$o-XYZ$中的坐标分量，则有：
-$$\begin{bmatrix} {x}'\\{y}' \\{z}' \end{bmatrix}=
-M\cdot\begin{bmatrix} x \\y \\z \end{bmatrix}=
-M_z(\gamma)\cdot M_x(\beta)\cdot M_z(\alpha)\cdot\begin{bmatrix} x \\y \\z \end{bmatrix} (1)$$ 
+若以$\begin{pmatrix} x,y,z\end{pmatrix}^{T}$表示点P在原坐标系$o-xyz$中的坐标分量，$\begin{pmatrix} x',y',z'\end{pmatrix}^{T}$表示点P在旋转后的坐标系$o-XYZ$中的坐标分量，则有：
+
+$$
+\begin{aligned}
+\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}
+&=
+M\cdot\begin{pmatrix} x \\ y \\ z \end{pmatrix} \\
+&=
+M_z(\gamma)\cdot M_x(\beta)\cdot M_z(\alpha)\cdot\begin{pmatrix} x \\ y \\ z \end{pmatrix}
+\end{aligned}
+\tag{1}
+$$
+
 旋转矩阵$M$是将点P在原坐标系中的坐标分量转换到新坐标系中的坐标分量。
 ### 第二种旋转矩阵(点或矢量随坐标系一起旋转)
-以$\begin{bmatrix} x,y,z\end{bmatrix}^{T}$表示点P在旋转后坐标系$o-XYZ$中的坐标分量（始终不变），$\begin{bmatrix} x',y',z'\end{bmatrix}^{T}$表示点P旋转后在原坐标系$o-xyz$中的坐标分量，则有：
-$$\begin{bmatrix} {x}'\\{y}' \\{z}' \end{bmatrix}=
-M\cdot\begin{bmatrix} x \\y \\z \end{bmatrix}=
-M_z(\alpha)\cdot M_x(\beta)\cdot  M_z(\gamma)\cdot\begin{bmatrix} x \\y \\z \end{bmatrix} (2)$$ 
-点P始终随坐标系$o-XYZ$一起旋转，因此坐标分量始终为$\begin{bmatrix} x,y,z\end{bmatrix}^{T}$
+以$\begin{pmatrix} x,y,z\end{pmatrix}^{T}$表示点P在旋转后坐标系$o-XYZ$中的坐标分量（始终不变），$\begin{pmatrix} x',y',z'\end{pmatrix}^{T}$表示点P旋转后在原坐标系$o-xyz$中的坐标分量，则有：
+
+$$
+\begin{aligned}
+\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}
+&=
+M\cdot\begin{pmatrix} x \\ y \\ z \end{pmatrix} \\
+&=
+M_z(\alpha)\cdot M_x(\beta)\cdot M_z(\gamma)\cdot\begin{pmatrix} x \\ y \\ z \end{pmatrix}
+\end{aligned}
+\tag{2}
+$$
+
+点P始终随坐标系$o-XYZ$一起旋转，因此坐标分量始终为$\begin{pmatrix} x,y,z\end{pmatrix}^{T}$
 旋转矩阵$M$是将点P在旋转后坐标系$o-XYZ$（也可看成体坐标系）中的坐标分量转换到旋转前的原坐标系中的坐标分量。
 
 **注意！上述两式中，基础旋转矩阵刚好互逆，即式（1）和式（2）中的$M_z(\alpha)$(其它类似)是不同的，刚好互为转置，详细形式参见[Cesium中的相机—旋转矩阵](https://blog.csdn.net/u011575168/article/details/82914686)。**
 
 **Cesium中，采用第二种旋转矩阵的形式！**
-
-
-

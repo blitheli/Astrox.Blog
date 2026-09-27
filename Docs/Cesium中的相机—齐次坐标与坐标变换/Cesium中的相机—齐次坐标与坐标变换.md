@@ -3,13 +3,26 @@
 在前面几个章节中，我们仅仅讨论了两个坐标系之间的坐标转换矩阵，涉及到四元素、方向余弦阵、欧拉旋转等各种表现形式，但并没有涉及到两个坐标系的平移。
 
 首先看两个坐标系之间的坐标转换矩阵：
-$$\begin{bmatrix} x_i\\y_i \\z_i \end{bmatrix}=
-M\cdot\begin{bmatrix} x_b \\y_b \\z_b \end{bmatrix} \qquad(1)$$ 
+
+$$
+\begin{pmatrix} x_i \\ y_i \\ z_i \end{pmatrix}
+=
+M\cdot\begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}
+\tag{1}
+$$
+
 $M$为3×3的矩阵。
 
 如果两个坐标系之间仅仅是平移关系（原点不重合），则两坐标系的坐标关系:
-$$\begin{bmatrix} x_i\\y_i \\z_i \end{bmatrix}=
-\begin{bmatrix} x_b \\y_b \\z_b \end{bmatrix}+\begin{bmatrix} T_x \\T_y \\T_z \end{bmatrix} \qquad(2)$$ 
+
+$$
+\begin{pmatrix} x_i \\ y_i \\ z_i \end{pmatrix}
+=
+\begin{pmatrix} x_b \\ y_b \\ z_b \end{pmatrix}
++
+\begin{pmatrix} T_x \\ T_y \\ T_z \end{pmatrix}
+\tag{2}
+$$
 
 可以看出，式（1）和式（2）的形式不同。一个是矩阵与向量相乘，一个是两个向量相加。
 
@@ -26,111 +39,204 @@ $$\begin{bmatrix} x_i\\y_i \\z_i \end{bmatrix}=
 使用齐次坐标可以将坐标的缩放、旋转、平移全部使用矩阵乘法表示:
 ### 缩放
 P的位置在三个轴上分别缩放$[S_1,S_2,S_3]$:
-$$\begin{bmatrix}
-S_1 &0 &0 &0\\
-0 &S_2 &0 &0\\
-0 &0 &S_3 &0\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix} x \\y \\z \\1\end{bmatrix} 
-=\begin{bmatrix} S_1 \cdot x \\S_2\cdot y \\S_3\cdot z \\1\end{bmatrix}\qquad(3)$$ 
+
+$$
+\begin{pmatrix}
+S_1 & 0 & 0 & 0 \\
+0 & S_2 & 0 & 0 \\
+0 & 0 & S_3 & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}
+=
+\begin{pmatrix} S_1 \cdot x \\ S_2\cdot y \\ S_3\cdot z \\ 1 \end{pmatrix}
+\tag{3}
+$$
+
 ### 平移
 P的位置平移$[T_x,T_y,T_z]$:
-$$\begin{bmatrix}
-1 &0 &0 &T_x\\
-0 &1 &0 &T_y\\
-0 &0 &1 &T_z\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix} x \\y \\z \\1\end{bmatrix} 
-=\begin{bmatrix} x+T_x \\y+T_y \\z+T_z \\1\end{bmatrix}\qquad(4)$$ 
+
+$$
+\begin{pmatrix}
+1 & 0 & 0 & T_x \\
+0 & 1 & 0 & T_y \\
+0 & 0 & 1 & T_z \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}
+=
+\begin{pmatrix} x+T_x \\ y+T_y \\ z+T_z \\ 1 \end{pmatrix}
+\tag{4}
+$$
+
 ### 旋转
 P绕X轴旋转后的坐标：
-$$\begin{bmatrix}
-1 &0 &0 &0\\
-0 &\cos\theta &-\sin\theta &0\\
-0 &\sin\theta &\cos\theta &0\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix} x \\y \\z \\1\end{bmatrix} 
-=\begin{bmatrix}
-x\\
+
+$$
+\begin{pmatrix}
+1 & 0 & 0 & 0 \\
+0 & \cos\theta & -\sin\theta & 0 \\
+0 & \sin\theta & \cos\theta & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}
+=
+\begin{pmatrix}
+x \\
 \cos\theta \cdot y-\sin\theta \cdot z \\
 \sin\theta \cdot y+\cos\theta \cdot z \\
-1\end{bmatrix}\qquad(5)$$ 
+1
+\end{pmatrix}
+\tag{5}
+$$
+
 P绕Y轴旋转后的坐标：
-$$\begin{bmatrix}
-\cos\theta &0 &\sin\theta &0\\
-0 &1 &0 &0 \\
--\sin\theta &0 &\cos\theta &0\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix} x \\y \\z \\1\end{bmatrix} 
-=\begin{bmatrix}
+
+$$
+\begin{pmatrix}
+\cos\theta & 0 & \sin\theta & 0 \\
+0 & 1 & 0 & 0 \\
+-\sin\theta & 0 & \cos\theta & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}
+=
+\begin{pmatrix}
 \cos\theta \cdot x+\sin\theta \cdot z \\
-y\\
+y \\
 -\sin\theta \cdot x+\cos\theta \cdot z \\
-1\end{bmatrix}\qquad(6)$$ 
+1
+\end{pmatrix}
+\tag{6}
+$$
+
 P绕Z轴旋转后的坐标：
-$$\begin{bmatrix}
-\cos\theta &-\sin\theta &0 &0\\
-\sin\theta &\cos\theta &0 &0\\
-0 &0 &1 &0\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix} x \\y \\z \\1\end{bmatrix} 
-=\begin{bmatrix}
+
+$$
+\begin{pmatrix}
+\cos\theta & -\sin\theta & 0 & 0 \\
+\sin\theta & \cos\theta & 0 & 0 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}
+=
+\begin{pmatrix}
 \cos\theta \cdot x-\sin\theta \cdot y \\
 \sin\theta \cdot x+\cos\theta \cdot y \\
-z\\
-1\end{bmatrix}\qquad(7)$$ 
+z \\
+1
+\end{pmatrix}
+\tag{7}
+$$
+
 ## 平移+旋转的齐次坐标转换矩阵
 使用最多的是平移和旋转，见下图。
 - 坐标系$o'-x'y'z'$初始时与坐标系$o-xyz$重合；
 - 接着，坐标系$o'-x'y'z'$由原点$o$平移到$o'$处（即坐标系$o'-xyz$）；
 - 再历经旋转到达现在的$o'-x'y'z'$
 ![平移和旋转](78c79307dbcd833dd39fce09ed06da1c.png)
-另$oo'$为矢量$\vec{\rho}$，对任意一点P，令$oP$为矢量$\vec{r}$，令$o'P$为矢量$\vec{r'}$，则有矢量关系式：
-$$\vec{r}=\vec{\rho}+\vec{r'}\qquad(8)$$
+另$oo'$为矢量$\vec{\rho}$，对任意一点P，令$oP$为矢量$\vec{r}$，令$o'P$为矢量$\vec{r}'$，则有矢量关系式：
+
+$$
+\vec{r}=\vec{\rho}+\vec{r}'
+\tag{8}
+$$
+
 **注意，上式为矢量关系式，如果表达为坐标关系式，则三个矢量必须表达为同一坐标系系下。**
 令$oo'$在$o-xyz$下的坐标为：
-$$\vec{\rho}=\begin{bmatrix} T_x \\T_y \\T_z \end{bmatrix} $$
+
+$$
+\vec{\rho}=\begin{pmatrix} T_x \\ T_y \\ T_z \end{pmatrix}
+$$
+
 令点P在$o-xyz$下的坐标为：
-$$\vec{r}=\begin{bmatrix} x \\y \\z \end{bmatrix} $$
+
+$$
+\vec{r}=\begin{pmatrix} x \\ y \\ z \end{pmatrix}
+$$
+
 令点P在$o'-x'y'z'$下的坐标为：
-$$\vec{r'}=\begin{bmatrix} x' \\y' \\z' \end{bmatrix} $$
+
+$$
+\vec{r}'=\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}
+$$
+
 若定义旋转矩阵$R$为$o'-x'y'z'$到$o-xyz$的坐标转换矩阵，则有：
-$$\begin{bmatrix} x \\y \\z \end{bmatrix}=
-\begin{bmatrix} T_x \\T_y \\T_z \end{bmatrix} +R\cdot \begin{bmatrix} x' \\y' \\z' \end{bmatrix}
-\qquad(9)$$
+
+$$
+\begin{pmatrix} x \\ y \\ z \end{pmatrix}
+=
+\begin{pmatrix} T_x \\ T_y \\ T_z \end{pmatrix}
++R\cdot \begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}
+\tag{9}
+$$
+
 上式写成齐次坐标为(参见式4，将坐标平移写成矩阵与齐次坐标的相乘)：
-$$\begin{bmatrix} x \\y \\z \\1\end{bmatrix}=T \cdot R\cdot \begin{bmatrix} x' \\y' \\z' \\1\end{bmatrix}
-\\=\begin{bmatrix}
-1 &0 &0 &T_x\\
-0 &1 &0 &T_y\\
-0 &0 &1 &T_z\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix}
-U_x &V_x &N_x &0\\
-U_y &V_y &N_y &0\\
-U_z &V_z &N_z &0\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix} x' \\y' \\z' \\1 \end{bmatrix}
-\\=\begin{bmatrix}
-U_x &V_x &N_x &T_x\\
-U_y &V_y &N_y &T_y\\
-U_z &V_z &N_z &T_z\\
-0 &0 &0 &1\end{bmatrix}\cdot
-\begin{bmatrix} x' \\y' \\z' \\1 \end{bmatrix}
-\qquad(10)$$
+
+$$
+\begin{aligned}
+\begin{pmatrix} x \\ y \\ z \\ 1 \end{pmatrix}
+&=
+T \cdot R\cdot \begin{pmatrix} x' \\ y' \\ z' \\ 1 \end{pmatrix} \\
+&=
+\begin{pmatrix}
+1 & 0 & 0 & T_x \\
+0 & 1 & 0 & T_y \\
+0 & 0 & 1 & T_z \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix}
+U_x & V_x & N_x & 0 \\
+U_y & V_y & N_y & 0 \\
+U_z & V_z & N_z & 0 \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix} x' \\ y' \\ z' \\ 1 \end{pmatrix} \\
+&=
+\begin{pmatrix}
+U_x & V_x & N_x & T_x \\
+U_y & V_y & N_y & T_y \\
+U_z & V_z & N_z & T_z \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\cdot
+\begin{pmatrix} x' \\ y' \\ z' \\ 1 \end{pmatrix}
+\end{aligned}
+\tag{10}
+$$
+
 上式中，旋转矩阵$R$中，$U_x,U_y,U_z$为坐标系$o'-x'y'z'$的$x'$轴在坐标系$o-xyz$中的方向余弦（或者说坐标分量），$V_x,V_y,V_z$为坐标系$o'-x'y'z'$的$y'$轴在坐标系$o-xyz$中的方向余弦，$N_x,N_y,N_z$为坐标系$o'-x'y'z'$的$z'$轴在坐标系$o-xyz$中的方向余弦（或者说坐标分量），详细参考：[Cesium中的相机—方向余弦阵](https://mp.csdn.net/mdeditor/83833493#)。
 
 因此，$o'-x'y'z'$到$o-xyz$的**齐次坐标转换矩阵为：**：
-$$C=\begin{bmatrix}
-U_x &V_x &N_x &T_x\\
-U_y &V_y &N_y &T_y\\
-U_z &V_z &N_z &T_z\\
-0 &0 &0 &1\end{bmatrix}\qquad(11)$$
+
+$$
+C=\begin{pmatrix}
+U_x & V_x & N_x & T_x \\
+U_y & V_y & N_y & T_y \\
+U_z & V_z & N_z & T_z \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\tag{11}
+$$
+
 反之，坐标系$o-xyz$到$o'-x'y'z'$坐标系的**齐次坐标转换矩阵为：**：
-$$C^{-1}=\begin{bmatrix}
-U_x &U_y &U_z &-U\cdot T \\
-V_x &V_y &V_z &-V\cdot T \\
-N_x &N_y &N_z &-N\cdot T \\
-0 &0 &0 &1\end{bmatrix}\qquad(12)$$
+
+$$
+C^{-1}=\begin{pmatrix}
+U_x & U_y & U_z & -\mathbf{U}\cdot\mathbf{T} \\
+V_x & V_y & V_z & -\mathbf{V}\cdot\mathbf{T} \\
+N_x & N_y & N_z & -\mathbf{N}\cdot\mathbf{T} \\
+0 & 0 & 0 & 1
+\end{pmatrix}
+\tag{12}
+$$
 
 上面两式就是我们常用的齐次坐标转换矩阵。

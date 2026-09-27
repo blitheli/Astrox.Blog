@@ -2,6 +2,9 @@
 # 机制对齐 RocketSim3D / ASTROX.Docs（ubuntu-latest + appleboy/ssh-action@v1.2.0 +
 # appleboy/scp-action@v0.1.7；Repository secrets：ALIYUN_HOST /
 # ALIYUN_USERNAME / ALIYUN_PASSWORD；port 22）。
+#
+# 站点程序目录仍会清空后重传；wwwroot/resources 在清空前备份，上传后合并回来，
+# 以保留服务器上已有、本次发布未覆盖的资源文件。
 
 name: 部署到阿里云 IIS
 
@@ -59,7 +62,7 @@ jobs:
           rm -rf _deploy
           dotnet publish Astrox.Blog/Astrox.Blog.csproj -c Release -o _deploy /p:UseAppHost=false
 
-      - name: 校验 IIS 托管文件
+      - name: 校验 IIS 托管文件与 resources
         run: |
           if [ ! -f _deploy/Astrox.Blog.dll ]; then
             echo "::error::未找到 _deploy/Astrox.Blog.dll，发布可能失败"
@@ -69,9 +72,13 @@ jobs:
             echo "::error::未找到 _deploy/web.config（ASP.NET Core Module 托管配置）。请确认项目为 Microsoft.NET.Sdk.Web。"
             exit 1
           fi
-          echo "web.config 已包含在发布输出中（AspNetCoreModuleV2）"
+          if [ ! -d _deploy/wwwroot/resources ]; then
+            echo "::error::未找到 _deploy/wwwroot/resources，静态下载资源目录未随发布输出"
+            exit 1
+          fi
+          echo "web.config 与 wwwroot/resources 已包含在发布输出中"
 
-      - name: 清空远端站点目录
+      - name: 清空远端站点目录（备份 wwwroot/resources）
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.ALIYUN_HOST }}
@@ -80,7 +87,7 @@ jobs:
           port: 22
           script_stop: true
           script: |
-            powershell -NoProfile -Command "$p='D:/IIS/Astrox.Blog'; if (Test-Path $p) { Get-ChildItem -Force $p | Remove-Item -Recurse -Force }; New-Item -ItemType Directory -Path $p -Force | Out-Null"
+            powershell -NoProfile -Command "$ErrorActionPreference='Stop'; $site='D:/IIS/Astrox.Blog'; $res=Join-Path $site 'wwwroot/resources'; $bak='D:/IIS/astrox-blog-resources-deploy-bak'; if (Test-Path $bak) { Remove-Item -Recurse -Force $bak }; if (Test-Path $res) { New-Item -ItemType Directory -Path $bak -Force | Out-Null; Copy-Item -Path (Join-Path $res '*') -Destination $bak -Recurse -Force -ErrorAction SilentlyContinue }; if (Test-Path $site) { Get-ChildItem -Force $site | Remove-Item -Recurse -Force }; New-Item -ItemType Directory -Path $site -Force | Out-Null"
 
       - name: 上传站点文件到 IIS
         uses: appleboy/scp-action@v0.1.7
@@ -93,3 +100,14 @@ jobs:
           target: "D:/IIS/Astrox.Blog"
           strip_components: 1
           tar_dereference: true
+
+      - name: 合并恢复服务器独有资源文件
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+          port: 22
+          script_stop: true
+          script: |
+            powershell -NoProfile -Command "$ErrorActionPreference='Stop'; $site='D:/IIS/Astrox.Blog'; $res=Join-Path $site 'wwwroot/resources'; $bak='D:/IIS/astrox-blog-resources-deploy-bak'; New-Item -ItemType Directory -Path $res -Force | Out-Null; if (Test-Path $bak) { Get-ChildItem -Path $bak -Recurse -File | ForEach-Object { $rel=$_.FullName.Substring((Resolve-Path $bak).Path.Length).TrimStart('\','/'); $dest=Join-Path $res $rel; if (-not (Test-Path $dest)) { $dir=Split-Path $dest -Parent; New-Item -ItemType Directory -Path $dir -Force | Out-Null; Copy-Item $_.FullName $dest -Force } }; Remove-Item -Recurse -Force $bak }; Write-Host ('resources ready: ' + (Get-ChildItem -Path $res -Recurse -File | Measure-Object).Count + ' file(s)')"

@@ -82,6 +82,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// /resources/*：文章可下载附件（wwwroot/resources），未知类型亦可下载
+app.UseStaticFiles(ResourceStaticFiles.CreateOptions(app.Environment.WebRootPath));
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {

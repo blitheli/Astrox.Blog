@@ -53,13 +53,16 @@ dotnet run --urls http://127.0.0.1:43147
 
 | 数据     | 生产路径（默认）                   | 配置项                                   | 部署时          |
 | ------ | -------------------------- | ------------------------------------- | ------------ |
-| 站点程序   | `D:/IIS/Astrox.Blog`       | IIS 物理路径                              | **整目录清空后重传** |
+| 站点程序   | `D:/IIS/Astrox.Blog`       | IIS 物理路径                              | **整目录清空后重传**（`wwwroot/resources` 会备份合并） |
 | SQLite | `D:/IIS/astrox-blog.db`    | `ConnectionStrings:DefaultConnection` | 不动           |
 | 文章媒体   | `D:/IIS/astrox-blog-media` | `Blog:MediaRoot`                      | 不动           |
+| 可下载资源  | `D:/IIS/Astrox.Blog/wwwroot/resources` | 随发布；亦可手工追加 | **合并保留**独有文件 |
 | 日志     | `D:/IIS/astrox-blog-logs`  | `Logging:Log4Net:Directory`           | 不动           |
 
 
 对外图片 URL：`/media/{Docs子文件夹名}/axis.png`，对应磁盘 `D:/IIS/astrox-blog-media/{Docs子文件夹名}/axis.png`。
+
+文章可下载附件 URL：`/resources/<文件名>`，对应仓库 `Astrox.Blog/wwwroot/resources/`（见「静态资源下载」）。
 
 开发环境可以把库和媒体放在项目旁（`Astrox.Blog/astrox-blog.db`、`astrox-blog-media/`，已 gitignore），只用于本机。**不要把生产库或媒体拷进仓库或 publish 输出。**
 
@@ -102,6 +105,42 @@ Docs/ITRS-GCRS-J2000/
 生产环境修改 `Blog__AdminPassword` 后，重启应用或回收 IIS 应用程序池会将该邮箱账号密码重置为新值（不合规密码会在启动日志中打出 Identity 错误）。
 
 无公开注册入口。
+
+## 静态资源下载
+
+需要在文章中提供 zip、pdf、数据文件、示例代码等下载时，把文件放进：
+
+```text
+Astrox.Blog/wwwroot/resources/
+  sample-download.txt   # 仓库自带示例
+  my-dataset.zip
+  examples/orbit.py
+```
+
+对外固定 URL（经 nginx 反代后）：
+
+```text
+https://blog.astrox.cn/resources/sample-download.txt
+https://blog.astrox.cn/resources/my-dataset.zip
+```
+
+Markdown 写法：
+
+```markdown
+[下载示例](/resources/sample-download.txt)
+
+也可写完整 URL：
+[下载数据包](https://blog.astrox.cn/resources/my-dataset.zip)
+```
+
+约定：
+
+- **小文件**（建议单个 ≤ 20MB）可提交进 git，随 `dotnet publish` / Actions 部署。
+- **大文件**不要进 git：手工拷到生产 `D:/IIS/Astrox.Blog/wwwroot/resources/`。部署清空站点前会备份该目录，上传后合并——发布包覆盖同名文件，服务器独有文件保留。
+- 常见扩展名有合适 Content-Type；未知类型以 `application/octet-stream` 下载（`Content-Disposition: attachment`）。`web.config` 允许相关扩展名，避免 IIS 拦截。
+- 文章配图仍用 Docs zip → `/media/...`，与本目录无关。
+
+目录内另有 `README.md` 简要说明。
 
 ## 配置
 
@@ -308,7 +347,8 @@ curl -sS -X POST "http://127.0.0.1:43147/api/posts/from-zip" \
 
 - **触发**：推送到 `main`（路径含 `Astrox.Blog/`**、`Dockerfile` 或该 workflow），或手动 `workflow_dispatch`
 - **构建**：`ubuntu-latest` + .NET 10，`dotnet publish … -o _deploy`（自动生成 `web.config` / AspNetCoreModuleV2）
-- **同步**：`appleboy/ssh-action@v1.2.0` 清空并准备目录，再 `appleboy/scp-action@v0.1.7` 上传到 `D:/IIS/Astrox.Blog`（port 22）
+- **同步**：`appleboy/ssh-action@v1.2.0` 清空并准备目录（先备份 `wwwroot/resources`），再 `appleboy/scp-action@v0.1.7` 上传到 `D:/IIS/Astrox.Blog`（port 22），最后合并恢复服务器上独有的资源文件
+- **校验**：发布输出须含 `web.config` 与 `wwwroot/resources`
 
 在 GitHub 仓库 **Settings → Secrets and variables → Actions → Repository secrets** 配置（名称与 Docs/RocketSim3D 相同，**不要**用 Environment secrets）：
 
@@ -324,7 +364,7 @@ curl -sS -X POST "http://127.0.0.1:43147/api/posts/from-zip" \
 
 **IIS 前置**：服务器需安装 [.NET 10 ASP.NET Core Hosting Bundle](https://dotnet.microsoft.com/download/dotnet/10.0)，站点物理路径指向 `D:\IIS\Astrox.Blog`，应用程序池为「无托管代码」。
 
-**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传。库与媒体必须在站点外（`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media`），详见「数据目录」。仍可用 IIS 环境变量覆盖连接串、`Blog__MediaRoot`，并注入 `Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
+**注意**：每次部署会**清空** `D:/IIS/Astrox.Blog` 后再上传，但 **`wwwroot/resources` 会备份并合并**（仓库发布覆盖同名；服务器独有文件保留）。库与媒体必须在站点外（`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media`），详见「数据目录」。仍可用 IIS 环境变量覆盖连接串、`Blog__MediaRoot`，并注入 `Blog__AdminEmail`、`Blog__AdminPassword`、`Blog__ApiKey`、`Blog__PublicBaseUrl` 等。
 
 ### 其他托管
 
@@ -342,16 +382,18 @@ Astrox.Blog/
   Data/               # DbContext、种子数据
   Models/             # Post、配置、API DTO
   Pages/              # 公开页、登录、管理后台
-  Services/           # Markdown、Slug、API Key、站点 URL、zip 导入
+  Services/           # Markdown、Slug、API Key、站点 URL、zip 导入、resources
   wwwroot/css/        # 科幻科技风样式
+  wwwroot/resources/  # 文章可下载静态附件 → /resources/...
   PostsApi.cs         # /api/posts、/api/posts/from-zip
   SeoEndpoints.cs     # /robots.txt、/sitemap.xml
   Program.cs
-Astrox.Blog.Tests/    # zip 导入与图片路径改写测试
+  web.config          # IIS AspNetCoreModuleV2 + 下载扩展名放行
+Astrox.Blog.Tests/    # zip 导入、图片路径改写、resources 测试
 scripts/              # upload-docs-folder.ps1
 ```
 
-生产运行时数据（**不在仓库、不在站点目录内**）：`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media/`。
+生产运行时数据（**不在仓库、不在站点目录内**）：`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media/`。可下载附件在站点内 `wwwroot/resources/`（部署合并保留）。
 
 ## 许可证
 

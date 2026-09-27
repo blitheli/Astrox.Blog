@@ -7,6 +7,7 @@
 - **Astrox.Blog**：ASP.NET Core 10（`net10.0`）Razor Pages + SQLite（EF Core）+ Identity（单所有者）+ Markdig + Minimal API（`/api/posts`）。
 - 公开读者只读已发布文章；写操作需 Cookie 登录（`/Admin`）或 Bearer API Key。
 - **zip 导入**：`POST /api/posts/from-zip`（multipart 字段 `file`）解压后 `.md` 入库，图片写入站点外 `Blog:MediaRoot`（生产默认 `D:/IIS/astrox-blog-media`），经 `/media/{包名}/` 提供；相对图片路径会改写。部署清空站点目录不影响该媒体目录。
+- **静态资源下载**：可下载附件放在 `Astrox.Blog/wwwroot/resources/`，对外 URL `/resources/<文件名>`（生产如 `https://blog.astrox.cn/resources/...`）。见下方「静态资源下载」。
 - 用户说「将 Docs 下某子文件夹上传到阿里云」时，按下方「Docs 子文件夹上传到阿里云」立即执行，不要只给步骤说明。
 - 中文 UI 文案为主；视觉为深色青霓虹科技风（`wwwroot/css/site.css`）。
 - SEO：`/robots.txt`、`/sitemap.xml`、canonical / OG / Twitter / JSON-LD（`Blog:PublicBaseUrl`）。
@@ -29,7 +30,7 @@ dotnet run --urls http://127.0.0.1:43147
 
 ## 约定
 
-- 不要提交真实密钥或生产 `*.db`。生产 SQLite / 媒体 / 日志必须在站点外（`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media`、`D:/IIS/astrox-blog-logs`），禁止写进 `D:/IIS/Astrox.Blog`。
+- 不要提交真实密钥或生产 `*.db`。生产 SQLite / 媒体 / 日志必须在站点外（`D:/IIS/astrox-blog.db`、`D:/IIS/astrox-blog-media`、`D:/IIS/astrox-blog-logs`），禁止写进 `D:/IIS/Astrox.Blog`。小体积可下载附件可放在 `wwwroot/resources/`（随站点发布）；大文件勿进 git。
 - 新文章先写在 `Docs/<子文件夹>/`（md + 同目录图片），用户说上传时按「Docs 子文件夹上传到阿里云」立刻执行。
 - 文章模型：`Post`（`Title` / `Slug` / `Summary` / `Markdown` / `Tags` 逗号串 / `IsPublished` / 时间戳）。
 - 评论模型：`Comment`（`PostId` / `AuthorName` / `AuthorEmail?` / `Body` / `CreatedAt` / `IpHash` / `UserAgent?` / `IsDeleted`）。
@@ -40,6 +41,29 @@ dotnet run --urls http://127.0.0.1:43147
 - 优先小改动、可运行；勿引入多作者 CMS、第三方评论 SaaS 或 OAuth，除非用户明确要求。
 
 
+
+## 静态资源下载
+
+文章里需要提供 zip / pdf / 数据文件 / 示例代码等下载时，把文件放进仓库：
+
+```text
+Astrox.Blog/wwwroot/resources/
+  sample-download.txt
+  my-data.zip
+  examples/demo.py
+```
+
+- **URL**：`/resources/<文件名>` 或 `/resources/<子目录>/<文件名>`。生产：`https://blog.astrox.cn/resources/...`。
+- **Markdown**：
+
+```markdown
+[下载示例数据](/resources/sample-download.txt)
+[示例脚本](/resources/examples/demo.py)
+```
+
+- **大小**：建议单个文件 ≤ 20MB 再进 git；更大的文件不要提交——可手工放到生产机 `D:/IIS/Astrox.Blog/wwwroot/resources/`。部署会清空站点其它内容，但会**备份并合并**该目录，仓库未覆盖的服务器文件会保留。
+- **实现**：`ResourceStaticFiles` 为 `/resources` 配置 Content-Type（含 `.zip` `.7z` `.rar` `.pdf` `.json` `.czml` `.csv` `.txt` `.py` `.cs` `.hgt` `.tif` 等），`ServeUnknownFileTypes=true`，并设置 `Content-Disposition: attachment`。`web.config` 显式允许这些扩展名，避免 IIS `requestFiltering` 拦截。
+- **配图**仍走 Docs zip → `/media/...`，与本目录无关。
 
 ## Markdown 公式
 
@@ -123,7 +147,7 @@ curl.exe -sS -X POST "https://<生产域名>/api/posts/from-zip" `
 
 - Workflow：`.github/workflows/deploy-aliyun-iis.yml` → 目标目录 `D:/IIS/Astrox.Blog`。
 - Repository secrets（与 RocketSim3D / ASTROX.Docs 同名）：`ALIYUN_HOST`、`ALIYUN_USERNAME`、`ALIYUN_PASSWORD`。
-- 服务器需 .NET 10 ASP.NET Core Hosting Bundle；部署会清空站点目录后上传 publish 输出（含 `web.config`）。
+- 服务器需 .NET 10 ASP.NET Core Hosting Bundle；部署会清空站点目录后上传 publish 输出（含 `web.config` 与 `wwwroot/resources`）。清空前备份 `wwwroot/resources`，上传后合并：发布包中的文件覆盖同名项，服务器上独有的资源文件保留。
 - 勿在日志或文档中打印 Secret 值；`appsettings.json` 默认库路径为站点外 `D:/IIS/astrox-blog.db`，文章媒体为 `D:/IIS/astrox-blog-media`；生产 `Blog__*` 等仍可用 IIS 环境变量覆盖，库文件与上传图片勿放在会被清空的站点目录内。
 
 

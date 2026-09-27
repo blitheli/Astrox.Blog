@@ -1,0 +1,8 @@
+Astrox.Blog 静态资源下载示例
+==============================
+
+本文件位于 wwwroot/resources/sample-download.txt。
+对外 URL：/resources/sample-download.txt
+
+在 Markdown 中可写：
+[下载示例](/resources/sample-download.txt)

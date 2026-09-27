@@ -20,6 +20,9 @@ public class MarkdownService
             .UseAutoIdentifiers(AutoIdentifierOptions.GitHub)
             .DisableHtml(); // strip raw HTML for safer rendering
 
+        // 例外：单独一行、src 以 /media/ 开头的 iframe 按白名单放行（见 MediaIframeExtension）。
+        builder.Extensions.AddIfNotAlready<MediaIframeExtension>();
+
         // {r} / {ITRS} 会被 GenericAttributes 收成 HTML 属性，破坏 LaTeX 下标。
         for (var i = builder.Extensions.Count - 1; i >= 0; i--)
         {

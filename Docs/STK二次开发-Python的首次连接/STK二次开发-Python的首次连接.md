@@ -136,6 +136,6 @@ print('请关闭已打开的STK!')
 
 python二次开发STK的具体步骤和C#开发类似，可参考STK Programing Interface Help。
 
-附：[源代码文件](https://download.csdn.net/download/u011575168/10939915)
+附：[源代码文件](/media/STK%E4%BA%8C%E6%AC%A1%E5%BC%80%E5%8F%91-Python%E7%9A%84%E9%A6%96%E6%AC%A1%E8%BF%9E%E6%8E%A5/FirstTimeConnect2STK.zip)
 
 

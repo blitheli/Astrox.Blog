@@ -9,7 +9,7 @@ public class BlogOptions
     public string Tagline { get; set; } = "航天 · 技术 · 星辰";
 
     /// <summary>Fixed category labels, comma-separated. Sidebar and index always show this list.</summary>
-    public string Categories { get; set; } = "STK,Cesium,轨道力学,AI,Web,GIS";
+    public string Categories { get; set; } = "STK,Cesium,轨道力学,AI,Web,GIS,3D,编程";
 
     public IReadOnlyList<string> CategoryList =>
         string.IsNullOrWhiteSpace(Categories)

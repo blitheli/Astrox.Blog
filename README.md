@@ -115,7 +115,7 @@ Docs/ITRS-GCRS-J2000/
 - 子文件夹名即媒体包名（上传后图片在 `/media/ITRS-GCRS-J2000/`）。
 - Markdown 里用相对路径引用同目录图片：`![地轴](axis.png)`。
 - 公式用 `$...$` / `$$...$$`（见 `AGENTS.md`「Markdown 公式」）。
-- 分类标签用固定几种：`STK` / `Cesium` / `轨道力学` / `AI` / `Web` / `GIS`。
+- 分类标签用固定几种：`STK` / `Cesium` / `轨道力学` / `AI` / `Web` / `GIS` / `3D` / `编程`。
 
 写完后对助手说一句即可自动上传到阿里云，例如：
 

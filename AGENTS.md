@@ -109,7 +109,7 @@ dotnet run --urls http://127.0.0.1:43147
 powershell -NoProfile -File scripts/upload-docs-folder.ps1 -FolderName "<子文件夹名>"
 ```
 
-若用户指定了标签等，追加 `-Tags "轨道力学"`、`-Title`、`-Slug`、`-Summary`。分类固定为 STK / Cesium / 轨道力学 / AI / Web / GIS。脚本会把该文件夹打成 zip（含文件夹名作为根目录），`POST {PublicBaseUrl}/api/posts/from-zip`。
+若用户指定了标签等，追加 `-Tags "轨道力学"`、`-Title`、`-Slug`、`-Summary`。分类固定为 STK / Cesium / 轨道力学 / AI / Web / GIS / 3D / 编程。脚本会把该文件夹打成 zip（含文件夹名作为根目录），`POST {PublicBaseUrl}/api/posts/from-zip`。
 
 1. 根据结果处理：
   - **HTTP 404**：生产还没有 `/api/posts/from-zip`。先把含该接口的提交推到 `main`，等 `.github/workflows/deploy-aliyun-iis.yml` 部署完成后再重试上传。部署会清空 `D:/IIS/Astrox.Blog`，但不会清 `D:/IIS/astrox-blog.db` 与 `D:/IIS/astrox-blog-media`。

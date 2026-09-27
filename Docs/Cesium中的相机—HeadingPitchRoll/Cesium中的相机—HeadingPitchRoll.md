@@ -139,7 +139,7 @@ Cesium中，使用Matrix3对象表示3×3矩阵，其中表示相机HeadingPitch
     };
 ```
 ### 四元素的表示
-参考[Cesium中的相机—四元素](https://blog.csdn.net/u011575168/article/details/83034048)一文中连续旋转的四元素乘法规则，相机从原坐标系$o-xyz$历经321（ZYX）三次旋转的四元素表示为：
+参考[Cesium中的相机—四元素](/Posts/cesium%E4%B8%AD%E7%9A%84%E7%9B%B8%E6%9C%BA%E5%9B%9B%E5%85%83%E7%B4%A0)一文中连续旋转的四元素乘法规则，相机从原坐标系$o-xyz$历经321（ZYX）三次旋转的四元素表示为：
 $$q(\psi,\theta,\phi)=q_z(\psi)\cdot q_y(\theta) \cdot q_x(\phi)=
 \begin{bmatrix}\cos(\psi/2) \\0 \\0 \\ \sin(\psi/2) \end{bmatrix}
 \begin{bmatrix}\cos(\theta/2) \\0 \\ \sin(\theta/2) \\0 \end{bmatrix}
@@ -152,7 +152,7 @@ $$q(\psi,\theta,\phi)=q_z(\psi)\cdot q_y(\theta) \cdot q_x(\phi)=
 \end{bmatrix}  \qquad(2)$$ 
 上式中，$q_z(\psi)$表示绕Z轴旋转$\psi$角度的四元素，其它类似。
 
-参考[Cesium中的相机—四元素](https://blog.csdn.net/u011575168/article/details/83034048)文中式（5），将四元素$q(\psi,\theta,\phi)$可表示为旋转矩阵，则本文中，式（1）和式（2）相等。
+参考[Cesium中的相机—四元素](/Posts/cesium%E4%B8%AD%E7%9A%84%E7%9B%B8%E6%9C%BA%E5%9B%9B%E5%85%83%E7%B4%A0)文中式（5），将四元素$q(\psi,\theta,\phi)$可表示为旋转矩阵，则本文中，式（1）和式（2）相等。
 
 Cesium中，使用对象Quaternion表示四元素，则由表示相机HeadingPitchRoll的表示的四元素源代码如下：
 ```

@@ -70,7 +70,34 @@ export ConnectionStrings__DefaultConnection="Data Source=D:/IIS/astrox-blog.db"
 export Blog__MediaRoot="D:/IIS/astrox-blog-media"
 ```
 
+## 媒体目录与静态资源下载
 
+`astrox-blog-media` 是文章图片与可下载静态资源的目录，位于**站点程序目录外**（与 `D:/IIS/Astrox.Blog` 并列）。解析逻辑见 `Services/MediaRootResolver.cs`：
+
+| 环境 | 默认路径 | 覆盖方式 |
+| ---- | -------- | -------- |
+| 生产 | `D:/IIS/astrox-blog-media`（`appsettings.json`） | `Blog:MediaRoot` / `Blog__MediaRoot` |
+| 本地 | 项目内容根下的 `astrox-blog-media/`（相对路径会拼到 ContentRoot） | 同上；开发默认见 `appsettings.Development.json` |
+
+对外经 `/media/...` 提供，例如 `https://blog.astrox.cn/media/<包名>/<图片>`。`POST /api/posts/from-zip` 导入时，图片写入 `media/<包名>/`，Markdown 中的相对图片路径会被改写成该前缀。
+
+**为何放站点外**：CI 部署会清空 `D:/IIS/Astrox.Blog` 后再上传；数据库、媒体、日志放在站点外，部署后仍保留。
+
+**可下载的静态资源**：不必走 zip 导入。把文件直接放到 media 下的子目录即可，例如：
+
+```
+D:/IIS/astrox-blog-media/downloads/xxx.zip
+```
+
+文章中写：
+
+```markdown
+[下载示例](/media/downloads/xxx.zip)
+```
+
+**扩展名注意**：`Program.cs` 为 media 挂载了第二套 `UseStaticFiles`（`PhysicalFileProvider` + `RequestPath = /media`），**未**设置 `ServeUnknownFileTypes`，也**未**自定义 `FileExtensionContentTypeProvider` 映射。因此只有 ASP.NET Core 默认识别的扩展名（如 `.zip`、`.pdf`、`.json`、`.csv`、`.txt`、常见图片等）能正常下载；`.czml`、`.hgt`、`.7z` 等未知扩展名会返回 **404**。建议打成 `.zip` 再挂链接，或以后再为这些扩展名增加 Content-Type 映射。
+
+`astrox-blog-media/` 已在 `.gitignore` 中；media 下的文件不要提交进 git。
 
 ## 写文章：先写 Docs，再让助手上传
 

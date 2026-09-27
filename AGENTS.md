@@ -6,7 +6,7 @@
 
 - **Astrox.Blog**：ASP.NET Core 10（`net10.0`）Razor Pages + SQLite（EF Core）+ Identity（单所有者）+ Markdig + Minimal API（`/api/posts`）。
 - 公开读者只读已发布文章；写操作需 Cookie 登录（`/Admin`）或 Bearer API Key。
-- **zip 导入**：`POST /api/posts/from-zip`（multipart 字段 `file`）解压后 `.md` 入库，图片写入站点外 `Blog:MediaRoot`（生产默认 `D:/IIS/astrox-blog-media`），经 `/media/{包名}/` 提供；相对图片路径会改写。部署清空站点目录不影响该媒体目录。
+- **zip 导入**：`POST /api/posts/from-zip`（multipart 字段 `file`）解压后 `.md` 入库，图片写入站点外 `Blog:MediaRoot`（生产默认 `D:/IIS/astrox-blog-media`），经 `/media/{包名}/` 提供；相对图片路径会改写。部署清空站点目录不影响该媒体目录。媒体目录含义、手动挂下载文件、未知扩展名限制等见 README「媒体目录与静态资源下载」。
 - 用户说「将 Docs 下某子文件夹上传到阿里云」时，按下方「Docs 子文件夹上传到阿里云」立即执行，不要只给步骤说明。
 - 中文 UI 文案为主；视觉为深色青霓虹科技风（`wwwroot/css/site.css`）。
 - SEO：`/robots.txt`、`/sitemap.xml`、canonical / OG / Twitter / JSON-LD（`Blog:PublicBaseUrl`）。
